@@ -55,4 +55,19 @@ public class Tuple {
 	public int length() {
 		return values.length;
 	}
+	
+	/**
+	 * Returns string representation of the tuple
+	 * @return values in the tuple separated by commas
+	 */
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < values.length - 1; i++) {
+			sb.append(getVal(i));
+			sb.append(",");
+		}
+		sb.append(getVal(values.length - 1));
+		return sb.toString();
+	}
 }

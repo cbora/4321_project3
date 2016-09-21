@@ -9,5 +9,9 @@ public class Pair {
 		this.colName = colName;
 		this.value = value;
 	}
-
+	
+	@Override
+	public String toString() {
+		return "(" + colName +": " + value + ")";
+	}
 }
