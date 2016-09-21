@@ -6,10 +6,12 @@ public class Tuple {
 	 * We may just need value...not sure yet, so included both. Adjust later if needed.  *
 	 * --------------------------------------------------------------------------------- */
 	
-	private Pair[] values; // represents tuple as array of (colName, value) pairs
+	//private Pair[] values; // represents tuple as array of (colName, value) pairs
+	private int[] values;
 	
 	public Tuple(int nCols) {
-		values = new Pair[nCols];
+		//values = new Pair[nCols];
+		values = new int[nCols];
 	}
 	
 	/**
@@ -17,9 +19,9 @@ public class Tuple {
 	 * @param index - where we are retrieving from
 	 * @return pair at index
 	 */
-	public Pair getPair(int index) {
-		return values[index];
-	}
+//	public Pair getPair(int index) {
+//		return values[index];
+//	}
 	
 	/**
 	 * Retrieves value of pair at index in tuple
@@ -27,7 +29,8 @@ public class Tuple {
 	 * @return value of pair at index
 	 */
 	public int getVal(int index) {
-		return values[index].value;
+		//return values[index].value;
+		return values[index];
 	}
 	
 	/**
@@ -35,17 +38,17 @@ public class Tuple {
 	 * @param index - where we are retrieving from
 	 * @return colName of pair at index
 	 */
-	public String getColName(int index) {
-		return values[index].colName;
-	}
+//	public String getColName(int index) {
+//		return values[index].colName;
+//	}
 	
 	/**
 	 * Inserts pair at index in tuple
 	 * @param p - pair we are inserting
 	 * @param index - where we want to insert
 	 */
-	public void add(Pair p, int index) {
-		values[index] = p;
+	public void add(int value, int index) {
+		values[index] = value;
 	}
 	
 	/**
