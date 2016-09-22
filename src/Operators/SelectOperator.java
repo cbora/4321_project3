@@ -1,5 +1,7 @@
 package Operators;
 
+import java.util.HashMap;
+
 import Project.EvalExpressionVisitor;
 import Project.Tuple;
 import net.sf.jsqlparser.expression.Expression;
@@ -8,12 +10,19 @@ public class SelectOperator extends Operator {
 
 	private Operator child;
 	private Expression exp;
+	private HashMap<String, Integer> schema;
 	
 	public SelectOperator(Operator child, Expression exp) {
 		this.child = child;
 		this.exp = exp;
+		this.schema = child.getSchema();
 	}
 	
+	@Override
+	public HashMap<String, Integer> getSchema() {
+		return this.schema;
+	}
+
 	@Override
 	public Tuple getNextTuple() {
 		Tuple t = child.getNextTuple();
@@ -25,14 +34,19 @@ public class SelectOperator extends Operator {
 			return getNextTuple();
 	}
 	
-	public boolean passesCondition(Tuple t) {
-		EvalExpressionVisitor e = new EvalExpressionVisitor(exp);
-		return e.getResult();
-	}
-
 	@Override
 	public void reset() {
 		child.reset();
+	}
+	
+	@Override
+	public void close() {
+		child.close();
+	}
+	
+	private boolean passesCondition(Tuple t) {
+		EvalExpressionVisitor e = new EvalExpressionVisitor(exp, schema, t);
+		return e.getResult();
 	}
 	
 	public Operator getChild() {

@@ -21,7 +21,7 @@ public class TableInfo {
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
-
+	
 	public String getTableName() {
 		return tableName;
 	}

@@ -1,5 +1,7 @@
 package Project;
 
+import net.sf.jsqlparser.schema.Column;
+
 public class Tuple {
 	/* --------------------------------------------------------------------------------- *
 	 * May not need to store colName AND value											 *
@@ -38,8 +40,8 @@ public class Tuple {
 	 * @param index - where we are retrieving from
 	 * @return colName of pair at index
 	 */
-//	public String getColName(int index) {
-//		return values[index].colName;
+//	public Column getCol(int index) {
+//		return values[index].col;
 //	}
 	
 	/**

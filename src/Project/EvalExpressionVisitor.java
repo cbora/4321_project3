@@ -1,5 +1,6 @@
 package Project;
 
+import java.util.HashMap;
 import java.util.Stack;
 
 import net.sf.jsqlparser.expression.AllComparisonExpression;
@@ -47,9 +48,13 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 public class EvalExpressionVisitor implements ExpressionVisitor {
 
 	private boolean result;
-	Stack<Long> nums = new Stack<Long>();
+	private Tuple tuple;
+	private HashMap<String, Integer> schema;
+	private Stack<Long> nums = new Stack<Long>();
 	
-	public EvalExpressionVisitor(Expression exp) {
+	public EvalExpressionVisitor(Expression exp, HashMap<String, Integer> schema, Tuple tuple) {
+		this.schema = schema;
+		this.tuple = tuple;
 		exp.accept(this);
 	}
 	
@@ -131,8 +136,17 @@ public class EvalExpressionVisitor implements ExpressionVisitor {
 	}
 
 	@Override
-	public void visit(Column arg0) {
-		// TODO Auto-generated method stub
+	public void visit(Column node) {
+		int index = schema.get(node.getTable().getAlias() + "." + node.getColumnName());
+		nums.push((long) tuple.getVal(index));
+//		for (int i = 0; i < tuple.length(); i++) {
+//			Column col = tuple.getCol(i);
+//			if (col.getTable().getAlias().equals(node.getTable().getAlias()) 
+//					&& col.getColumnName().equals(node.getColumnName())) {
+//				nums.push((long) tuple.getVal(i));
+//				break;
+//			}
+//		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////

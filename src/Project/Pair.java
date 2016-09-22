@@ -1,17 +1,19 @@
 package Project;
 
+import net.sf.jsqlparser.schema.Column;
+
 public class Pair {
 	
-	public String colName;
+	public Column col;
 	public int value;
 	
-	public Pair(String colName, int value) {
-		this.colName = colName;
+	public Pair(Column col, int value) {
+		this.col = col;
 		this.value = value;
 	}
 	
 	@Override
 	public String toString() {
-		return "(" + colName +": " + value + ")";
+		return "(" + col +": " + value + ")";
 	}
 }
