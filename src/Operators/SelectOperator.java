@@ -8,9 +8,9 @@ import net.sf.jsqlparser.expression.Expression;
 
 public class SelectOperator extends Operator {
 
-	private Operator child;
-	private Expression exp;
-	private HashMap<String, Integer> schema;
+	private Operator child; // child operator
+	private Expression exp; // selection expression
+	private HashMap<String, Integer> schema; // schema
 	
 	public SelectOperator(Operator child, Expression exp) {
 		this.child = child;
@@ -44,6 +44,11 @@ public class SelectOperator extends Operator {
 		child.close();
 	}
 	
+	/**
+	 * Checks if a tuple t passes the condition in expression
+	 * @param t tuple we are checking
+	 * @return true if pass, false otherwise
+	 */
 	private boolean passesCondition(Tuple t) {
 		EvalExpressionVisitor e = new EvalExpressionVisitor(exp, schema, t);
 		return e.getResult();

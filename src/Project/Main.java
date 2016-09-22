@@ -1,36 +1,56 @@
 package Project;
 
+import Operators.JoinOperator;
 import Operators.ScanOperator;
 import Operators.SelectOperator;
-import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.operators.relational.*;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 
 public class Main {
 
 	public static void main(String[] args) {
-		TableInfo tableInfo = new TableInfo("src/Boats","Boats");
-		tableInfo.getColumns().add("A");
-		tableInfo.getColumns().add("B");
-		tableInfo.getColumns().add("C");
+		// tables
+		TableInfo tableInfo1 = new TableInfo("src/Boats","Boats");
+		tableInfo1.getColumns().add("D");
+		tableInfo1.getColumns().add("E");
+		tableInfo1.getColumns().add("F");
 		
-		ScanOperator scn = new ScanOperator(tableInfo);
+		TableInfo tableInfo2 = new TableInfo("src/Reserves","Reserves");
+		tableInfo2.getColumns().add("G");
+		tableInfo2.getColumns().add("H");	
 		
-		GreaterThan exp = new GreaterThan();
-		Table tbl = new Table();
-		tbl.setAlias("Boats");
-		tbl.setName("Boats");
-		Column col = new Column(tbl, "C");
-		exp.setLeftExpression(col);
-		exp.setRightExpression(new LongValue((long) 5));
+		// scan operators
+		ScanOperator scn1 = new ScanOperator(tableInfo1);
+		ScanOperator scn2 = new ScanOperator(tableInfo2);
 		
-		SelectOperator slct = new SelectOperator(scn, exp);
+		// join operator
+		JoinOperator join = new JoinOperator(scn1, scn2);
 		
+		// select operator
+		EqualsTo exp = new EqualsTo();
+		
+		Table boats = new Table();
+		boats.setAlias("Boats");
+		boats.setName("Boats");
+		Column col1 = new Column(boats, "D");
+		
+		Table reserves = new Table();
+		reserves.setAlias("Reserves");
+		reserves.setName("Reserves");
+		Column col2 = new Column(reserves, "H");
+		
+		exp.setLeftExpression(col1);
+		exp.setRightExpression(col2);
+		
+		SelectOperator slct = new SelectOperator(join, exp);
+		
+		// retrieve all tuples
 		Tuple t;
 		while ((t = slct.getNextTuple()) != null) {
 			System.out.println(t);
 		}
+		slct.close();
 	}
 
 }

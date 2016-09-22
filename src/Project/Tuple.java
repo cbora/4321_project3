@@ -3,27 +3,12 @@ package Project;
 import net.sf.jsqlparser.schema.Column;
 
 public class Tuple {
-	/* --------------------------------------------------------------------------------- *
-	 * May not need to store colName AND value											 *
-	 * We may just need value...not sure yet, so included both. Adjust later if needed.  *
-	 * --------------------------------------------------------------------------------- */
-	
-	//private Pair[] values; // represents tuple as array of (colName, value) pairs
+
 	private int[] values;
 	
 	public Tuple(int nCols) {
-		//values = new Pair[nCols];
 		values = new int[nCols];
 	}
-	
-	/**
-	 * Retrieves (colName, value) pair at index in tuple
-	 * @param index - where we are retrieving from
-	 * @return pair at index
-	 */
-//	public Pair getPair(int index) {
-//		return values[index];
-//	}
 	
 	/**
 	 * Retrieves value of pair at index in tuple
@@ -31,18 +16,8 @@ public class Tuple {
 	 * @return value of pair at index
 	 */
 	public int getVal(int index) {
-		//return values[index].value;
 		return values[index];
 	}
-	
-	/**
-	 * Retrieves colName of pair at index in tuple
-	 * @param index - where we are retrieving from
-	 * @return colName of pair at index
-	 */
-//	public Column getCol(int index) {
-//		return values[index].col;
-//	}
 	
 	/**
 	 * Inserts pair at index in tuple
@@ -75,4 +50,31 @@ public class Tuple {
 		sb.append(getVal(values.length - 1));
 		return sb.toString();
 	}
+	
+	/**
+	 * concatenates two tuples
+	 * @param t1 - tuple to be on left side in concatenation
+	 * @param t2 - tuple to be one right side in concatenation
+	 * @return concatenation of t1 and t2
+	 */
+	public static Tuple concat(Tuple t1, Tuple t2) {
+		Tuple t = new Tuple(t1.length() + t2.length());
+		for (int i = 0; i < t1.length() + t2.length(); i++) {
+			if (i < t1.length())
+				t.add(t1.getVal(i), i);
+			else 
+				t.add(t2.getVal(i - t1.length()), i);
+		}
+		return t;
+	}
 }
+
+
+
+
+
+
+
+
+
+

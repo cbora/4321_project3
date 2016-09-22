@@ -15,11 +15,15 @@ import net.sf.jsqlparser.schema.Table;
 
 public class ScanOperator extends Operator {
 
-	private TableInfo tableInfo;
-	private String alias;
-	private FileReader fileReader;
-	private BufferedReader bufferedReader;
+	private TableInfo tableInfo;   // info about the table the operator corresponds to
+	private String alias;		   // alias of the table. if there is no alias, tableName is used
+	private FileReader fileReader; // FileReader for reading tuples
+	private BufferedReader bufferedReader;   // BufferedReader for reading tuples
+	private HashMap<String, Integer> schema; // Schema to return from getSchema()
 
+	/* =====================================
+	 * Constructors
+	 * ===================================== */
 	public ScanOperator(TableInfo tableInfo, String alias) {
 		super();
 
@@ -32,30 +36,30 @@ public class ScanOperator extends Operator {
 		} catch (FileNotFoundException ex) {
 			System.out.println("Unable to open file '" + this.tableInfo.getFileName() + "'");
 		}
+		
+		ArrayList<String> columns = tableInfo.getColumns();
+		this.schema = new HashMap<String, Integer>();
+		
+		// Read from columns in tableInfo
+		// Add (<alias> + "." + <name of column i>, i) to hash map
+		for (int i = 0; i < columns.size(); i++) {
+			this.schema.put(this.alias + "." + columns.get(i), i);
+		}
 	}
 
+	/**
+	 * Sets alias equal to tableInfo.tableName
+	 */
 	public ScanOperator(TableInfo tableInfo) {
-		super();
-
-		this.tableInfo = tableInfo;
-		this.alias = tableInfo.getTableName();
-
-		try {
-			this.fileReader = new FileReader(this.tableInfo.getFileName());
-			this.bufferedReader = new BufferedReader(this.fileReader);
-		} catch (FileNotFoundException ex) {
-			System.out.println("Unable to open file '" + this.tableInfo.getFileName() + "'");
-		}
+		this(tableInfo, tableInfo.getTableName());
 	}
 	
+	/* ===============================================
+	 * Methods
+	 * =============================================== */
 	@Override
 	public HashMap<String, Integer> getSchema() {
-		ArrayList<String> columns = tableInfo.getColumns();
-		HashMap<String, Integer> result = new HashMap<String, Integer>();
-		for (int i = 0; i < columns.size(); i++) {
-			result.put(alias + "." + columns.get(i), i);
-		}
-		return result;
+		return schema;
 	}
 
 	@Override
@@ -72,12 +76,7 @@ public class ScanOperator extends Operator {
 		String values[] = line.split(",");
 		Tuple t = new Tuple(values.length);
 		
-//		Table tbl = new Table();
-//		tbl.setName(tableInfo.getTableName());
-//		tbl.setAlias(this.alias);
-		
 		for (int i = 0; i < t.length(); i++) {
-			//Column col = new Column(tbl, tableInfo.getColumns().get(i));
 			t.add(Integer.parseInt(values[i]), i);
 		}
 		return t;
@@ -87,6 +86,7 @@ public class ScanOperator extends Operator {
 	public void reset() {
 		try {
 			bufferedReader.close();
+			this.fileReader = new FileReader(this.tableInfo.getFileName());
 			this.bufferedReader = new BufferedReader(this.fileReader);
 		} catch (IOException ex) {
 			System.out.println("Error :(");

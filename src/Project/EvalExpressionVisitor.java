@@ -47,10 +47,10 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 
 public class EvalExpressionVisitor implements ExpressionVisitor {
 
-	private boolean result;
-	private Tuple tuple;
-	private HashMap<String, Integer> schema;
-	private Stack<Long> nums = new Stack<Long>();
+	private boolean result; // whether expression is true or false
+	private Tuple tuple;	// tuple we are evaluating expression on
+	private HashMap<String, Integer> schema; 		// tuple schema
+	private Stack<Long> nums = new Stack<Long>(); 	// holds longs for relational expressions
 	
 	public EvalExpressionVisitor(Expression exp, HashMap<String, Integer> schema, Tuple tuple) {
 		this.schema = schema;
@@ -137,16 +137,10 @@ public class EvalExpressionVisitor implements ExpressionVisitor {
 
 	@Override
 	public void visit(Column node) {
+		// use schema to find out where column is in tuple
 		int index = schema.get(node.getTable().getAlias() + "." + node.getColumnName());
+		// retrieve value from tuple, push to stack
 		nums.push((long) tuple.getVal(index));
-//		for (int i = 0; i < tuple.length(); i++) {
-//			Column col = tuple.getCol(i);
-//			if (col.getTable().getAlias().equals(node.getTable().getAlias()) 
-//					&& col.getColumnName().equals(node.getColumnName())) {
-//				nums.push((long) tuple.getVal(i));
-//				break;
-//			}
-//		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////
