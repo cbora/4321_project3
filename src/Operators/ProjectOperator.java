@@ -17,8 +17,10 @@ public class ProjectOperator extends Operator {
 	public ProjectOperator(Operator child, ArrayList<SelectItem> items) {
 		this.child = child;
 		this.items = items;
-		this.schema = child.getSchema();
+		EvalSelectItemVisitor visitor = new EvalSelectItemVisitor(this.items, child.getSchema());
+		this.schema = visitor.getResult(); 
 	}
+	
 	@Override
 	public HashMap<String, Integer> getSchema() {
 		return this.schema;
@@ -33,11 +35,9 @@ public class ProjectOperator extends Operator {
 	}
 	
 	private Tuple project(Tuple input) {
-		EvalSelectItemVisitor visitor = new EvalSelectItemVisitor(this.items, this.schema);
-		LinkedHashMap<String, Integer> projection = visitor.getResult();
-		Tuple t = new Tuple(projection.size());
+		Tuple t = new Tuple(this.schema.size());
 		int index = 0;
-		for(Entry<String, Integer> entry : projection.entrySet()){
+		for(Entry<String, Integer> entry : this.schema.entrySet()){
 			int el = input.getVal(entry.getValue());
 			t.add(el, index);
 			index++;
