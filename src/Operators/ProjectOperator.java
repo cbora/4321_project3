@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
-
 import Project.EvalSelectItemVisitor;
 import Project.Tuple;
 import net.sf.jsqlparser.statement.select.SelectItem;
+
 public class ProjectOperator extends Operator {
 
 	private Operator child;

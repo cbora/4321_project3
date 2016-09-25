@@ -50,7 +50,7 @@ public class SelectOperator extends Operator {
 	 * @return true if pass, false otherwise
 	 */
 	private boolean passesCondition(Tuple t) {
-		EvalExpressionVisitor e = new EvalExpressionVisitor(exp, schema, t);
+		EvalExpressionVisitor e = new EvalExpressionVisitor(this.exp, this.schema, t);
 		return e.getResult();
 	}
 	

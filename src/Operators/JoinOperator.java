@@ -3,18 +3,22 @@ package Operators;
 import java.util.HashMap;
 import java.util.Set;
 
+import Project.EvalExpressionVisitor;
 import Project.Tuple;
+import net.sf.jsqlparser.expression.Expression;
 
 public class JoinOperator extends Operator {
 	private Operator leftChild;
 	private Operator rightChild;
 	private HashMap<String, Integer> schema;
+	private Expression exp;
 	private Tuple lastLeft;
 	
-	public JoinOperator(Operator leftChild, Operator rightChild) {
+	public JoinOperator(Operator leftChild, Operator rightChild, Expression exp) {
 		this.leftChild = leftChild;
 		this.rightChild = rightChild;
 		this.schema = new HashMap<String, Integer>();
+		this.exp = exp;
 		this.lastLeft = this.leftChild.getNextTuple();
 		
 		HashMap<String, Integer> s1 = this.leftChild.getSchema();
@@ -27,6 +31,10 @@ public class JoinOperator extends Operator {
 		for (String key : keys) {
 			this.schema.put(key, s2.get(key) + s1.size());
 		}
+	}
+	
+	public JoinOperator(Operator leftChild, Operator rightChild) {
+		this(leftChild, rightChild, null);
 	}
 	
 	@Override
@@ -46,7 +54,11 @@ public class JoinOperator extends Operator {
 			if (lastLeft == null || right == null)
 				return null;
 		}
-		return Tuple.concat(lastLeft, right);
+		Tuple result = Tuple.concat(lastLeft, right);
+		if (passesCondition(result))
+			return result;
+		else
+			return getNextTuple();
 	}
 
 	@Override
@@ -60,6 +72,13 @@ public class JoinOperator extends Operator {
 	public void close() {
 		leftChild.close();
 		rightChild.close();
+	}
+	
+	private boolean passesCondition(Tuple t) {
+		if (this.exp == null)
+			return true;
+		EvalExpressionVisitor e = new EvalExpressionVisitor(this.exp, this.schema, t);
+		return e.getResult();
 	}
 	
 	public Operator getLeftChild() {

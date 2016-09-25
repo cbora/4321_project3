@@ -24,10 +24,7 @@ public class Main {
 		ScanOperator scn1 = new ScanOperator(tableInfo1);
 		ScanOperator scn2 = new ScanOperator(tableInfo2);
 		
-		// join operator
-		JoinOperator join = new JoinOperator(scn1, scn2);
-		
-		// select operator
+		// join operator		
 		EqualsTo exp = new EqualsTo();
 		
 		Table boats = new Table();
@@ -43,14 +40,15 @@ public class Main {
 		exp.setLeftExpression(col1);
 		exp.setRightExpression(col2);
 		
-		SelectOperator slct = new SelectOperator(join, exp);
+		// join operator
+		JoinOperator join = new JoinOperator(scn1, scn2, exp);
 		
 		// retrieve all tuples
 		Tuple t;
-		while ((t = slct.getNextTuple()) != null) {
+		while ((t = join.getNextTuple()) != null) {
 			System.out.println(t);
 		}
-		slct.close();
+		join.close();
 	}
 
 }
