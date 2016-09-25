@@ -31,13 +31,5 @@ public class SortOperator extends Operator {
 	public void close() {
 		child.close();
 	}
-	
-	public Operator getChild() {
-		return child;
-	}
-
-	public void setChild(Operator child) {
-		this.child = child;
-	}
 
 }

@@ -36,6 +36,21 @@ public class Tuple {
 		return values.length;
 	}
 	
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Tuple) {
+			Tuple t = (Tuple) o;
+			if (t.length() != this.values.length)
+				return false;
+			for (int i = 0; i < this.values.length; i++) {
+				if (t.getVal(i) != this.getVal(i))
+					return false;
+			}
+			return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Returns string representation of the tuple
 	 * @return values in the tuple separated by commas
@@ -43,12 +58,17 @@ public class Tuple {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		for (int i = 0; i < values.length - 1; i++) {
+		for (int i = 0; i < this.values.length - 1; i++) {
 			sb.append(getVal(i));
 			sb.append(",");
 		}
-		sb.append(getVal(values.length - 1));
+		sb.append(getVal(this.values.length - 1));
 		return sb.toString();
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.toString().hashCode();
 	}
 	
 	/**

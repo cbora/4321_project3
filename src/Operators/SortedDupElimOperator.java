@@ -4,14 +4,19 @@ import java.util.HashMap;
 
 import Project.Tuple;
 
-public class DupElimOperator extends Operator {
-
+public class SortedDupElimOperator extends Operator {
+	
 	private Operator child;
+	private HashMap<String, Integer> schema;
+
+	public SortedDupElimOperator(Operator child) {
+		this.child = child;
+		this.schema = this.child.getSchema();
+	}
 	
 	@Override
 	public HashMap<String, Integer> getSchema() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.schema;
 	}
 
 	@Override
@@ -22,21 +27,12 @@ public class DupElimOperator extends Operator {
 
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
-
+		this.child.reset();
 	}
-	
+
 	@Override
 	public void close() {
-		child.close();
-	}
-	
-	public Operator getChild() {
-		return child;
-	}
-
-	public void setChild(Operator child) {
-		this.child = child;
+		this.child.close();
 	}
 
 }

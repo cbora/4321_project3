@@ -80,21 +80,5 @@ public class JoinOperator extends Operator {
 		EvalExpressionVisitor e = new EvalExpressionVisitor(this.exp, this.schema, t);
 		return e.getResult();
 	}
-	
-	public Operator getLeftChild() {
-		return leftChild;
-	}
-
-	public void setLeftChild(Operator leftChild) {
-		this.leftChild = leftChild;
-	}
-
-	public Operator getRightChild() {
-		return rightChild;
-	}
-
-	public void setRightChild(Operator rightChild) {
-		this.rightChild = rightChild;
-	}
 
 }

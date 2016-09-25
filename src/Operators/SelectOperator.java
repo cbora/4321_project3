@@ -53,12 +53,5 @@ public class SelectOperator extends Operator {
 		EvalExpressionVisitor e = new EvalExpressionVisitor(this.exp, this.schema, t);
 		return e.getResult();
 	}
-	
-	public Operator getChild() {
-		return child;
-	}
 
-	public void setChild(Operator child) {
-		this.child = child;
-	}
 }
