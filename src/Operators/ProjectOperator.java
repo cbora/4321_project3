@@ -14,6 +14,9 @@ public class ProjectOperator extends Operator {
 	private ArrayList<SelectItem> items;
 	private HashMap<String, Integer> schema; // schema
 
+	/* ================================== 
+	 * Constructors
+	 * ================================== */
 	public ProjectOperator(Operator child, ArrayList<SelectItem> items) {
 		this.child = child;
 		this.items = items;
@@ -21,6 +24,9 @@ public class ProjectOperator extends Operator {
 		this.schema = visitor.getResult(); 
 	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
 	@Override
 	public HashMap<String, Integer> getSchema() {
 		return this.schema;

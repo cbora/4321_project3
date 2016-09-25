@@ -9,11 +9,17 @@ public class SortedDupElimOperator extends Operator {
 	private Operator child;
 	private HashMap<String, Integer> schema;
 
+	/* ================================== 
+	 * Constructors
+	 * ================================== */
 	public SortedDupElimOperator(Operator child) {
 		this.child = child;
 		this.schema = this.child.getSchema();
 	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
 	@Override
 	public HashMap<String, Integer> getSchema() {
 		return this.schema;

@@ -8,12 +8,21 @@ import Project.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 
 public class JoinOperator extends Operator {
-	private Operator leftChild;
-	private Operator rightChild;
-	private HashMap<String, Integer> schema;
-	private Expression exp;
-	private Tuple lastLeft;
+	private Operator leftChild; // left child operator
+	private Operator rightChild; // right child operator
+	private HashMap<String, Integer> schema; // schema of tuples returned by this operator
+	private Expression exp; // join condition
+	private Tuple lastLeft; // left tuple we have seen from leftChild
 	
+	/* ================================== 
+	 * Constructors
+	 * ================================== */
+	/**
+	 * 
+	 * @param leftChild
+	 * @param rightChild
+	 * @param exp - expression for the condition we are joining on
+	 */
 	public JoinOperator(Operator leftChild, Operator rightChild, Expression exp) {
 		this.leftChild = leftChild;
 		this.rightChild = rightChild;
@@ -33,10 +42,18 @@ public class JoinOperator extends Operator {
 		}
 	}
 	
+	/**
+	 * Cartesian product constructor - set join condition to null
+	 * @param leftChild
+	 * @param rightChild
+	 */
 	public JoinOperator(Operator leftChild, Operator rightChild) {
 		this(leftChild, rightChild, null);
 	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
 	@Override
 	public HashMap<String, Integer> getSchema() {
 		return this.schema;
@@ -74,6 +91,11 @@ public class JoinOperator extends Operator {
 		rightChild.close();
 	}
 	
+	/**
+	 * Checks if a tuple t passes the condition in join condition
+	 * @param t - tuple we are checking
+	 * @return true if pass, false otherwise
+	 */
 	private boolean passesCondition(Tuple t) {
 		if (this.exp == null)
 			return true;

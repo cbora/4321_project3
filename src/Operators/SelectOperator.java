@@ -10,14 +10,20 @@ public class SelectOperator extends Operator {
 
 	private Operator child; // child operator
 	private Expression exp; // selection expression
-	private HashMap<String, Integer> schema; // schema
+	private HashMap<String, Integer> schema; // schema of tuples returned by this operator
 	
+	/* ================================== 
+	 * Constructors
+	 * ================================== */
 	public SelectOperator(Operator child, Expression exp) {
 		this.child = child;
 		this.exp = exp;
 		this.schema = child.getSchema();
 	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
 	@Override
 	public HashMap<String, Integer> getSchema() {
 		return this.schema;
@@ -45,8 +51,8 @@ public class SelectOperator extends Operator {
 	}
 	
 	/**
-	 * Checks if a tuple t passes the condition in expression
-	 * @param t tuple we are checking
+	 * Checks if a tuple t passes the condition in selection condition
+	 * @param t - tuple we are checking
 	 * @return true if pass, false otherwise
 	 */
 	private boolean passesCondition(Tuple t) {

@@ -8,7 +8,16 @@ public class SortOperator extends Operator {
 
 	private Operator child;
 	
+	/* ================================== 
+	 * Constructors
+	 * ================================== */
+	public SortOperator() {
+		//TODO: implement
+	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
 	@Override
 	public HashMap<String, Integer> getSchema() {
 		// TODO Auto-generated method stub

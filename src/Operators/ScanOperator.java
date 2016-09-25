@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import Project.Pair;
 import Project.TableInfo;
 import Project.Tuple;
 import net.sf.jsqlparser.schema.Column;

@@ -6,10 +6,16 @@ public class Tuple {
 
 	private int[] values;
 	
+	/* ================================== 
+	 * Constructors
+	 * ================================== */
 	public Tuple(int nCols) {
 		values = new int[nCols];
 	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
 	/**
 	 * Retrieves value of pair at index in tuple
 	 * @param index - where we are retrieving from

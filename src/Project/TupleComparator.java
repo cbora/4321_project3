@@ -6,10 +6,16 @@ public class TupleComparator implements Comparator<Tuple> {
 	
 	private final int[] sortOrder; // order of columns we wish to compare
 	
+	/* ================================== 
+	 * Constructors
+	 * ================================== */
 	public TupleComparator(int[] sortOrder) {
 		this.sortOrder = sortOrder;
 	}
 
+	/* ================================== 
+	 * Methods
+	 * ================================== */
 	/**
 	 * compares tuples in order of the columns in sortOrder
 	 * @param t1 - first tuple to compare

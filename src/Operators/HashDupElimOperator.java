@@ -7,16 +7,22 @@ import Project.Tuple;
 
 public class HashDupElimOperator extends Operator {
 
-	private Operator child;
-	private HashMap<String, Integer> schema;
-	private HashSet<Tuple> seenTuples;
+	private Operator child;	// child operator
+	private HashMap<String, Integer> schema; // schema of tuples returned by this operator
+	private HashSet<Tuple> seenTuples;	// hash set of tuples we have encountered already
 	
+	/* ================================== 
+	 * Constructors
+	 * ================================== */
 	public HashDupElimOperator(Operator child) {
 		this.child = child;
 		this.schema = this.child.getSchema();
 		this.seenTuples = new HashSet<Tuple>();
 	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
 	@Override
 	public HashMap<String, Integer> getSchema() {
 		return this.schema;
@@ -28,7 +34,7 @@ public class HashDupElimOperator extends Operator {
 		if (t == null) {
 			return null;
 		}
-		else if (this.seenTuples.contains(t)) {
+		else if (this.seenTuples.contains(t)) { // if tuple has been seen, try again
 			return getNextTuple();
 		}
 		else {
@@ -39,7 +45,7 @@ public class HashDupElimOperator extends Operator {
 
 	@Override
 	public void reset() {
-		this.seenTuples = new HashSet<Tuple>();
+		this.seenTuples = new HashSet<Tuple>(); // clear set of seen tuples
 		this.child.reset();
 	}
 	
