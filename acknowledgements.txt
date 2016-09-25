@@ -1,0 +1,5 @@
+http://stackoverflow.com/questions/4907683/sort-a-two-dimensional-array-based-on-one-column
+ - for idea on how to sort tuples on different columns
+
+https://www.caveofprogramming.com/java/java-file-reading-and-writing-files-in-java.html
+ - for how to do file io in java

@@ -36,6 +36,13 @@ public class Tuple {
 		return values.length;
 	}
 	
+	/**
+	 * equals method for tuples
+	 * @param o - object we wish to compare to our tuple
+	 * @return true if the tuples have the same length and all columns have 
+	 * 			equal value. False if the parameter is not a tuple, is a tuple but has 
+	 * 			different length, or is a tuple but has differing colum values
+	 */
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof Tuple) {
@@ -66,6 +73,10 @@ public class Tuple {
 		return sb.toString();
 	}
 	
+	/**
+	 * hash code method for tuples
+	 * @return a hash equal to the hash code of the tuple's toString()
+	 */
 	@Override
 	public int hashCode() {
 		return this.toString().hashCode();
