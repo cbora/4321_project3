@@ -6,9 +6,9 @@ import Project.Tuple;
 
 public class SortedDupElimOperator extends Operator {
 	
-	private Operator child;
-	private HashMap<String, Integer> schema;
-	private Tuple lastUnique;
+	private Operator child; // child operator
+	private HashMap<String, Integer> schema; // schema of tuples returned by operator
+	private Tuple lastUnique; // next tuple to be returned by getNextTuple
 	
 	/* ================================== 
 	 * Constructors
