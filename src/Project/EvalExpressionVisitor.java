@@ -138,7 +138,7 @@ public class EvalExpressionVisitor implements ExpressionVisitor {
 	@Override
 	public void visit(Column node) {
 		// use schema to find out where column is in tuple
-		int index = schema.get(node.getTable().getAlias() + "." + node.getColumnName());
+		int index = schema.get(node.getWholeColumnName());
 		// retrieve value from tuple, push to stack
 		nums.push((long) tuple.getVal(index));
 	}
