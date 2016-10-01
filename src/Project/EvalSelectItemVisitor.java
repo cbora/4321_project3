@@ -52,7 +52,7 @@ public class EvalSelectItemVisitor implements SelectItemVisitor {
 	@Override
 	public void visit(SelectExpressionItem s){
 		Column col = (Column) s.getExpression();
-		String name = col.getTable() + "." + col.getColumnName();
+		String name = col.getWholeColumnName();
 		int index = schema.get(name);
 		projection.put(col.getColumnName(), index);
 	}
