@@ -35,7 +35,7 @@ public class EvalSelectItemVisitor implements SelectItemVisitor {
 	 */
 	@Override
 	public void visit(AllColumns allColumns){
-		projection = (LinkedHashMap<String, Integer>) schema;
+		projection.putAll(schema);
 	}
 	
 	/** 
