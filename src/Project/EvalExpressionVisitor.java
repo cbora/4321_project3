@@ -52,12 +52,22 @@ public class EvalExpressionVisitor implements ExpressionVisitor {
 	private HashMap<String, Integer> schema; 		// tuple schema
 	private Stack<Long> nums = new Stack<Long>(); 	// holds longs for relational expressions
 	
+	/* ================================== 
+	 * Constructors
+	 * ================================== */
 	public EvalExpressionVisitor(Expression exp, HashMap<String, Integer> schema, Tuple tuple) {
 		this.schema = schema;
 		this.tuple = tuple;
 		exp.accept(this);
 	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
+	
+	/**
+	 * @return true if expression evaluates to true, false otherwise
+	 */
 	public boolean getResult() {
 		return result;
 	}
@@ -138,13 +148,13 @@ public class EvalExpressionVisitor implements ExpressionVisitor {
 	@Override
 	public void visit(Column node) {
 		// use schema to find out where column is in tuple
-		int index = schema.get(node.getTable().getAlias() + "." + node.getColumnName());
+		int index = schema.get(node.getWholeColumnName());
 		// retrieve value from tuple, push to stack
 		nums.push((long) tuple.getVal(index));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////
+	////////// Unimplemented ///////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////
 	
 	@Override

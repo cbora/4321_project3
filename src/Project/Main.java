@@ -34,7 +34,7 @@ public class Main {
 		catalog.addTable("Reserves", res);
 		catalog.addTable("Sailors", sail);
 		
-		String query = "SELECT Boats.B1, Reserves.R2 FROM Boats, Reserves WHERE Boats.B1 = Reserves.R2";
+		String query = "SELECT * FROM Reserves R ORDER BY R.R2, R.R1";
 		CCJSqlParser parser = new CCJSqlParser(new StringReader(query));
 		Select s = null;
 		try {
@@ -46,23 +46,11 @@ public class Main {
 		
 		
 		PlainSelect body = (PlainSelect) s.getSelectBody();	
-		System.out.println(body);
-		Join j = (Join) body.getJoins().get(0);
-		FromItem item = (FromItem) j.getRightItem();
-		System.out.println(j.getRightItem());
-		Table tab = ((Table) item);
-		System.out.println("tab");
-		System.out.println(tab.getWholeTableName());
 		
-		//System.out.println(x);
-		//Column c = (Column) j.getUsingColumns();
-		//System.out.println(c.getTable());
-		System.out.println("done main");
 		Driver d = new Driver(body);
 		
 		Operator o = d.getRoot();
 		
-		//o.dump();
 		Tuple t;
 		while ((t = o.getNextTuple()) != null)
 			System.out.println(t);

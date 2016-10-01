@@ -23,72 +23,92 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 
 public class Driver {
 
-	private PlainSelect plain_select;
-	private HashMap<String, Integer> table_mapping; //maps table to path	
-	private LinkedList<Operator> linked_operator;
-	private Operator root;
-	private ArrayList<Expression> select_exp;
-	private ArrayList<Expression> join_exp;
-	private Expression exp_root;
+	private PlainSelect plain_select; // query we are building operator tree for
+	private Operator root; // root of operator tree
+	private HashMap<String, Integer> table_mapping; // maps table to position in join list
+	private LinkedList<Operator> linked_operator; // list of operators so far -- starts by constructing scan operators in order of join list
+	private BuildSelectVisitor bsv; // retrieves selection/join information regarding our expression
+		// builds selection expression list in order that corresponds with ordering in table_mapping
+		// builds join expression list in left_deep order that corresponds with ordering in table_mapping
 	
+	/* ================================== 
+	 * Constructors
+	 * ================================== */
 	public Driver(PlainSelect plain_select) {
 		this.plain_select = plain_select;
 		this.table_mapping = new HashMap<String, Integer>();
 		this.linked_operator = new LinkedList<Operator>();
 
-		scanOperatorBuilder();
-		BuildSelectVisitor bsv = new BuildSelectVisitor(this.table_mapping, this.plain_select.getWhere());
-		this.select_exp = bsv.getSelect();
-		this.join_exp = bsv.getJoin();
-		this.exp_root = bsv.getExp();		 // root expression		
-		selectBuilder();
-
-		joinBuilder();
+		// builds scan operators for each table /
+		scanBuilder();
 		
-		root = linked_operator.removeLast();
-		projectBuilder();
-				
-		sortBuilder();
-		duplicateBuilder();
-		if ( exp_root != null ) {
-			root = new SelectOperator(root, exp_root);
+		// build selection/join operators 
+		this.bsv = new BuildSelectVisitor(this.table_mapping, this.plain_select.getWhere());
+		selectBuilder();
+		joinBuilder();
+		this.root = this.linked_operator.removeLast();
+		Expression extra_exp = this.bsv.getExp(); // any selection condition that don't involve a table		 	
+		if ( extra_exp != null ) {
+			this.root = new SelectOperator(this.root, extra_exp);
 		}
+		
+		// add projection operator if needed
+		projectBuilder();
+		
+		// add sort operator if needed
+		sortBuilder();
+		
+		// add duplicate operator if needed 
+		duplicateBuilder();
 	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
+	
+	/**
+	 * @return root of the operator tree
+	 */
 	public Operator getRoot() {
 		return root;		
 	}
 	
-	public void scanOperatorBuilder() {	
+	/**
+	 * Adds scan operators to linked_operator and adds tables to table_mapping
+	 * according the order they appear in join list
+	 */
+	private void scanBuilder() {	
 		DbCatalog db = DbCatalog.getInstance();	
-			
+		
+		// get a list of tables in query
 		ArrayList<Table> tables = new ArrayList<Table>();
 		tables.add((Table) plain_select.getFromItem());
-		for (int i=0; i < plain_select.getJoins().size(); i++){
-			Table t = (Table) ((Join) plain_select.getJoins().get(i)).getRightItem();
-			tables.add(t);
+		if (plain_select.getJoins() != null) {
+			for (int i=0; i < plain_select.getJoins().size(); i++){
+				Table t = (Table) ((Join) plain_select.getJoins().get(i)).getRightItem();
+				tables.add(t);
+			}
 		}
 		
+		// for each table, create a scan operator
 		for (int i=0; i < tables.size(); i++){
-			
-			TableInfo tableName = db.get(tables.get(i).getName());
-			ScanOperator op;
-			if (tables.get(i).getAlias() != null){ // Alias of table
-				op = new ScanOperator(tableName, tables.get(i).getAlias());
-			}
-			else { // No alias
-				op = new ScanOperator(tableName);
-			}
+			TableInfo tableInfo = db.get(tables.get(i).getName());
+			ScanOperator op = new ScanOperator(tableInfo, tables.get(i));
 			table_mapping.put(tables.get(i).getAlias() == null ? tables.get(i).getName() : tables.get(i).getAlias() , i);
 			linked_operator.add(op);
 		}
 	}
 	
-	public void selectBuilder() {
+	/**
+	 * replaces operators in linked_operator with select operator
+	 * if old operator corresponds to table that has a selection condition
+	 */
+	private void selectBuilder() {
+		ArrayList<Expression> select_exp = this.bsv.getSelect();
 		ListIterator<Operator> iter = linked_operator.listIterator();
 		int index = 0;
 		while(iter.hasNext()){	// 			
-			if (select_exp.size() > 0 && select_exp.get(index) != null) {
+			if (select_exp.get(index) != null) {
 				SelectOperator so = new SelectOperator(iter.next(), select_exp.get(index));			
 				iter.set(so);
 			}
@@ -99,32 +119,46 @@ public class Driver {
 		}				
 	}
 	
-	public void projectBuilder() {		
+	/**
+	 * repeatedly pops first two elements off linked_operator
+	 * replacing them with appropriate join operator until linked_operator has just one
+	 * element remaining
+	 */
+	private void joinBuilder() {
+		ArrayList<Expression> join_exp = this.bsv.getJoin();
+		int size = linked_operator.size();
+		for (int i=0; i<size-1; i++){
+			Operator op1 = linked_operator.removeFirst();
+			Operator op2 = linked_operator.removeFirst();
+			JoinOperator jo1 = new JoinOperator(op1, op2, join_exp.get(i));
+			linked_operator.add(0, jo1);
+		}
+	}
+	
+	/**
+	 * Adds projection operator to root if necessary
+	 */
+	private void projectBuilder() {		
 		if (plain_select.getSelectItems() != null && !(plain_select.getSelectItems().get(0) instanceof AllColumns)){ 		
-			System.out.println("Projecting");
 			ArrayList<SelectItem> items = (ArrayList<SelectItem>) plain_select.getSelectItems();
 			root =  new ProjectOperator(root, items);
 		}
 	}
 	
-	public void joinBuilder() {
-		int size = linked_operator.size();
-		for (int i=0; i<size-1; i++){
-			Operator op1 = linked_operator.removeFirst();
-			Operator op2 = linked_operator.removeFirst();
-			JoinOperator jo1 = new JoinOperator(op1, op2, this.join_exp.get(i));
-			linked_operator.add(0, jo1);
-		}
-	}
-	
-	public void sortBuilder() {
+	/** 
+	 * Adds sort operator to root if necessary
+	 */
+	private void sortBuilder() {
 		if (plain_select.getOrderByElements() != null){
 			ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) plain_select.getOrderByElements();	
 			root = new SortOperator(root, order);
 		}
 	}
 	
-	public void duplicateBuilder() {		
+	/**
+	 * Adds appropriate duplicate elimination operatot to root if necessary
+	 */
+	private void duplicateBuilder() {		
 		if (plain_select.getDistinct() != null){			
 			if (root instanceof SortOperator)
 				root = new SortedDupElimOperator(root);
@@ -132,6 +166,5 @@ public class Driver {
 				root = new HashDupElimOperator(root);
 		}
 	}
-	
 	
 }
