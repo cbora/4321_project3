@@ -53,6 +53,13 @@ public class ScanOperator extends Operator {
 		this(tableInfo, tableInfo.getTableName());
 	}
 	
+	/**
+	 * Sets alias equal to tbl.getAlias if not null, otherwise tbl.getName
+	 */
+	public ScanOperator(TableInfo tableInfo, Table tbl) {
+		this(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias());
+	}
+	
 	/* ===============================================
 	 * Methods
 	 * =============================================== */

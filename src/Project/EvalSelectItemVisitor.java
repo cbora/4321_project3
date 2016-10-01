@@ -17,6 +17,9 @@ public class EvalSelectItemVisitor implements SelectItemVisitor {
 	private HashMap<String, Integer> schema;
 	private LinkedHashMap<String, Integer> projection; // projected schema, and use linkedHashMap to preserve insertion order
 	
+	/* ================================== 
+	 * Constructors
+	 * ================================== */
 	public EvalSelectItemVisitor(ArrayList<SelectItem> items, HashMap<String, Integer> schema) {
 		this.schema = schema;
 		this.projection = new LinkedHashMap<String, Integer>();
@@ -25,6 +28,9 @@ public class EvalSelectItemVisitor implements SelectItemVisitor {
 		}
 	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
 	public LinkedHashMap<String, Integer> getResult() {
 		return projection;
 	}

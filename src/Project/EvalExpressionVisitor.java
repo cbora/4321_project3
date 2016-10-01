@@ -52,12 +52,22 @@ public class EvalExpressionVisitor implements ExpressionVisitor {
 	private HashMap<String, Integer> schema; 		// tuple schema
 	private Stack<Long> nums = new Stack<Long>(); 	// holds longs for relational expressions
 	
+	/* ================================== 
+	 * Constructors
+	 * ================================== */
 	public EvalExpressionVisitor(Expression exp, HashMap<String, Integer> schema, Tuple tuple) {
 		this.schema = schema;
 		this.tuple = tuple;
 		exp.accept(this);
 	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
+	
+	/**
+	 * @return true if expression evaluates to true, false otherwise
+	 */
 	public boolean getResult() {
 		return result;
 	}
@@ -144,7 +154,7 @@ public class EvalExpressionVisitor implements ExpressionVisitor {
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////
+	////////// Unimplemented ///////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////
 	
 	@Override
