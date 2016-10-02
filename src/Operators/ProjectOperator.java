@@ -42,11 +42,9 @@ public class ProjectOperator extends Operator {
 	
 	private Tuple project(Tuple input) {
 		Tuple t = new Tuple(this.schema.size());
-		int index = 0;
 		for(Entry<String, Integer> entry : this.schema.entrySet()){
-			int el = input.getVal(entry.getValue());
-			t.add(el, index);
-			index++;
+			int el = input.getVal(this.child.getSchema().get(entry.getKey()));
+			t.add(el, entry.getValue());
 		}
 		return t;		
 	}

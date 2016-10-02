@@ -1,9 +1,11 @@
 package Testing;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.junit.Test;
 
@@ -12,7 +14,6 @@ import Operators.ScanOperator;
 import Project.TableInfo;
 import Project.Tuple;
 import net.sf.jsqlparser.parser.CCJSqlParser;
-import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
@@ -315,5 +316,65 @@ public class ProjectOperatorTest {
 		ProjectOperator po = new ProjectOperator(scn, items);
 		Tuple t= po.getNextTuple();				
 		assertEquals(t.toString(), "3,2");
+	}
+	
+	@Test
+	public void testReset() {
+		TableInfo ti = new TableInfo("src/Boats", "Boats");
+		ti.getColumns().add("First");
+		ti.getColumns().add("Second");
+		ti.getColumns().add("Third");
+				
+		ScanOperator scn = new ScanOperator(ti);
+		
+		String query = "SELECT Boats.Third, Boats.Second FROM Boats";
+		CCJSqlParser parser = new CCJSqlParser(new StringReader(query));
+		Select s = null;
+		try {
+			s = (Select) parser.Statement();
+		}catch (Exception e) {
+						System.err.println("Exception occured during parsing" + e);
+			e.printStackTrace();
+		}				
+		PlainSelect body = (PlainSelect) s.getSelectBody();		
+		ArrayList<SelectItem> items = (ArrayList<SelectItem>) body.getSelectItems();
+		ProjectOperator po = new ProjectOperator(scn, items);
+		Tuple t;
+		for (int i = 0; i < 3; i++) {
+			t= po.getNextTuple();				
+			assertEquals(t.toString(), "3,2");
+			t= po.getNextTuple();				
+			assertEquals(t.toString(), "4,3");
+			t= po.getNextTuple();				
+			assertEquals(t.toString(), "2,104");
+			po.reset();
+		}
+	}
+	
+	@Test
+	public void testSchema() {
+		TableInfo ti = new TableInfo("src/Boats", "Boats");
+		ti.getColumns().add("First");
+		ti.getColumns().add("Second");
+		ti.getColumns().add("Third");
+				
+		ScanOperator scn = new ScanOperator(ti);
+		
+		String query = "SELECT Boats.Third, Boats.Second FROM Boats";
+		CCJSqlParser parser = new CCJSqlParser(new StringReader(query));
+		Select s = null;
+		try {
+			s = (Select) parser.Statement();
+		}catch (Exception e) {
+						System.err.println("Exception occured during parsing" + e);
+			e.printStackTrace();
+		}				
+		PlainSelect body = (PlainSelect) s.getSelectBody();		
+		ArrayList<SelectItem> items = (ArrayList<SelectItem>) body.getSelectItems();
+		ProjectOperator po = new ProjectOperator(scn, items);
+		HashMap<String,Integer> schema = po.getSchema();
+		assertEquals((Integer) schema.get("Boats.Third"), (Integer) 0);
+		assertEquals((Integer) schema.get("Boats.Second"), (Integer) 1);
+		assertFalse(schema.containsKey("Boats.First"));
 	}
 }

@@ -83,7 +83,7 @@ public class SortOperator extends Operator {
 
 	@Override
 	public void reset() {
-		child.reset();
+		index = 0;
 	}
 	
 	@Override

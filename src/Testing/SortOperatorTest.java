@@ -1,9 +1,11 @@
 package Testing;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.junit.Test;
 
@@ -292,5 +294,192 @@ public class SortOperatorTest {
 		SortOperator srt = new SortOperator(so, order);
 		Tuple t = srt.getNextTuple();
 		assertEquals(t.toString(), "103,1,1");
+	}
+	
+	@Test
+	public void sortTestColOne() {
+		TableInfo ti = new TableInfo("src/SortTest", "SortTest");
+		ti.getColumns().add("A");
+		ti.getColumns().add("B");
+		ti.getColumns().add("C");
+		ScanOperator so = new ScanOperator(ti);
+
+		String query = "SELECT * FROM SortTest ORDER BY SortTest.A";
+		CCJSqlParser parser = new CCJSqlParser(new StringReader(query));
+		Select s = null;
+		try {
+			s = (Select) parser.Statement();
+		}catch (Exception e) {
+			System.err.println("Exception occured during parsing" + e);
+			e.printStackTrace();
+		}				
+		PlainSelect body = (PlainSelect) s.getSelectBody();
+		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
+		SortOperator srt = new SortOperator(so, order);
+		Tuple t;
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "1,1,1");
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "1,2,3");
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "1,3,3");
+	}
+	
+	@Test
+	public void sortTestColTwo() {
+		TableInfo ti = new TableInfo("src/SortTest", "SortTest");
+		ti.getColumns().add("A");
+		ti.getColumns().add("B");
+		ti.getColumns().add("C");
+		ScanOperator so = new ScanOperator(ti);
+
+		String query = "SELECT * FROM SortTest ORDER BY SortTest.B";
+		CCJSqlParser parser = new CCJSqlParser(new StringReader(query));
+		Select s = null;
+		try {
+			s = (Select) parser.Statement();
+		}catch (Exception e) {
+			System.err.println("Exception occured during parsing" + e);
+			e.printStackTrace();
+		}				
+		PlainSelect body = (PlainSelect) s.getSelectBody();
+		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
+		SortOperator srt = new SortOperator(so, order);
+		Tuple t;
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "1,1,1");
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "2,1,1");
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "3,1,3");
+	}
+	
+	@Test
+	public void sortTestColThree() {
+		TableInfo ti = new TableInfo("src/SortTest", "SortTest");
+		ti.getColumns().add("A");
+		ti.getColumns().add("B");
+		ti.getColumns().add("C");
+		ScanOperator so = new ScanOperator(ti);
+
+		String query = "SELECT * FROM SortTest ORDER BY SortTest.C";
+		CCJSqlParser parser = new CCJSqlParser(new StringReader(query));
+		Select s = null;
+		try {
+			s = (Select) parser.Statement();
+		}catch (Exception e) {
+			System.err.println("Exception occured during parsing" + e);
+			e.printStackTrace();
+		}				
+		PlainSelect body = (PlainSelect) s.getSelectBody();
+		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
+		SortOperator srt = new SortOperator(so, order);
+		Tuple t;
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "1,1,1");
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "2,1,1");
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "3,2,1");
+	}
+	
+	@Test
+	public void sortTestColThreeTwo() {
+		TableInfo ti = new TableInfo("src/SortTest", "SortTest");
+		ti.getColumns().add("A");
+		ti.getColumns().add("B");
+		ti.getColumns().add("C");
+		ScanOperator so = new ScanOperator(ti);
+
+		String query = "SELECT * FROM SortTest ORDER BY SortTest.C, SortTest.B";
+		CCJSqlParser parser = new CCJSqlParser(new StringReader(query));
+		Select s = null;
+		try {
+			s = (Select) parser.Statement();
+		}catch (Exception e) {
+			System.err.println("Exception occured during parsing" + e);
+			e.printStackTrace();
+		}				
+		PlainSelect body = (PlainSelect) s.getSelectBody();
+		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
+		SortOperator srt = new SortOperator(so, order);
+		Tuple t;
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "1,1,1");
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "2,1,1");
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "3,2,1");
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "2,3,2");
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "3,1,3");
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "1,2,3");
+	}
+	
+	@Test
+	public void testReset() {
+		TableInfo ti = new TableInfo("src/SortTest", "SortTest");
+		ti.getColumns().add("A");
+		ti.getColumns().add("B");
+		ti.getColumns().add("C");
+		ScanOperator so = new ScanOperator(ti);
+
+		String query = "SELECT * FROM SortTest ORDER BY SortTest.C, SortTest.B";
+		CCJSqlParser parser = new CCJSqlParser(new StringReader(query));
+		Select s = null;
+		try {
+			s = (Select) parser.Statement();
+		}catch (Exception e) {
+			System.err.println("Exception occured during parsing" + e);
+			e.printStackTrace();
+		}				
+		PlainSelect body = (PlainSelect) s.getSelectBody();
+		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
+		SortOperator srt = new SortOperator(so, order);
+		Tuple t;
+		for (int i = 0; i < 3; i++) {
+			t = srt.getNextTuple();
+			assertEquals(t.toString(), "1,1,1");
+			t = srt.getNextTuple();
+			assertEquals(t.toString(), "2,1,1");
+			t = srt.getNextTuple();
+			assertEquals(t.toString(), "3,2,1");
+			t = srt.getNextTuple();
+			assertEquals(t.toString(), "2,3,2");
+			t = srt.getNextTuple();
+			assertEquals(t.toString(), "3,1,3");
+			t = srt.getNextTuple();
+			assertEquals(t.toString(), "1,2,3");
+			srt.reset();
+		}
+	}
+	
+	@Test
+	public void testGetSchema() {
+		TableInfo ti = new TableInfo("src/SortTest", "SortTest");
+		ti.getColumns().add("A");
+		ti.getColumns().add("B");
+		ti.getColumns().add("C");
+		ScanOperator so = new ScanOperator(ti);
+
+		String query = "SELECT * FROM SortTest ORDER BY SortTest.C, SortTest.B";
+		CCJSqlParser parser = new CCJSqlParser(new StringReader(query));
+		Select s = null;
+		try {
+			s = (Select) parser.Statement();
+		}catch (Exception e) {
+			System.err.println("Exception occured during parsing" + e);
+			e.printStackTrace();
+		}				
+		PlainSelect body = (PlainSelect) s.getSelectBody();
+		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
+		SortOperator srt = new SortOperator(so, order);
+		HashMap<String, Integer> schema = srt.getSchema();
+		assertEquals((Integer) schema.get("SortTest.A"), (Integer) 0);
+		assertEquals((Integer) schema.get("SortTest.B"), (Integer) 1);
+		assertEquals((Integer) schema.get("SortTest.C"), (Integer) 2);
+		assertFalse(schema.containsKey("SortTest.Z"));
 	}
 }

@@ -34,7 +34,7 @@ public class Main {
 		catalog.addTable("Reserves", res);
 		catalog.addTable("Sailors", sail);
 		
-		String query = "SELECT * FROM Reserves R ORDER BY R.R2, R.R1";
+		String query = "SELECT * FROM Reserves";
 		CCJSqlParser parser = new CCJSqlParser(new StringReader(query));
 		Select s = null;
 		try {

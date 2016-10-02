@@ -15,7 +15,8 @@ import net.sf.jsqlparser.statement.select.SelectItemVisitor;
 public class EvalSelectItemVisitor implements SelectItemVisitor {
 
 	private HashMap<String, Integer> schema;
-	private LinkedHashMap<String, Integer> projection; // projected schema, and use linkedHashMap to preserve insertion order
+	private HashMap<String, Integer> projection; // projected schema, and use linkedHashMap to preserve insertion order
+	private int index;
 	
 	/* ================================== 
 	 * Constructors
@@ -23,15 +24,15 @@ public class EvalSelectItemVisitor implements SelectItemVisitor {
 	public EvalSelectItemVisitor(ArrayList<SelectItem> items, HashMap<String, Integer> schema) {
 		this.schema = schema;
 		this.projection = new LinkedHashMap<String, Integer>();
-		for (int i=0; i<items.size(); i++) {
-			items.get(i).accept(this);	
+		for (this.index=0; this.index < items.size(); this.index++) {
+			items.get(this.index).accept(this);	
 		}
 	}
 	
 	/* ================================== 
 	 * Methods
 	 * ================================== */
-	public LinkedHashMap<String, Integer> getResult() {
+	public HashMap<String, Integer> getResult() {
 		return projection;
 	}
 	
@@ -52,9 +53,8 @@ public class EvalSelectItemVisitor implements SelectItemVisitor {
 	@Override
 	public void visit(SelectExpressionItem s){
 		Column col = (Column) s.getExpression();
-		String name = col.getWholeColumnName();
-		int index = schema.get(name);
-		projection.put(col.getColumnName(), index);
+		String tbl = col.getTable().getAlias() == null ? col.getTable().getName() : col.getTable().getAlias();
+		projection.put(tbl + "." + col.getColumnName(), this.index);
 	}
 	
 	
