@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class TableInfo {
 	
-	private String fileName; // path to file containing table
+	private String filePath; // path to file containing table
 	private String tableName; // name of table
 	private ArrayList<String> columns; // name of the columns in order
 	
@@ -12,7 +12,7 @@ public class TableInfo {
 	 * Constructors
 	 * ================================== */
 	public TableInfo(String fileName, String tableName) {
-		this.fileName = fileName;
+		this.filePath = fileName;
 		this.tableName = tableName;
 		this.columns = new ArrayList<String>();
 	}
@@ -25,7 +25,7 @@ public class TableInfo {
 	 * @return this.fileName
 	 */
 	public String getFileName() {
-		return fileName;
+		return filePath;
 	}
 
 	/**
@@ -33,7 +33,7 @@ public class TableInfo {
 	 * @param fileName
 	 */
 	public void setFileName(String fileName) {
-		this.fileName = fileName;
+		this.filePath = fileName;
 	}
 	
 	/**

@@ -70,6 +70,9 @@ public class Tuple {
 	 */
 	@Override
 	public String toString() {
+		if (this.length() == 0)
+			return "";
+		
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < this.values.length - 1; i++) {
 			sb.append(getVal(i));
