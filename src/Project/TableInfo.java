@@ -2,8 +2,18 @@ package Project;
 
 import java.util.ArrayList;
 
+/**
+ * Container to hold info about tables
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class TableInfo {
 	
+	/* ================================== 
+	 * Fields
+	 * ================================== */
 	private String filePath; // path to file containing table
 	private String tableName; // name of table
 	private ArrayList<String> columns; // name of the columns in order
@@ -11,8 +21,13 @@ public class TableInfo {
 	/* ================================== 
 	 * Constructors
 	 * ================================== */
-	public TableInfo(String fileName, String tableName) {
-		this.filePath = fileName;
+	/**
+	 * Constructor
+	 * @param filePath - path to table's data file
+	 * @param tableName - name of table
+	 */
+	public TableInfo(String filePath, String tableName) {
+		this.filePath = filePath;
 		this.tableName = tableName;
 		this.columns = new ArrayList<String>();
 	}
@@ -21,18 +36,18 @@ public class TableInfo {
 	 * Methods
 	 * ================================== */
 	/**
-	 * getter for fileName
-	 * @return this.fileName
+	 * getter for filePath
+	 * @return this.filePath
 	 */
-	public String getFileName() {
+	public String getFilePath() {
 		return filePath;
 	}
 
 	/**
-	 * setter for fileName
-	 * @param fileName
+	 * setter for filePath
+	 * @param filePath
 	 */
-	public void setFileName(String fileName) {
+	public void setFilePath(String fileName) {
 		this.filePath = fileName;
 	}
 	

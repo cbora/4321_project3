@@ -4,17 +4,25 @@ import java.util.HashMap;
 
 import Project.Tuple;
 
+/**
+ * Operator abstract class
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public abstract class Operator {
 	
 	/**
 	 * Retrieves schema of tuples that getNextTuple returns
 	 * @return HashMap that maps columns to their position in the tuples returned
-	 * 			by getNextTuple. A column is represented as <alias> + "." + <colName>
+	 * 			by getNextTuple. A column is represented as (alias) + "." + (colName)
+	 * 			if alias exists, (table name) + "." + (colName) otherwise
 	 */
 	public abstract HashMap<String, Integer> getSchema();
 	
 	/**
-	 * @return next tuple if it exists, null otherwise
+	 * @return next tuple if it exists, null at eof, undefined if call again after reaching eof
 	 */
 	public abstract Tuple getNextTuple();
 	
@@ -30,7 +38,7 @@ public abstract class Operator {
 	
 	/**
 	 * Repeatedly calls getNextTuple(), printing the results, until
-	 * no more tuple remain
+	 * no more tuples remain
 	 */
 	public void dump() {
 		Tuple t = getNextTuple();

@@ -46,28 +46,37 @@ import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.FromItemVisitor;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.SelectVisitor;
-import net.sf.jsqlparser.statement.select.SubJoin;
 import net.sf.jsqlparser.statement.select.SubSelect;
-import net.sf.jsqlparser.statement.select.Union;
 
-public class BuildSelectVisitor implements SelectVisitor, FromItemVisitor, ExpressionVisitor {
+/**
+ * Parses the selection conditions and join conditions of WHERE clause
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
+public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 
+	/* ================================== 
+	 * Fields
+	 * ================================== */
 	private ArrayList <Expression> select; // list of selection expressions
 	private ArrayList <Expression> join; // list of join expressions
 	private Expression extra_exp; // any expressions that don't involve tables
 	private Stack<Column> stack; // stack to keep track of cols seen in expressions
 	private HashMap<String, Integer> table_mapping; // mapping between tables and integers
-		// selections involving table t map to index table_mapping.get(t) in this.select
-		// joins involving tables t1 and t2 map to index 
-		// MAX(table_mapping.get(t1), table_mapping.get(t2)) - 1 in this.join
-	
+		
 	/* ================================== 
 	 * Constructors
 	 * ================================== */
-	public BuildSelectVisitor(HashMap<String, Integer> table_mapping, Expression e) {
+	/**
+	 * Constructor
+	 * @param table_mapping - mapping that indicates where expressions involving table t should appear in select list and join list
+	 * 	selections involving table t go to index table_mapping.get(t) in this.select
+	 *	joins involving tables t1 and t2 go to index MAX(table_mapping.get(t1), table_mapping.get(t2)) - 1 in this.join
+	 * @param e - WHERE expression
+	 */
+	public BuildSelectConditionsVisitor(HashMap<String, Integer> table_mapping, Expression e) {
 		select = new ArrayList<Expression>();
 		for (int i=0; i<table_mapping.size(); i++)
 			select.add(null);
@@ -89,7 +98,6 @@ public class BuildSelectVisitor implements SelectVisitor, FromItemVisitor, Expre
 	/* ================================== 
 	 * Methods
 	 * ================================== */
-	
 	/**
 	 * @return ArrayList of selection expression that corresponds to order provided in table_mapping
 	 */
@@ -98,7 +106,7 @@ public class BuildSelectVisitor implements SelectVisitor, FromItemVisitor, Expre
 	}
 
 	/**
-	 * @return ArrayList of join expressions in left-deep order in accordance with ordering provided in table_mapping
+	 * @return ArrayList of join expressions in left-deep corresponding to ordering provided in table_mapping
 	 */
 	public ArrayList<Expression> getJoin() {
 		return join;
@@ -131,7 +139,7 @@ public class BuildSelectVisitor implements SelectVisitor, FromItemVisitor, Expre
 		else if (stack.size() == 2){
 			Column c = stack.pop();
 			Column c2 = stack.pop();
-			if (c.getTable().toString().equals(c2.getTable().toString()) ){ // expression 2 cols from same table				
+			if (c.getTable().toString().equals(c2.getTable().toString()) ){ // expression involved 2 cols from same table				
 				addSelect(c.getTable(), node);
 			}				
 			else {	// expression involved 2 different tables			
@@ -173,48 +181,75 @@ public class BuildSelectVisitor implements SelectVisitor, FromItemVisitor, Expre
 		}		
 		
 	}
-	
-	@Override
-	public void visit(LongValue arg0) {
-		//nothing 
-	}
 
+	/**
+	 * Visits both children
+	 * @param node - node to be visited
+	 */
 	@Override
 	public void visit(AndExpression node) {
 		node.getLeftExpression().accept(this);
 		node.getRightExpression().accept(this);
 	}
 
+	/**
+	 * Adds expression to appropriate bucket depending on left and right children
+	 * @param node - node to be visited
+	 */
 	@Override
 	public void visit(EqualsTo node) {
 		check(node);
 	}
 	
+	/**
+	 * Adds expression to appropriate bucket depending on left and right children
+	 * @param node - node to be visited
+	 */
 	@Override
 	public void visit(GreaterThan node) {
 		check(node);	
 	}
 
+	/**
+	 * Adds expression to appropriate bucket depending on left and right children
+	 * @param node - node to be visited
+	 */
 	@Override
 	public void visit(GreaterThanEquals node) {
 		check(node);
 	}
 
+	/**
+	 * Adds expression to appropriate bucket depending on left and right children
+	 * @param node - node to be visited
+	 */
 	@Override
 	public void visit(MinorThan node) {
 		check(node);		
 	}
 
+	/**
+	 * Adds expression to appropriate bucket depending on left and right children
+	 * @param node - node to be visited
+	 */
 	@Override
 	public void visit(MinorThanEquals node) {
 		check(node);
 	}
 
+	/**
+	 * Adds expression to appropriate bucket depending on left and right children
+	 * @param node - node to be visited
+	 */
 	@Override
 	public void visit(NotEqualsTo node) {
 		check(node);
 	}
 
+	/**
+	 * Push column to stack to inform parent that one of its children was a column
+	 * @param node - node to be visited
+	 */
 	@Override
 	public void visit(Column node) {
 		stack.push(node);
@@ -227,15 +262,10 @@ public class BuildSelectVisitor implements SelectVisitor, FromItemVisitor, Expre
 	// ------------------------------------------------------------------- //
 	
 	@Override
-	public void visit(Table arg0) {
-		// TODO Auto-generated method stub	
+	public void visit(LongValue arg0) {
+		//unimplemented
 	}
-
-	@Override
-	public void visit(PlainSelect arg0) {
-		// TODO Auto-generated method stub
-	}
-		
+	
 	@Override
 	public void visit(NullValue arg0) {
 		// unimplemented
@@ -354,14 +384,6 @@ public class BuildSelectVisitor implements SelectVisitor, FromItemVisitor, Expre
 	}
 	@Override
 	public void visit(SubSelect arg0) {
-		// unimplemented
-	}
-	@Override
-	public void visit(SubJoin arg0) {
-		// unimplemented
-	}
-	@Override
-	public void visit(Union arg0) {
 		// unimplemented
 	}
 }

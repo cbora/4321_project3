@@ -2,13 +2,29 @@ package Project;
 
 import java.util.Comparator;
 
+/**
+ * Comparator that allows for comparing tuples based on specified column order
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class TupleComparator implements Comparator<Tuple> {
 	
-	private final int[] sortOrder; // order of columns we wish to compare
+	/* ================================== 
+	 * Fields
+	 * ================================== */
+	// order of columns we wish to compare
+	// so if sortOrder = [2,0,1], col2 gets highest priority, col0 next highest priority, col1 next priority
+	private final int[] sortOrder; 
 	
 	/* ================================== 
 	 * Constructors
 	 * ================================== */
+	/**
+	 * Constructor
+	 * @param sortOrder - order of columns we are sorting on
+	 */
 	public TupleComparator(int[] sortOrder) {
 		this.sortOrder = sortOrder;
 	}

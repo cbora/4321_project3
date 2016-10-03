@@ -4,16 +4,29 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import Project.Tuple;
-
+/**
+ * Operator for eliminating duplicates from unsorted data
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class HashDupElimOperator extends Operator {
 
-	private Operator child;	// child operator
+	/* ================================== 
+	 * Fields
+	 * ================================== */
+	private Operator child;	// child operator in operator tree
 	private HashMap<String, Integer> schema; // schema of tuples returned by this operator
 	private HashSet<Tuple> seenTuples;	// hash set of tuples we have encountered already
 	
 	/* ================================== 
 	 * Constructors
 	 * ================================== */
+	/**
+	 * Constructor
+	 * @param child - child node for operator
+	 */
 	public HashDupElimOperator(Operator child) {
 		this.child = child;
 		this.schema = this.child.getSchema();

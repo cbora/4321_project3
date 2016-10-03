@@ -7,9 +7,20 @@ import Project.EvalExpressionVisitor;
 import Project.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 
+/**
+ * Operator for joining tuples from two child operators
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class JoinOperator extends Operator {
-	private Operator leftChild; // left child operator
-	private Operator rightChild; // right child operator
+	
+	/* ================================== 
+	 * Fields
+	 * ================================== */
+	private Operator leftChild; // left child operator in operator tree
+	private Operator rightChild; // right child operator in operator tree
 	private HashMap<String, Integer> schema; // schema of tuples returned by this operator
 	private Expression exp; // join condition
 	private Tuple lastLeft; // left tuple we have seen from leftChild
@@ -18,7 +29,7 @@ public class JoinOperator extends Operator {
 	 * Constructors
 	 * ================================== */
 	/**
-	 * 
+	 * Constructor
 	 * @param leftChild
 	 * @param rightChild
 	 * @param exp - expression for the condition we are joining on

@@ -6,8 +6,18 @@ import Project.EvalExpressionVisitor;
 import Project.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 
+/**
+ * Operator for applying selection conditions
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class SelectOperator extends Operator {
 
+	/* ================================== 
+	 * Fields
+	 * ================================== */
 	private Operator child; // child operator
 	private Expression exp; // selection expression
 	private HashMap<String, Integer> schema; // schema of tuples returned by this operator
@@ -15,6 +25,11 @@ public class SelectOperator extends Operator {
 	/* ================================== 
 	 * Constructors
 	 * ================================== */
+	/**
+	 * Constructor
+	 * @param child - child in operator tree
+	 * @param exp - selection condition
+	 */
 	public SelectOperator(Operator child, Expression exp) {
 		this.child = child;
 		this.exp = exp;

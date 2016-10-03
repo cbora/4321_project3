@@ -1,14 +1,26 @@
 package Project;
 
-import net.sf.jsqlparser.schema.Column;
-
+/**
+ * Tuple object that represents a row in a table
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class Tuple {
 
-	private int[] values;
+	/* ================================== 
+	 * Fields
+	 * ================================== */
+	private int[] values; // values in tuple
 	
 	/* ================================== 
 	 * Constructors
 	 * ================================== */
+	/**
+	 * Constructor
+	 * @param nCols - number of columns in tuple
+	 */
 	public Tuple(int nCols) {
 		values = new int[nCols];
 	}
@@ -108,13 +120,3 @@ public class Tuple {
 		return t;
 	}
 }
-
-
-
-
-
-
-
-
-
-

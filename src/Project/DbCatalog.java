@@ -2,15 +2,31 @@ package Project;
 
 import java.util.HashMap;
 
+/**
+ * Singleton that maps table name to info about said table
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class DbCatalog {
 	
-	private static DbCatalog instance = null;
+	/* ================================== 
+	 * Fields
+	 * ================================== */
+	private static DbCatalog instance = null; // singleton instance
 	private HashMap<String, TableInfo> hash; // maps tableName to info about that table
 	
+	/* ================================== 
+	 * Constructor
+	 * ================================== */
 	private DbCatalog() {
 		hash = new HashMap<String, TableInfo>();
 	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
 	/**
 	 * retrieves singleton instance of DbCatalog
 	 * @return instance of DbCatalog
@@ -31,7 +47,7 @@ public class DbCatalog {
 	}
 	
 	/**
-	 * Looks up table with name <tableName> in DbCatalog
+	 * Looks up table with name "tableName" in DbCatalog
 	 * @param tableName - name of table we are looking up
 	 * @return - info about that table if it exists, null otherwise
 	 */

@@ -21,33 +21,51 @@ import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
+/**
+ * Builds operator tree associated with SQL query
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class Driver {
 
+	/* ================================== 
+	 * Fields
+	 * ================================== */
 	private PlainSelect plain_select; // query we are building operator tree for
 	private Operator root; // root of operator tree
 	private HashMap<String, Integer> table_mapping; // maps table to position in join list
 	private LinkedList<Operator> linked_operator; // list of operators so far -- starts by constructing scan operators in order of join list
-	private BuildSelectVisitor bsv; // retrieves selection/join information regarding our expression
+	private BuildSelectConditionsVisitor bsv; // retrieves selection/join information regarding our expression
 		// builds selection expression list in order that corresponds with ordering in table_mapping
 		// builds join expression list in left_deep order that corresponds with ordering in table_mapping
 	
 	/* ================================== 
 	 * Constructors
 	 * ================================== */
+	/**
+	 * Constructor
+	 * @param plain_select - SQL SELECT query
+	 */
 	public Driver(PlainSelect plain_select) {
 		this.plain_select = plain_select;
 		this.table_mapping = new HashMap<String, Integer>();
 		this.linked_operator = new LinkedList<Operator>();
 
-		// builds scan operators for each table /
+		// builds scan operators for each table
 		scanBuilder();
 		
 		// build selection/join operators 
-		this.bsv = new BuildSelectVisitor(this.table_mapping, this.plain_select.getWhere());
+		this.bsv = new BuildSelectConditionsVisitor(this.table_mapping, this.plain_select.getWhere());
 		selectBuilder();
 		joinBuilder();
+		
+		// only one element in linked_operators now - pop and make it the root
 		this.root = this.linked_operator.removeLast();
-		Expression extra_exp = this.bsv.getExp(); // any selection condition that don't involve a table		 	
+		
+		// add any selection conditions that don't involve tables
+		Expression extra_exp = this.bsv.getExp(); 		 	
 		if ( extra_exp != null ) {
 			this.root = new SelectOperator(this.root, extra_exp);
 		}
@@ -121,8 +139,8 @@ public class Driver {
 	
 	/**
 	 * repeatedly pops first two elements off linked_operator
-	 * replacing them with appropriate join operator until linked_operator has just one
-	 * element remaining
+	 * replacing them with appropriate join operator (taken from join_exp)
+	 * until linked_operator has just one element remaining
 	 */
 	private void joinBuilder() {
 		ArrayList<Expression> join_exp = this.bsv.getJoin();

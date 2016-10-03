@@ -45,8 +45,18 @@ import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
+/**
+ * Evaluates a selection expression on a provided tuple
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class EvalExpressionVisitor implements ExpressionVisitor {
 
+	/* ================================== 
+	 * Fields
+	 * ================================== */
 	private boolean result; // whether expression is true or false
 	private Tuple tuple;	// tuple we are evaluating expression on
 	private HashMap<String, Integer> schema; 		// tuple schema
@@ -55,6 +65,12 @@ public class EvalExpressionVisitor implements ExpressionVisitor {
 	/* ================================== 
 	 * Constructors
 	 * ================================== */
+	/**
+	 * Constructor
+	 * @param exp - expression to evaluate
+	 * @param schema - schema of tuple
+	 * @param tuple - tuple we are evaluating expression on
+	 */
 	public EvalExpressionVisitor(Expression exp, HashMap<String, Integer> schema, Tuple tuple) {
 		this.schema = schema;
 		this.tuple = tuple;
@@ -64,7 +80,6 @@ public class EvalExpressionVisitor implements ExpressionVisitor {
 	/* ================================== 
 	 * Methods
 	 * ================================== */
-	
 	/**
 	 * @return true if expression evaluates to true, false otherwise
 	 */
@@ -72,11 +87,19 @@ public class EvalExpressionVisitor implements ExpressionVisitor {
 		return result;
 	}
 	
+	/**
+	 * Pushed value to stack
+	 * @param node - node to visit
+	 */
 	@Override
 	public void visit(LongValue node) {
 		nums.push(node.toLong());
 	}
 
+	/**
+	 * sets result to true if both children are true, false otherwise
+	 * @param node - node to visit
+	 */
 	@Override
 	public void visit(AndExpression node) {
 		node.getLeftExpression().accept(this);
@@ -84,6 +107,10 @@ public class EvalExpressionVisitor implements ExpressionVisitor {
 			node.getRightExpression().accept(this);
 	}
 
+	/**
+	 * sets result to true if two values on top of stack are equal
+	 * @param node - node to visit
+	 */
 	@Override
 	public void visit(EqualsTo node) {
 		node.getLeftExpression().accept(this);
@@ -94,6 +121,10 @@ public class EvalExpressionVisitor implements ExpressionVisitor {
 		result = (first == second);
 	}
 
+	/**
+	 * sets result to true if second value on stack > top value on stack
+	 * @param node - node to visit
+	 */
 	@Override
 	public void visit(GreaterThan node) {
 		node.getLeftExpression().accept(this);
@@ -104,6 +135,10 @@ public class EvalExpressionVisitor implements ExpressionVisitor {
 		result = (first > second);
 	}
 
+	/**
+	 * sets result to true if second value on stack >= top value on stack
+	 * @param node - node to visit
+	 */
 	@Override
 	public void visit(GreaterThanEquals node) {
 		node.getLeftExpression().accept(this);
@@ -114,7 +149,10 @@ public class EvalExpressionVisitor implements ExpressionVisitor {
 		result = (first >= second);
 	}
 
-
+	/**
+	 * sets result to true if second value on stack < top value on stack
+	 * @param node - node to visit
+	 */
 	@Override
 	public void visit(MinorThan node) {
 		node.getLeftExpression().accept(this);
@@ -124,7 +162,11 @@ public class EvalExpressionVisitor implements ExpressionVisitor {
 		long first = nums.pop();
 		result = (first < second);
 	}
-
+	
+	/**
+	 * sets result to true if second value on stack <= top value on stack
+	 * @param node - node to visit
+	 */
 	@Override
 	public void visit(MinorThanEquals node) {
 		node.getLeftExpression().accept(this);
@@ -135,6 +177,10 @@ public class EvalExpressionVisitor implements ExpressionVisitor {
 		result = (first <= second);
 	}
 
+	/**
+	 * sets result to true if two values on top of stack are not equal
+	 * @param node - node to visit
+	 */
 	@Override
 	public void visit(NotEqualsTo node) {
 		node.getLeftExpression().accept(this);
@@ -145,6 +191,10 @@ public class EvalExpressionVisitor implements ExpressionVisitor {
 		result = (first != second);
 	}
 
+	/**
+	 * pushes value in tuple at specified column to the stack
+	 * @param node - node to visit
+	 */
 	@Override
 	public void visit(Column node) {
 		// use schema to find out where column is in tuple

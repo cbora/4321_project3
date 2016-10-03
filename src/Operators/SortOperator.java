@@ -9,15 +9,33 @@ import Project.Tuple;
 import Project.TupleComparator;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
+/**
+ * Operator for sorting tuples
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class SortOperator extends Operator {
 
-	private Operator child;
-	private ArrayList<Tuple> sorted_tuples;
-	private ArrayList<OrderByElement> order_by;
-	private HashMap<String, Integer> schema;
-	private int[] sort_order;
-	private int index;
+	/* ================================== 
+	 * Fields
+	 * ================================== */
+	private Operator child; // child operator in operator tree
+	private ArrayList<Tuple> sorted_tuples; // sorted list of tuples retrieved from child
+	private ArrayList<OrderByElement> order_by; // order by expression
+	private HashMap<String, Integer> schema; // schema of tuples returned by operator
+	private int[] sort_order; // priority of the columns in sort (so [1,0] means col1 has priority over col0)
+	private int index; // where we are in sorted_tuples
 	
+	/* ================================== 
+	 * Constructor
+	 * ================================== */
+	/**
+	 * Constructor
+	 * @param child
+	 * @param order_by - order by expression
+	 */
 	public SortOperator(Operator child, ArrayList<OrderByElement> order_by){
 		this.child = child;
 		this.order_by = order_by;
@@ -37,19 +55,6 @@ public class SortOperator extends Operator {
 		return this.schema;
 	}
 	
-	public ArrayList<Tuple> getSorted() {
-		return sorted_tuples;
-	}
-
-	public void preFetch() {
-		Tuple t;
-		while ( (t = child.getNextTuple()) != null ){
-			sorted_tuples.add(t);
-		}
-		// sort the tuples
-		Collections.sort(sorted_tuples, new TupleComparator(sort_order));		
-	}
-	
 	@Override
 	public Tuple getNextTuple() {	
 		if (index < sorted_tuples.size()) {
@@ -60,8 +65,21 @@ public class SortOperator extends Operator {
 			return null;
 		}		
 	}
+
+	@Override
+	public void reset() {
+		index = 0;
+	}
 	
-	public void makeSortOrder() {
+	@Override
+	public void close() {
+		child.close();
+	}
+	
+	/**
+	 * Construct sort_order array using order by expression
+	 */
+	private void makeSortOrder() {
 		ArrayList<String> seen_keys = new ArrayList<String>();
 		for (int i=0; i<order_by.size(); i++){
 			String key_name = order_by.get(i).toString();
@@ -80,14 +98,17 @@ public class SortOperator extends Operator {
 			i++;
 		}
 	}
-
-	@Override
-	public void reset() {
-		index = 0;
-	}
 	
-	@Override
-	public void close() {
-		child.close();
+	/**
+	 * Populate sorted_tuples
+	 */
+	private void preFetch() {
+		Tuple t;
+		while ( (t = child.getNextTuple()) != null ){
+			sorted_tuples.add(t);
+		}
+		// sort the tuples
+		Collections.sort(sorted_tuples, new TupleComparator(sort_order));		
 	}
+
 }

@@ -4,19 +4,33 @@ import java.util.HashMap;
 
 import Project.Tuple;
 
+/**
+ * Operator for eliminating duplicated from input that is sorted
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class SortedDupElimOperator extends Operator {
 	
-	private Operator child; // child operator
+	/* ================================== 
+	 * Fields
+	 * ================================== */
+	private Operator child; // child operator in operator tree
 	private HashMap<String, Integer> schema; // schema of tuples returned by operator
-	private Tuple lastUnique; // next tuple to be returned by getNextTuple
+	private Tuple nextUnique; // next tuple to be returned by getNextTuple
 	
 	/* ================================== 
 	 * Constructors
 	 * ================================== */
+	/**
+	 * Constructor
+	 * @param child
+	 */
 	public SortedDupElimOperator(Operator child) {
 		this.child = child;
 		this.schema = this.child.getSchema();
-		this.lastUnique = this.child.getNextTuple();
+		this.nextUnique = this.child.getNextTuple();
 	}
 	
 	/* ================================== 
@@ -29,9 +43,9 @@ public class SortedDupElimOperator extends Operator {
 
 	@Override
 	public Tuple getNextTuple() {
-		Tuple temp = this.lastUnique;
-		while (this.lastUnique != null && this.lastUnique.equals(temp)) {
-			this.lastUnique = this.child.getNextTuple();
+		Tuple temp = this.nextUnique;
+		while (this.nextUnique != null && this.nextUnique.equals(temp)) {
+			this.nextUnique = this.child.getNextTuple();
 		}
 		return temp;
 	}
@@ -39,7 +53,7 @@ public class SortedDupElimOperator extends Operator {
 	@Override
 	public void reset() {
 		this.child.reset();
-		this.lastUnique = this.child.getNextTuple();
+		this.nextUnique = this.child.getNextTuple();
 	}
 
 	@Override
