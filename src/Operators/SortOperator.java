@@ -1,9 +1,9 @@
 package Operators;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import Project.Tuple;
 import Project.TupleComparator;
@@ -25,7 +25,7 @@ public class SortOperator extends Operator {
 	private ArrayList<Tuple> sorted_tuples; // sorted list of tuples retrieved from child
 	private ArrayList<OrderByElement> order_by; // order by expression
 	private HashMap<String, Integer> schema; // schema of tuples returned by operator
-	private int[] sort_order; // priority of the columns in sort (so [1,0] means col1 has priority over col0)
+	public int[] sort_order; // priority of the columns in sort (so [1,0] means col1 has priority over col0)
 	private int index; // where we are in sorted_tuples
 	
 	/* ================================== 
@@ -80,22 +80,23 @@ public class SortOperator extends Operator {
 	 * Construct sort_order array using order by expression
 	 */
 	private void makeSortOrder() {
-		ArrayList<String> seen_keys = new ArrayList<String>();
-		for (int i=0; i<order_by.size(); i++){
+		boolean[] seen_keys = new boolean[schema.size()];
+		Arrays.fill(seen_keys, false);
+		
+		int i = 0;
+		for (; i<order_by.size(); i++){
 			String key_name = order_by.get(i).toString();
 			sort_order[i] = this.schema.get(key_name);
-			seen_keys.add(key_name);
+			seen_keys[this.schema.get(key_name)] = true;
 		}
 		if (order_by.size() == schema.size())
 			return;
 		// if the number of sort orders provided are less than # of columns
-		int i = order_by.size();
-		for(Entry<String, Integer> entry: schema.entrySet()) {
-			String key = entry.getKey();
-			if (seen_keys.contains(key))
-				continue;
-			sort_order[i] = entry.getValue();
-			i++;
+		for (int j = 0; j < seen_keys.length; j++) {
+			if (!seen_keys[j]) {
+				sort_order[i] = j;
+				i++;
+			}
 		}
 	}
 	

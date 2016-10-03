@@ -13,6 +13,7 @@ import Operators.ScanOperator;
 import Operators.SortOperator;
 import Project.TableInfo;
 import Project.Tuple;
+import Project.TupleComparator;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -481,5 +482,44 @@ public class SortOperatorTest {
 		assertEquals((Integer) schema.get("SortTest.B"), (Integer) 1);
 		assertEquals((Integer) schema.get("SortTest.C"), (Integer) 2);
 		assertFalse(schema.containsKey("SortTest.Z"));
+	}
+	
+	@Test
+	public void testSailorSort() {
+		TableInfo ti = new TableInfo("src/Sailors", "Sailors");
+		ti.getColumns().add("A");
+		ti.getColumns().add("B");
+		ti.getColumns().add("C");
+		ScanOperator so = new ScanOperator(ti);
+
+		String query = "SELECT * FROM Sailors ORDER BY Sailors.B";
+		CCJSqlParser parser = new CCJSqlParser(new StringReader(query));
+		Select s = null;
+		try {
+			s = (Select) parser.Statement();
+		}catch (Exception e) {
+			System.err.println("Exception occured during parsing" + e);
+			e.printStackTrace();
+		}				
+		PlainSelect body = (PlainSelect) s.getSelectBody();
+		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
+		SortOperator srt = new SortOperator(so, order);
+		Tuple t;
+		
+		for (int i = 0; i < 3; i++)
+			System.out.println(srt.sort_order[i]);
+		
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "3,100,105");
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "4,100,50");
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "5,100,500");
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "1,200,50");
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "2,200,200");
+		t = srt.getNextTuple();
+		assertEquals(t.toString(), "6,300,400");
 	}
 }
