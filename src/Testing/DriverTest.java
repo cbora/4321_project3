@@ -790,4 +790,106 @@ public class DriverTest {
 		assertNull(t);
 		o.close();
 	}
+	
+	@Test
+	public void testNoResult() {
+		String query = "SELECT S.S1, S.S2, B.B1, B.B2 FROM Reserves R, Sailors S, Boats B WHERE R.R1 = S.S1 AND R.R2 = B.B1 AND B.B2 = 100";
+		CCJSqlParser parser = new CCJSqlParser(new StringReader(query));
+		Select s = null;
+		try {
+			s = (Select) parser.Statement();
+		}catch (Exception e) {
+			System.err.println("Exception occured during parsing" + e);
+			e.printStackTrace();
+		}
+				
+		PlainSelect body = (PlainSelect) s.getSelectBody();	
+		Driver d = new Driver(body);
+		Operator o = d.getRoot();		
+		Tuple t;
+		t = o.getNextTuple();
+		assertNull(t);
+	}
+	
+	@Test
+	public void testEmptyFile() {
+		TableInfo emp = new TableInfo("src/Empty", "Empty");
+		emp.getColumns().add("EMP1");
+		emp.getColumns().add("EMP2");
+		
+		DbCatalog catalog = DbCatalog.getInstance();		
+		catalog.addTable("Empty", emp);
+		
+		String query = "SELECT Empty.EMP1, Empty.EMP2 FROM Empty";
+		CCJSqlParser parser = new CCJSqlParser(new StringReader(query));
+		Select s = null;
+		try {
+			s = (Select) parser.Statement();
+		}catch (Exception e) {
+			System.err.println("Exception occured during parsing" + e);
+			e.printStackTrace();
+		}
+				
+		PlainSelect body = (PlainSelect) s.getSelectBody();	
+		Driver d = new Driver(body);
+		Operator o = d.getRoot();		
+		Tuple t;
+		t = o.getNextTuple();
+		assertNull(t);		
+	}
+	
+	@Test
+	public void TestEmptyFileWithSelect() {
+		TableInfo emp = new TableInfo("src/Empty", "Empty");
+		emp.getColumns().add("EMP1");
+		emp.getColumns().add("EMP2");
+		
+		DbCatalog catalog = DbCatalog.getInstance();		
+		catalog.addTable("Empty", emp);
+		
+		String query = "SELECT Empty.EMP1, Empty.EMP2 FROM Empty WHERE Empty.EMP1 = 1";
+		CCJSqlParser parser = new CCJSqlParser(new StringReader(query));
+		Select s = null;
+		try {
+			s = (Select) parser.Statement();
+		}catch (Exception e) {
+			System.err.println("Exception occured during parsing" + e);
+			e.printStackTrace();
+		}
+				
+		PlainSelect body = (PlainSelect) s.getSelectBody();	
+		Driver d = new Driver(body);
+		Operator o = d.getRoot();		
+		Tuple t;
+		t = o.getNextTuple();
+		assertNull(t);
+	}
+	
+	@Test
+	public void TestEmptyFileWithProject() {
+		TableInfo emp = new TableInfo("src/Empty", "Empty");
+		emp.getColumns().add("EMP1");
+		emp.getColumns().add("EMP2");
+		
+		DbCatalog catalog = DbCatalog.getInstance();		
+		catalog.addTable("Empty", emp);
+		
+		String query = "SELECT Empty.EMP1 FROM Empty";
+		CCJSqlParser parser = new CCJSqlParser(new StringReader(query));
+		Select s = null;
+		try {
+			s = (Select) parser.Statement();
+		}catch (Exception e) {
+			System.err.println("Exception occured during parsing" + e);
+			e.printStackTrace();
+		}
+				
+		PlainSelect body = (PlainSelect) s.getSelectBody();	
+		Driver d = new Driver(body);
+		Operator o = d.getRoot();		
+		Tuple t;
+		t = o.getNextTuple();
+		assertNull(t);
+	}
+	
 }
