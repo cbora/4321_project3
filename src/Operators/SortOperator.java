@@ -84,12 +84,13 @@ public class SortOperator extends Operator {
 		Arrays.fill(seen_keys, false);
 		
 		int i = 0;
-		for (; i<order_by.size(); i++){
+		
+		for (; order_by != null && i<order_by.size(); i++){
 			String key_name = order_by.get(i).toString();
 			sort_order[i] = this.schema.get(key_name);
 			seen_keys[this.schema.get(key_name)] = true;
 		}
-		if (order_by.size() == schema.size())
+		if (order_by != null && order_by.size() == schema.size())
 			return;
 		// if the number of sort orders provided are less than # of columns
 		for (int j = 0; j < seen_keys.length; j++) {

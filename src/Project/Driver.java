@@ -5,14 +5,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import Operators.HashDupElimOperator;
-import Operators.JoinOperator;
-import Operators.Operator;
-import Operators.ProjectOperator;
-import Operators.ScanOperator;
-import Operators.SelectOperator;
-import Operators.SortOperator;
-import Operators.SortedDupElimOperator;
+import LogicalOperator.DuplicateLogicalOperator;
+import LogicalOperator.JoinLogicalOperator;
+import LogicalOperator.LogicalOperator;
+import LogicalOperator.ProjectLogicalOperator;
+import LogicalOperator.SelectLogicalOperator;
+import LogicalOperator.SortLogicalOperator;
+import LogicalOperator.TableLogicalOperator;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
@@ -34,9 +33,9 @@ public class Driver {
 	 * Fields
 	 * ================================== */
 	private PlainSelect plain_select; // query we are building operator tree for
-	private Operator root; // root of operator tree
+	private LogicalOperator root; // root of operator tree
 	private HashMap<String, Integer> table_mapping; // maps table to position in join list
-	private LinkedList<Operator> linked_operator; // list of operators so far -- starts by constructing scan operators in order of join list
+	private LinkedList<LogicalOperator> linked_operator; // list of operators so far -- starts by constructing scan operators in order of join list
 	private BuildSelectConditionsVisitor bsv; // retrieves selection/join information regarding our expression
 		// builds selection expression list in order that corresponds with ordering in table_mapping
 		// builds join expression list in left_deep order that corresponds with ordering in table_mapping
@@ -51,7 +50,7 @@ public class Driver {
 	public Driver(PlainSelect plain_select) {
 		this.plain_select = plain_select;
 		this.table_mapping = new HashMap<String, Integer>();
-		this.linked_operator = new LinkedList<Operator>();
+		this.linked_operator = new LinkedList<LogicalOperator>();
 
 		// builds scan operators for each table
 		scanBuilder();
@@ -67,7 +66,7 @@ public class Driver {
 		// add any selection conditions that don't involve tables
 		Expression extra_exp = this.bsv.getExp(); 		 	
 		if ( extra_exp != null ) {
-			this.root = new SelectOperator(this.root, extra_exp);
+			this.root = new SelectLogicalOperator(this.root, extra_exp);
 		}
 		
 		// add projection operator if needed
@@ -87,7 +86,7 @@ public class Driver {
 	/**
 	 * @return root of the operator tree
 	 */
-	public Operator getRoot() {
+	public LogicalOperator getRoot() {
 		return root;		
 	}
 	
@@ -111,7 +110,7 @@ public class Driver {
 		// for each table, create a scan operator
 		for (int i=0; i < tables.size(); i++){
 			TableInfo tableInfo = db.get(tables.get(i).getName());
-			ScanOperator op = new ScanOperator(tableInfo, tables.get(i));
+			TableLogicalOperator op = new TableLogicalOperator(tableInfo, tables.get(i));
 			table_mapping.put(tables.get(i).getAlias() == null ? tables.get(i).getName() : tables.get(i).getAlias() , i);
 			linked_operator.add(op);
 		}
@@ -123,11 +122,11 @@ public class Driver {
 	 */
 	private void selectBuilder() {
 		ArrayList<Expression> select_exp = this.bsv.getSelect();
-		ListIterator<Operator> iter = linked_operator.listIterator();
+		ListIterator<LogicalOperator> iter = linked_operator.listIterator();
 		int index = 0;
 		while(iter.hasNext()){	// 			
 			if (select_exp.get(index) != null) {
-				SelectOperator so = new SelectOperator(iter.next(), select_exp.get(index));			
+				SelectLogicalOperator so = new SelectLogicalOperator(iter.next(), select_exp.get(index));			
 				iter.set(so);
 			}
 			else {
@@ -146,9 +145,9 @@ public class Driver {
 		ArrayList<Expression> join_exp = this.bsv.getJoin();
 		int size = linked_operator.size();
 		for (int i=0; i<size-1; i++){
-			Operator op1 = linked_operator.removeFirst();
-			Operator op2 = linked_operator.removeFirst();
-			JoinOperator jo1 = new JoinOperator(op1, op2, join_exp.get(i));
+			LogicalOperator op1 = linked_operator.removeFirst();
+			LogicalOperator op2 = linked_operator.removeFirst();
+			JoinLogicalOperator jo1 = new JoinLogicalOperator(op1, op2, join_exp.get(i));
 			linked_operator.add(0, jo1);
 		}
 	}
@@ -159,7 +158,7 @@ public class Driver {
 	private void projectBuilder() {		
 		if (plain_select.getSelectItems() != null && !(plain_select.getSelectItems().get(0) instanceof AllColumns)){ 		
 			ArrayList<SelectItem> items = (ArrayList<SelectItem>) plain_select.getSelectItems();
-			root =  new ProjectOperator(root, items);
+			root =  new ProjectLogicalOperator(root, items);
 		}
 	}
 	
@@ -169,7 +168,7 @@ public class Driver {
 	private void sortBuilder() {
 		if (plain_select.getOrderByElements() != null){
 			ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) plain_select.getOrderByElements();	
-			root = new SortOperator(root, order);
+			root = new SortLogicalOperator(root, order);
 		}
 	}
 	
@@ -177,11 +176,8 @@ public class Driver {
 	 * Adds appropriate duplicate elimination operatot to root if necessary
 	 */
 	private void duplicateBuilder() {		
-		if (plain_select.getDistinct() != null){			
-			if (root instanceof SortOperator)
-				root = new SortedDupElimOperator(root);
-			else 
-				root = new HashDupElimOperator(root);
+		if (plain_select.getDistinct() != null){						
+			root = new DuplicateLogicalOperator(root);			
 		}
 	}
 	

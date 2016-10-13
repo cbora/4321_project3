@@ -1,2 +1,2 @@
-bin/Project/*.class
-bin/Operator/*.class
+*.class
+bin/*/*.class

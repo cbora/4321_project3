@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.PrintWriter;
 
+import LogicalOperator.LogicalOperator;
+import LogicalOperator.PhysicalPlanBuilder;
 import Operators.Operator;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.statement.Statement;
@@ -60,8 +62,12 @@ public class Main {
 					Select select = (Select) statement;
 					
 					PlainSelect body = (PlainSelect) select.getSelectBody();	
+					System.out.println(body);
 					Driver d = new Driver(body);
-					Operator o = d.getRoot();
+					LogicalOperator po = d.getRoot();
+					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po);
+					Operator o = ppb.getResult();
+					
 					Tuple t = o.getNextTuple();
 	
 					File fileOut = new File(outputDir + "/query" + queryNum);

@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import IO.BinaryTupleReader;
+import IO.TupleReader;
 import Project.TableInfo;
 import Project.Tuple;
 import net.sf.jsqlparser.schema.Table;
@@ -24,11 +26,9 @@ public class ScanOperator extends Operator {
 	 * Fields
 	 * ===================================== */
 	private TableInfo tableInfo;   // info about the table the operator corresponds to
-	private String tableID;		   // alias of the table. if there is no alias, tableName is used
-	private FileReader fileReader; // FileReader for reading tuples
-	private BufferedReader bufferedReader;   // BufferedReader for reading tuples
+	private String tableID;		   // alias of the table. if there is no alias, tableName is used	
 	private HashMap<String, Integer> schema; // Schema to return from getSchema()
-
+	private TupleReader reader; // tuplereader for pages
 	/* =====================================
 	 * Constructors
 	 * ===================================== */
@@ -43,12 +43,7 @@ public class ScanOperator extends Operator {
 		this.tableInfo = tableInfo;
 		this.tableID = tableID;
 
-		try {
-			this.fileReader = new FileReader(this.tableInfo.getFilePath());
-			this.bufferedReader = new BufferedReader(this.fileReader);
-		} catch (FileNotFoundException ex) {
-			System.out.println("Unable to open file '" + this.tableInfo.getFilePath() + "'");
-		}
+		this.reader = new BinaryTupleReader(this.tableInfo.getFilePath());
 		
 		ArrayList<String> columns = tableInfo.getColumns();
 		this.schema = new HashMap<String, Integer>();
@@ -86,42 +81,19 @@ public class ScanOperator extends Operator {
 	}
 
 	@Override
-	public Tuple getNextTuple() {
-		String line = "";
-		try {
-			line = bufferedReader.readLine();
-			if (line == null)
-				return null;
-		}  catch (IOException ex) {
-			System.out.println("Error :(");
-		}
+	public Tuple getNextTuple() {		
+		Tuple t = reader.read();
 		
-		String values[] = line.split(",");
-		Tuple t = new Tuple(values.length);
-		
-		for (int i = 0; i < t.length(); i++) {
-			t.add(Integer.parseInt(values[i]), i);
-		}
 		return t;
 	}
 
 	@Override
 	public void reset() {
-		try {
-			bufferedReader.close();
-			this.fileReader = new FileReader(this.tableInfo.getFilePath());
-			this.bufferedReader = new BufferedReader(this.fileReader);
-		} catch (IOException ex) {
-			System.out.println("Error :(");
-		}
+		reader.reset();
 	}
 
 	@Override
 	public void close() {
-		try {
-			bufferedReader.close();
-		} catch (IOException ex) {
-			System.out.println("Error closing");
-		}
+		reader.close();
 	}
 }
