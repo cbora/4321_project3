@@ -12,8 +12,7 @@ import Project.TableInfo;
 import Project.Tuple;
 
 /**
- * @author cbora
- *
+ * Class not implemented yet
  */
 public class HumanTupleReader extends TupleReader {
 	

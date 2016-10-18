@@ -7,6 +7,9 @@ import java.io.OutputStreamWriter;
 
 import Project.Tuple;
 
+/**
+ * class not implemented yet
+ */
 public class HumanTupleWriter extends TupleWriter {
 	
 	private String filename;
@@ -29,7 +32,6 @@ public class HumanTupleWriter extends TupleWriter {
 		try {
 			this.bufferedWriter.write(line);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -54,7 +56,11 @@ public class HumanTupleWriter extends TupleWriter {
 
 	@Override
 	public void write(Tuple t) {
-		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void finalize() {
 		
 	}
 }

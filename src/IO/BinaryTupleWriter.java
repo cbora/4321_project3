@@ -3,98 +3,134 @@ package IO;
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
 
 import Project.Tuple;
 
+/**
+ * Writes tuples to a binary file
+ * 
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
+
 public class BinaryTupleWriter extends TupleWriter {
-	
-	private String filename;
-	private ByteBuffer buffer;
-	private FileOutputStream output;
-	private FileChannel channel;
-	private static final int page_size = 4096;
-	private int col_number;	
-	private int buffer_index;
-	private int written_tuples;
-	private int n_pages = 0;
-	public BinaryTupleWriter(String filename){
+
+	/*
+	 * ================================== 
+	 * Fields
+	 * ==================================
+	 */
+	private static final int PAGE_SIZE = 4096; // bytes in a page
+	private static final int BYTES_IN_INT = 4; // bytes in an int
+	private static final int NUM_META_DATA = 2; // number of ints of meta data atop each page
+
+	private String filename; // name of file we are writing to
+	private ByteBuffer buffer; // buffer for holding data to be written
+	private FileOutputStream output; // output stream
+	private FileChannel channel; // channel
+	private int col_number; // columns in tuple
+	private int buffer_index; // our place in the buffer
+	private int written_tuples; // how many tuples on the page we have written so far
+
+	/*
+	 * ================================== 
+	 * Constructors
+	 * ==================================
+	 */
+	/**
+	 * Constructor
+	 * @param filename - name of file we are writing to
+	 */
+	public BinaryTupleWriter(String filename) {
 		this.filename = filename;
 		try {
 			this.output = new FileOutputStream(this.filename);
 			this.channel = output.getChannel();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		this.buffer = ByteBuffer.allocate(page_size);
-		this.buffer_index = 8;
+		this.buffer = ByteBuffer.allocate(PAGE_SIZE);
+		this.buffer_index = NUM_META_DATA * BYTES_IN_INT;
 		this.col_number = -1;
-		this.written_tuples = 0;	
-	}
-	
-	public void write(Tuple t) {
-		int tuples_per_page = (page_size/4 - 2)/t.length();
-		if (written_tuples == tuples_per_page){
-			writePage();
-		}
-		
-
-		if (this.col_number == -1){
-			this.col_number = t.length();
-			
-		}
-		
-		for (int i=0; i<t.length(); i++){
-
-				this.buffer.putInt(this.buffer_index, t.getVal(i));
-				this.buffer_index += 4;
-		}
-		this.written_tuples++;
-		
-	}
-
-	public void writePage() {			
-		this.buffer.putInt(0, this.col_number);
-		this.buffer.putInt(4, this.written_tuples);
-		fill_page();
-		try{			
-			int r = this.channel.write(this.buffer);
-			this.buffer.clear();			
-		} catch(Exception e){
-			e.printStackTrace();
-		}
-		this.buffer_index = 8;
-		this.col_number = -1;		
 		this.written_tuples = 0;
 	}
-	
+
+	/*
+	 * ================================== 
+	 * Methods
+	 * ==================================
+	 */
+	/**
+	 * writes tuple to file
+	 * @param t - tuple to be written
+	 */
+	public void write(Tuple t) {
+		int tuples_per_page = (PAGE_SIZE / BYTES_IN_INT - NUM_META_DATA) / t.length();
+		if (written_tuples == tuples_per_page) {
+			writePage();
+		}
+
+		if (this.col_number == -1) {
+			this.col_number = t.length();
+		}
+
+		for (int i = 0; i < t.length(); i++) {
+
+			this.buffer.putInt(this.buffer_index, t.getVal(i));
+			this.buffer_index += BYTES_IN_INT;
+		}
+		this.written_tuples++;
+
+	}
+
+	/**
+	 * method for flushing any data remaining in buffer to file
+	 */
 	public void finalize() {
-		if (this.buffer_index != 8){
+		if (this.buffer_index != BYTES_IN_INT * NUM_META_DATA) {
 			writePage();
 		}
 	}
-	
-	public void fill_page() {
-		for(int i=this.buffer_index; i< page_size; i+=4){
-			this.buffer.putInt(i, 0);
-		}
-	}
-	
-	public void reset() {
-		
-	}
-	
+
+	/**
+	 * closes any I/O services
+	 */
 	public void close() {
 		finalize();
 		try {
 			this.output.close();
 			this.channel.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
+	/**
+	 * fills end of buffer with 0's
+	 */
+	private void fill_page() {
+		for (int i = this.buffer_index; i < PAGE_SIZE; i += BYTES_IN_INT) {
+			this.buffer.putInt(i, 0);
+		}
+	}
 	
+	/**
+	 * writes buffer to output file
+	 */
+	private void writePage() {
+		this.buffer.putInt(0, this.col_number);
+		this.buffer.putInt(4, this.written_tuples);
+		fill_page();
+		try {
+			this.buffer.clear();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		this.buffer_index = 8;
+		this.col_number = -1;
+		this.written_tuples = 0;
+	}
+
 }

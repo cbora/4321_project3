@@ -4,9 +4,19 @@ import Project.Tuple;
 
 public abstract class TupleWriter {
 
+	/**
+	 * writes tuple to disk
+	 * @param t
+	 */
 	public abstract void write(Tuple t);
-	
-	public abstract void reset();
-	
+		
+	/**
+	 * closes I/O
+	 */
 	public abstract void close();
+	
+	/**
+	 * finalizes write
+	 */
+	public abstract void finalize();
 }
