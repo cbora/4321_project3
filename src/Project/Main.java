@@ -66,8 +66,6 @@ public class Main {
 					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po);
 					Operator o = ppb.getResult();
 					
-					Tuple t = o.getNextTuple();
-
 					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
 					
 					long start = System.currentTimeMillis();
