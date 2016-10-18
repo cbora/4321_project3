@@ -123,14 +123,15 @@ public class BinaryTupleWriter extends TupleWriter {
 	 */
 	private void writePage() {
 		this.buffer.putInt(0, this.col_number);
-		this.buffer.putInt(4, this.written_tuples);
+		this.buffer.putInt(BYTES_IN_INT, this.written_tuples);
 		fill_page();
 		try {
+			this.channel.write(this.buffer);
 			this.buffer.clear();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		this.buffer_index = 8;
+		this.buffer_index = BYTES_IN_INT * NUM_META_DATA;
 		this.col_number = -1;
 		this.written_tuples = 0;
 	}
