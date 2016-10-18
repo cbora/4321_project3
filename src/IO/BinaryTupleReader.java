@@ -68,6 +68,7 @@ public class BinaryTupleReader extends TupleReader {
 	 * reads the next tuple from the file
 	 * @return the next tuple in the file if it exists, null otherwise
 	 */
+	@Override
 	public Tuple read() {
 		if (this.buffer_index / BYTES_IN_INT == (this.col_number * this.row_number + NUM_META_DATA)) {
 			if (!readPage())
@@ -85,6 +86,7 @@ public class BinaryTupleReader extends TupleReader {
 	/**
 	 * resets the reader back to the start of the file
 	 */
+	@Override
 	public void reset() {
 		try {
 			this.input.close();
@@ -100,6 +102,7 @@ public class BinaryTupleReader extends TupleReader {
 	/**
 	 * closes open I/O
 	 */
+	@Override
 	public void close() {
 		try {
 			this.input.close();

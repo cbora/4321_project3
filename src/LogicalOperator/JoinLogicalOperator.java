@@ -2,41 +2,83 @@ package LogicalOperator;
 
 import net.sf.jsqlparser.expression.Expression;
 
+/**
+ * Logical operator for joins
+ * 
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class JoinLogicalOperator extends LogicalOperator {
 
-	private LogicalOperator child1;
-	private LogicalOperator child2;
-	private Expression exp;
+	/*
+	 * ================================== 
+	 * Fields
+	 * ==================================
+	 */
+	private LogicalOperator left; // left child
+	private LogicalOperator right; // right child
+	private Expression exp; // join expression
 	
-	public JoinLogicalOperator(LogicalOperator child1, LogicalOperator child2, Expression exp) {
-		this.child1 = child1;
-		this.child2 = child2;
+	/*
+	 * ================================== 
+	 * Constructors
+	 * ==================================
+	 */
+	/**
+	 * Constructor
+	 * @param child1 - left child
+	 * @param child2 - right child
+	 * @param exp - join expression
+	 */
+	public JoinLogicalOperator(LogicalOperator left, LogicalOperator right, Expression exp) {
+		this.left = left;
+		this.right = right;
 		this.exp = exp;
 	}
 
-	public LogicalOperator getChild1() {
-		return child1;
+	/*
+	 * ================================== 
+	 * Methods
+	 * ==================================
+	 */
+	/**
+	 * @return left child
+	 */
+	public LogicalOperator getLeft() {
+		return left;
 	}
 
-	public void setChild1(LogicalOperator child1) {
-		this.child1 = child1;
+	/**
+	 * @param child - new left child
+	 */
+	public void setLeft(LogicalOperator child) {
+		this.left = child;
 	}
 
-	public LogicalOperator getChild2() {
-		return child2;
+	/**
+	 * @return right child
+	 */
+	public LogicalOperator getRight() {
+		return right;
 	}
 
-	public void setChild2(LogicalOperator child2) {
-		this.child2 = child2;
+	/**
+	 * @param child - new right child
+	 */
+	public void setRight(LogicalOperator child) {
+		this.right = child;
 	}
 
+	/**
+	 * @return - join expression
+	 */
 	public Expression getExp() {
 		return exp;
 	}
-
-	public void setExp(Expression exp) {
-		this.exp = exp;
-	}
+	
+	@Override
 	public void accept(PhysicalPlanBuilder ppb){
 		ppb.visit(this);	
 	}

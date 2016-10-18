@@ -66,6 +66,7 @@ public class BinaryTupleWriter extends TupleWriter {
 	 * writes tuple to file
 	 * @param t - tuple to be written
 	 */
+	@Override
 	public void write(Tuple t) {
 		int tuples_per_page = (PAGE_SIZE / BYTES_IN_INT - NUM_META_DATA) / t.length();
 		if (written_tuples == tuples_per_page) {
@@ -88,6 +89,7 @@ public class BinaryTupleWriter extends TupleWriter {
 	/**
 	 * method for flushing any data remaining in buffer to file
 	 */
+	@Override
 	public void finalize() {
 		if (this.buffer_index != BYTES_IN_INT * NUM_META_DATA) {
 			writePage();
@@ -97,6 +99,7 @@ public class BinaryTupleWriter extends TupleWriter {
 	/**
 	 * closes any I/O services
 	 */
+	@Override
 	public void close() {
 		finalize();
 		try {
