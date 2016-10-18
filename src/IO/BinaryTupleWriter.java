@@ -101,7 +101,6 @@ public class BinaryTupleWriter extends TupleWriter {
 	 */
 	@Override
 	public void close() {
-		finalize();
 		try {
 			this.output.close();
 			this.channel.close();

@@ -1,9 +1,7 @@
 package Project;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
-import java.io.PrintWriter;
 
 import IO.BinaryTupleWriter;
 import LogicalOperator.LogicalOperator;
@@ -69,15 +67,16 @@ public class Main {
 					Operator o = ppb.getResult();
 					
 					Tuple t = o.getNextTuple();
-	
+
 					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
 					while (t != null){
 						writ.write(t);
 			            t = o.getNextTuple();     					
 					}
 					queryNum++;
-					o.close();
+					writ.finalize();
 					writ.close();
+					o.close();
 				}
 				
 			} catch(Exception e){
