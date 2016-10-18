@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.PrintWriter;
 
+import IO.BinaryTupleWriter;
 import LogicalOperator.LogicalOperator;
 import LogicalOperator.PhysicalPlanBuilder;
 import Operators.Operator;
@@ -62,7 +63,6 @@ public class Main {
 					Select select = (Select) statement;
 					
 					PlainSelect body = (PlainSelect) select.getSelectBody();	
-					System.out.println(body);
 					Driver d = new Driver(body);
 					LogicalOperator po = d.getRoot();
 					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po);
@@ -70,16 +70,14 @@ public class Main {
 					
 					Tuple t = o.getNextTuple();
 	
-					File fileOut = new File(outputDir + "/query" + queryNum);
-					PrintWriter writer = new PrintWriter(fileOut);
-	
+					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
 					while (t != null){
-						writer.println(t.toString());
+						writ.write(t);
 			            t = o.getNextTuple();     					
 					}
-					writer.close();				
 					queryNum++;
 					o.close();
+					writ.close();
 				}
 				
 			} catch(Exception e){
