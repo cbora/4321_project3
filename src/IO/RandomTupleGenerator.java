@@ -1,8 +1,11 @@
 package IO;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 import Project.Tuple;
+import Project.TupleComparator;
 
 /**
  * Generates a file of random tuples
@@ -14,32 +17,6 @@ import Project.Tuple;
  */
 
 public class RandomTupleGenerator {
-
-	/*
-	 * ================================== 
-	 * Fields
-	 * ==================================
-	 */
-	private String output; // name of output file we are writing to
-	private int numTuples; // number of tuples we want to generate
-	private int numCols; // number of columns these tuples chould have
-	
-	/*
-	 * ================================== 
-	 * Constructor
-	 * ==================================
-	 */
-	/**
-	 * Constructor
-	 * @param output - name of output file
-	 * @param numTuples - number of tuples we want in file
-	 * @param numCols - number of columns these tuples should have
-	 */
-	public RandomTupleGenerator(String output, int numTuples, int numCols) {
-		this.output = output;
-		this.numTuples = numTuples;
-		this.numCols = numCols;
-	}
 	
 	/*
 	 * ================================== 
@@ -47,9 +24,12 @@ public class RandomTupleGenerator {
 	 * ==================================
 	 */
 	/**
-	 * generates the file
+	 * generates file of tuples
+	 * @param output - name of output file
+	 * @param numTuples - number tuples to generate
+	 * @param numCols - number of columns to give each tuple
 	 */
-	public void genTuples() {
+	public static void genTuples(String output, int numTuples, int numCols) {
 		BinaryTupleWriter writer = new BinaryTupleWriter(output);
 		Random rand = new Random();
 		
@@ -62,6 +42,39 @@ public class RandomTupleGenerator {
 			writer.write(t);
 		}
 		
+		writer.finalize();
+		writer.close();
+	}
+	
+	/**
+	 * generates sorted file of tuples with leftmost columns given priority of rightmost columns
+	 * @param output - name of output file
+	 * @param numTuples - number tuples to generate
+	 * @param numCols - number of columns to give each tuple
+	 */
+	public static void genSortedTuples(String output, int numTuples, int numCols) {
+		ArrayList<Tuple> tuples = new ArrayList<Tuple>();
+		Random rand = new Random();
+		
+		for (int i = 0; i < numTuples; i++) {
+			Tuple t = new Tuple(numCols);
+			t.add(i, 0);
+			for (int j = 1; j < numCols; j++) {
+				t.add(rand.nextInt(1000), j);
+			}
+			tuples.add(t);
+		}
+		
+		int order[] = new int[numCols];
+		for (int i = 0; i < numCols; i++) 
+			order[i] = i;
+		
+		Collections.sort(tuples, new TupleComparator(order)); 
+		
+		BinaryTupleWriter writer = new BinaryTupleWriter(output);
+		for (int i = 0; i < tuples.size(); i++) {
+			writer.write(tuples.get(i));
+		}
 		writer.finalize();
 		writer.close();
 	}

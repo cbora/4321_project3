@@ -69,14 +69,15 @@ public class Main {
 					Tuple t = o.getNextTuple();
 
 					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
-					while (t != null){
-						writ.write(t);
-			            t = o.getNextTuple();     					
-					}
-					queryNum++;
-					writ.finalize();
+					
+					long start = System.currentTimeMillis();
+					o.dump(writ);
+					long end = System.currentTimeMillis();
+					System.out.println(end - start);
+
 					writ.close();
 					o.close();
+					queryNum++;
 				}
 				
 			} catch(Exception e){

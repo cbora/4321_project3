@@ -2,6 +2,7 @@ package Operators;
 
 import java.util.HashMap;
 
+import IO.TupleWriter;
 import Project.Tuple;
 
 /**
@@ -46,6 +47,19 @@ public abstract class Operator {
 			System.out.println(t);
 			t = getNextTuple();
 		}
+	}
+	
+	/**
+	 * Repeatedly calls getNextTuple(), printing results using the TupleWriter, until
+	 * no more tuples remain
+	 */
+	public void dump(TupleWriter writer) {
+		Tuple t = getNextTuple();
+		while (t != null) {
+			writer.write(t);
+			t = getNextTuple();
+		}
+		writer.finalize();
 	}
 
 }
