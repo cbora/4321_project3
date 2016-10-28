@@ -105,7 +105,7 @@ public class PhysicalPlanBuilder {
 			s = new InMemSortOperator(o, ob);
 			break;
 		case 1:
-			s = new ExtSortOperator();
+			s = new ExtSortOperator(o, ob);
 			break;
 		}
 		
