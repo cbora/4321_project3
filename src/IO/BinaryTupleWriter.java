@@ -85,6 +85,12 @@ public class BinaryTupleWriter extends TupleWriter {
 		this.written_tuples++;
 
 	}
+	
+	public void write(Tuple[] t){
+		for (int i=0; i< t.length&&t[i] != null; i++){
+			write(t[i]);
+		}
+	}
 
 	/**
 	 * method for flushing any data remaining in buffer to file

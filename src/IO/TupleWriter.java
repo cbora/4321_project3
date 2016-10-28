@@ -9,6 +9,14 @@ public abstract class TupleWriter {
 	 * @param t
 	 */
 	public abstract void write(Tuple t);
+	
+	/**
+	 * writes array of tuples to disk
+	 * @param t
+	 */
+	public abstract void write(Tuple[] t);
+	
+	
 		
 	/**
 	 * closes I/O
