@@ -31,7 +31,7 @@ public class PhysicalPlanBuilder {
 	private Stack<Operator> pStack; // keeps track of physical operators
 	private String[] joinPlan; // Strings that indicate which join plan to use
 	private String[] sortPlan; // String which indicate which sort type to use
-
+	private String tmp_dir; // Arg temp directory
 	/*
 	 * ================================== 
 	 * Constructors
@@ -43,10 +43,11 @@ public class PhysicalPlanBuilder {
 	 * @param root
 	 *            - root of logical operator tree
 	 */
-	public PhysicalPlanBuilder(LogicalOperator root, String[] joinPlan, String[] sortPlan) {
+	public PhysicalPlanBuilder(LogicalOperator root, String[] joinPlan, String[] sortPlan, String tmp_dir) {
 		this.pStack = new Stack<Operator>();
 		this.joinPlan = joinPlan;
 		this.sortPlan = sortPlan;
+		this.tmp_dir = tmp_dir;
 		root.accept(this);
 	}
 
@@ -105,7 +106,7 @@ public class PhysicalPlanBuilder {
 			s = new InMemSortOperator(o, ob);
 			break;
 		case 1:
-			s = new ExtSortOperator(o, ob);
+			s = new ExtSortOperator(o, ob, this.tmp_dir,Integer.parseInt(sortPlan[1]));
 			break;
 		}
 		

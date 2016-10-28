@@ -33,7 +33,7 @@ public class ExtSortOperator extends SortOperator {
 	//private int num
 	
 	
-	public ExtSortOperator(Operator child, ArrayList<OrderByElement> order_by, String tmp_dir, int buffer_pages) {
+	public ExtSortOperator(Operator child, ArrayList<OrderByElement> order_by, String tmp_dir, int bSize) {
 		//public ExtSortOperator(Operator child, ArrayList<OrderByElement> order_by) {
 		super(child, order_by);
 		this.bSize = (bSize > 0) ? bSize : 1;
@@ -43,8 +43,8 @@ public class ExtSortOperator extends SortOperator {
 		this.prev_run_index = 0;
 		this.pass = 0;
 		this.curr_run = 0;
-		makeTemp(); // make subdirectory
-		extsort();
+		makeTemp(); // make subdirectory		
+		extsort();		
 	}
 	
 	
@@ -53,7 +53,9 @@ public class ExtSortOperator extends SortOperator {
 		this.tmp_dir = this.given_tmp_dir + "/" + String.valueOf(uuid);
 		File newDir = new File(this.tmp_dir);
 		if (!newDir.exists()){
-			newDir.mkdir();
+			if(!newDir.mkdir()){
+				this.tmp_dir = this.given_tmp_dir;
+			}
 		}else {
 			this.tmp_dir = this.given_tmp_dir;
 		}
@@ -103,13 +105,13 @@ public class ExtSortOperator extends SortOperator {
 	 */
 	
 	public void extsort() {
+		
 		pass0();
-
 
 		while(this.prev_runs > 1) {
 			passN();
 		}
-		this.output_reader = new BinaryTupleReader(this.given_tmp_dir + "/" + this.pass + "_" + "0");
+		this.output_reader = new BinaryTupleReader(this.tmp_dir + "/" + this.pass + "_" + "0");
 		
 	}
 	
@@ -155,13 +157,14 @@ public class ExtSortOperator extends SortOperator {
 		TupleReader[] readers = new TupleReader[this.bSize-1];
 		Tuple[]  t = new Tuple[this.bSize-1];
 		for (int i=0; i<this.bSize-1; i++) {
-			if (this.prev_run_index >= this.prev_runs)
+			if (this.prev_run_index >= this.prev_runs){
+				//this.prev_run_index				
 				break;
+			}			
 			readers[i] = new BinaryTupleReader(this.tmp_dir + "/" + this.pass + "_" + this.prev_run_index);
 			this.prev_run_index++; 
 			t[i] = readers[i].read();
-		}
-
+		}	
 		TupleComparator comparator = new TupleComparator(this.sort_order);
 		TupleWriter writer = new BinaryTupleWriter(this.tmp_dir + "/" + (this.pass + 1) + "_" + this.curr_run);
 		while(!isNull(t)){
@@ -177,8 +180,8 @@ public class ExtSortOperator extends SortOperator {
 				else if (comparator.compare(t[i], min) == -1){
 						min = t[i];
 						min_index = i;
-				}
-			}
+				}				
+			}			
 			t[min_index] = readers[min_index].read();
 			writer.write(min);
 		}

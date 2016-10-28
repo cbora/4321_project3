@@ -26,6 +26,7 @@ public class Main {
 		DbCatalog dbC = DbCatalog.getInstance(); 
 		final String inputDir = args[0];
 		final String outputDir = args[1];
+		final String tmpDir = args[2];
 		final String queriesFile = "queries.sql";
 		
 		// Read from schema to construct DB catalog
@@ -82,7 +83,7 @@ public class Main {
 					LogicalOperator po = d.getRoot();
 					
 					
-					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, joinPlan, sortPlan);
+					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, joinPlan, sortPlan, tmpDir);
 					Operator o = ppb.getResult();
 					
 					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
