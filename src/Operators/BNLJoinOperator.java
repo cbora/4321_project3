@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import Project.Tuple;
 
-public abstract class SortOperator extends Operator {
+public class BNLJoinOperator extends JoinOperator {
 
 	@Override
 	public HashMap<String, Integer> getSchema() {

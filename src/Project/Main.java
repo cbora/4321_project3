@@ -5,8 +5,9 @@ import java.io.FileReader;
 
 import IO.BinaryTupleWriter;
 import LogicalOperator.LogicalOperator;
-import LogicalOperator.PhysicalPlanBuilder;
+import LogicalOperator.LogicalPlanBuilder;
 import Operators.Operator;
+import Operators.PhysicalPlanBuilder;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -27,6 +28,7 @@ public class Main {
 		final String outputDir = args[1];
 		final String queriesFile = "queries.sql";
 		
+		// Read from schema to construct DB catalog
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(inputDir + "/db/schema.txt"));
 
@@ -45,10 +47,24 @@ public class Main {
 		    br.close();
 		    
 		 } catch (Exception e) {
-    			System.err.println("Exception occurred during reading");
+    			System.err.println("Exception occurred during schema reading");
     			e.printStackTrace();    			
 		 }
 		
+		// Read from plan_builder_config.txt to develop query plan
+		String joinPlan[] = null;
+		String sortPlan[] = null;
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(inputDir + "/plan_builder_config.txt"));
+			joinPlan = br.readLine().split(" ");
+			sortPlan = br.readLine().split(" ");
+			br.close();
+		} catch (Exception e) {
+			System.err.println("Exception occurred during plan reading");
+			e.printStackTrace();    			
+		}
+		
+		// Parse and evaluate queries
 		try {
 			CCJSqlParser parser = new CCJSqlParser(new FileReader(inputDir + "/" + queriesFile));
 
@@ -61,9 +77,12 @@ public class Main {
 					Select select = (Select) statement;
 					
 					PlainSelect body = (PlainSelect) select.getSelectBody();	
-					Driver d = new Driver(body);
+					
+					LogicalPlanBuilder d = new LogicalPlanBuilder(body);
 					LogicalOperator po = d.getRoot();
-					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po);
+					
+					
+					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, joinPlan, sortPlan);
 					Operator o = ppb.getResult();
 					
 					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );

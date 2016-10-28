@@ -3,6 +3,7 @@
  */
 package LogicalOperator;
 
+import Operators.PhysicalPlanBuilder;
 import Project.TableInfo;
 import net.sf.jsqlparser.schema.Table;
 

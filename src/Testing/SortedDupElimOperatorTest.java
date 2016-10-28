@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNull;
 import org.junit.Test;
 
 import Operators.ScanOperator;
-import Operators.SortOperator;
+import Operators.InMemSortOperator;
 import Operators.SortedDupElimOperator;
 import Project.TableInfo;
 import Project.Tuple;

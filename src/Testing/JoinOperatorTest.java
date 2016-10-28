@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import Operators.JoinOperator;
+import Operators.TNLJoinOperator;
 import Operators.ScanOperator;
 import Operators.SelectOperator;
 import Project.TableInfo;
@@ -48,7 +48,7 @@ public class JoinOperatorTest {
 		exp.setRightExpression(col2);
 		
 		// join operator
-		JoinOperator join = new JoinOperator(scn1, scn2, exp);
+		TNLJoinOperator join = new TNLJoinOperator(scn1, scn2, exp);
 		Tuple t;
 		t = join.getNextTuple();
 		assertEquals(t.toString(), "101,2,3,1,101");
@@ -83,7 +83,7 @@ public class JoinOperatorTest {
 		ScanOperator scn2 = new ScanOperator(tableInfo2);
 		
 		// join operator
-		JoinOperator join = new JoinOperator(scn1, scn2);
+		TNLJoinOperator join = new TNLJoinOperator(scn1, scn2);
 		Tuple t;
 		t = join.getNextTuple();
 		assertEquals(t.toString(), "101,2,3,1,101");
@@ -203,8 +203,8 @@ public class JoinOperatorTest {
 		exp2.setRightExpression(col4);
 		
 		// join operator
-		JoinOperator join1 = new JoinOperator(scn1, scn2, exp1);
-		JoinOperator join2 = new JoinOperator(join1, scn3, exp2);
+		TNLJoinOperator join1 = new TNLJoinOperator(scn1, scn2, exp1);
+		TNLJoinOperator join2 = new TNLJoinOperator(join1, scn3, exp2);
 		Tuple t;
 		t = join2.getNextTuple();
 		assertEquals(t.toString(), "101,2,3,1,101,1,200,50");
@@ -255,7 +255,7 @@ public class JoinOperatorTest {
 		exp.setRightExpression(col2);
 		
 		// join operator
-		JoinOperator join = new JoinOperator(scn1, scn2, exp);
+		TNLJoinOperator join = new TNLJoinOperator(scn1, scn2, exp);
 		Tuple t;
 		t = join.getNextTuple();
 		assertEquals(t.toString(), "101,2,3,1,101");
@@ -302,7 +302,7 @@ public class JoinOperatorTest {
 		exp.setRightExpression(col2);
 		
 		// join operator
-		JoinOperator join = new JoinOperator(scn1, scn2, exp);
+		TNLJoinOperator join = new TNLJoinOperator(scn1, scn2, exp);
 		Tuple t;
 		for (int i = 0; i < 3; i++) {
 			t = join.getNextTuple();
@@ -340,7 +340,7 @@ public class JoinOperatorTest {
 		ScanOperator scn2 = new ScanOperator(tableInfo2);
 		
 		// join operator
-		JoinOperator join1 = new JoinOperator(scn1, scn2);
+		TNLJoinOperator join1 = new TNLJoinOperator(scn1, scn2);
 		assertEquals((int) join1.getSchema().get("Boats.D"), 0);
 		assertEquals((int) join1.getSchema().get("Boats.E"), 1);
 		assertEquals((int) join1.getSchema().get("Boats.F"), 2);
@@ -354,7 +354,7 @@ public class JoinOperatorTest {
 		ScanOperator scn4 = new ScanOperator(tableInfo2, "R");
 		
 		// join operator
-		JoinOperator join2 = new JoinOperator(scn3, scn4);
+		TNLJoinOperator join2 = new TNLJoinOperator(scn3, scn4);
 		assertEquals((int) join2.getSchema().get("B.D"), 0);
 		assertEquals((int) join2.getSchema().get("B.E"), 1);
 		assertEquals((int) join2.getSchema().get("B.F"), 2);

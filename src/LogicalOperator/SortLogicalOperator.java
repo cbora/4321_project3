@@ -2,6 +2,7 @@ package LogicalOperator;
 
 import java.util.ArrayList;
 
+import Operators.PhysicalPlanBuilder;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
 /**

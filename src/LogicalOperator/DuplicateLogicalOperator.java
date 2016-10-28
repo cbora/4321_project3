@@ -3,6 +3,8 @@
  */
 package LogicalOperator;
 
+import Operators.PhysicalPlanBuilder;
+
 /**
  * Logical operator for duplicate elimination
  * 

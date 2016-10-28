@@ -1,5 +1,7 @@
 package LogicalOperator;
 
+import Operators.PhysicalPlanBuilder;
+
 public abstract class LogicalOperator {
 
 	/**

@@ -10,7 +10,7 @@ import java.util.HashMap;
 import org.junit.Test;
 
 import Operators.ScanOperator;
-import Operators.SortOperator;
+import Operators.InMemSortOperator;
 import Project.TableInfo;
 import Project.Tuple;
 import Project.TupleComparator;
@@ -41,7 +41,7 @@ public class SortOperatorTest {
 		}				
 		PlainSelect body = (PlainSelect) s.getSelectBody();
 		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
-		SortOperator srt = new SortOperator(so, order);
+		InMemSortOperator srt = new InMemSortOperator(so, order);
 		Tuple t = srt.getNextTuple();
 		assertEquals(t.toString(), "101,2,3");
 	}
@@ -66,7 +66,7 @@ public class SortOperatorTest {
 		}				
 		PlainSelect body = (PlainSelect) s.getSelectBody();
 		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
-		SortOperator srt = new SortOperator(so, order);
+		InMemSortOperator srt = new InMemSortOperator(so, order);
 		Tuple t = srt.getNextTuple();
 		assertEquals(t.toString(), "101,2,3");
 	}
@@ -91,7 +91,7 @@ public class SortOperatorTest {
 		}				
 		PlainSelect body = (PlainSelect) s.getSelectBody();
 		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
-		SortOperator srt = new SortOperator(so, order);
+		InMemSortOperator srt = new InMemSortOperator(so, order);
 		
 		Tuple t1 = srt.getNextTuple();
 		assertEquals(t1.toString(), "101,2,3");
@@ -128,7 +128,7 @@ public class SortOperatorTest {
 		}				
 		PlainSelect body = (PlainSelect) s.getSelectBody();
 		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
-		SortOperator srt = new SortOperator(so, order);
+		InMemSortOperator srt = new InMemSortOperator(so, order);
 		
 		Tuple t1 = srt.getNextTuple();
 		assertEquals(t1.toString(), "101,2,3");
@@ -167,7 +167,7 @@ public class SortOperatorTest {
 		}				
 		PlainSelect body = (PlainSelect) s.getSelectBody();
 		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
-		SortOperator srt = new SortOperator(so, order);
+		InMemSortOperator srt = new InMemSortOperator(so, order);
 		
 		Tuple t1 = srt.getNextTuple();
 		assertEquals(t1.toString(), "103,1,1");
@@ -205,7 +205,7 @@ public class SortOperatorTest {
 		}				
 		PlainSelect body = (PlainSelect) s.getSelectBody();
 		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
-		SortOperator srt = new SortOperator(so, order);
+		InMemSortOperator srt = new InMemSortOperator(so, order);
 		
 		Tuple t1 = srt.getNextTuple();
 		assertEquals(t1.toString(), "103,1,1");
@@ -243,7 +243,7 @@ public class SortOperatorTest {
 		}				
 		PlainSelect body = (PlainSelect) s.getSelectBody();
 		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
-		SortOperator srt = new SortOperator(so, order);
+		InMemSortOperator srt = new InMemSortOperator(so, order);
 		Tuple t = srt.getNextTuple();
 		assertEquals(t.toString(), "101,2,3");		
 	}
@@ -268,7 +268,7 @@ public class SortOperatorTest {
 		}				
 		PlainSelect body = (PlainSelect) s.getSelectBody();
 		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
-		SortOperator srt = new SortOperator(so, order);
+		InMemSortOperator srt = new InMemSortOperator(so, order);
 		Tuple t = srt.getNextTuple();
 		assertEquals(t.toString(), "103,1,1");
 	}
@@ -292,7 +292,7 @@ public class SortOperatorTest {
 		}				
 		PlainSelect body = (PlainSelect) s.getSelectBody();
 		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
-		SortOperator srt = new SortOperator(so, order);
+		InMemSortOperator srt = new InMemSortOperator(so, order);
 		Tuple t = srt.getNextTuple();
 		assertEquals(t.toString(), "103,1,1");
 	}
@@ -316,7 +316,7 @@ public class SortOperatorTest {
 		}				
 		PlainSelect body = (PlainSelect) s.getSelectBody();
 		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
-		SortOperator srt = new SortOperator(so, order);
+		InMemSortOperator srt = new InMemSortOperator(so, order);
 		Tuple t;
 		t = srt.getNextTuple();
 		assertEquals(t.toString(), "1,1,1");
@@ -345,7 +345,7 @@ public class SortOperatorTest {
 		}				
 		PlainSelect body = (PlainSelect) s.getSelectBody();
 		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
-		SortOperator srt = new SortOperator(so, order);
+		InMemSortOperator srt = new InMemSortOperator(so, order);
 		Tuple t;
 		t = srt.getNextTuple();
 		assertEquals(t.toString(), "1,1,1");
@@ -374,7 +374,7 @@ public class SortOperatorTest {
 		}				
 		PlainSelect body = (PlainSelect) s.getSelectBody();
 		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
-		SortOperator srt = new SortOperator(so, order);
+		InMemSortOperator srt = new InMemSortOperator(so, order);
 		Tuple t;
 		t = srt.getNextTuple();
 		assertEquals(t.toString(), "1,1,1");
@@ -403,7 +403,7 @@ public class SortOperatorTest {
 		}				
 		PlainSelect body = (PlainSelect) s.getSelectBody();
 		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
-		SortOperator srt = new SortOperator(so, order);
+		InMemSortOperator srt = new InMemSortOperator(so, order);
 		Tuple t;
 		t = srt.getNextTuple();
 		assertEquals(t.toString(), "1,1,1");
@@ -438,7 +438,7 @@ public class SortOperatorTest {
 		}				
 		PlainSelect body = (PlainSelect) s.getSelectBody();
 		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
-		SortOperator srt = new SortOperator(so, order);
+		InMemSortOperator srt = new InMemSortOperator(so, order);
 		Tuple t;
 		for (int i = 0; i < 3; i++) {
 			t = srt.getNextTuple();
@@ -476,7 +476,7 @@ public class SortOperatorTest {
 		}				
 		PlainSelect body = (PlainSelect) s.getSelectBody();
 		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
-		SortOperator srt = new SortOperator(so, order);
+		InMemSortOperator srt = new InMemSortOperator(so, order);
 		HashMap<String, Integer> schema = srt.getSchema();
 		assertEquals((Integer) schema.get("SortTest.A"), (Integer) 0);
 		assertEquals((Integer) schema.get("SortTest.B"), (Integer) 1);
@@ -503,7 +503,7 @@ public class SortOperatorTest {
 		}				
 		PlainSelect body = (PlainSelect) s.getSelectBody();
 		ArrayList<OrderByElement> order = (ArrayList<OrderByElement>) body.getOrderByElements();
-		SortOperator srt = new SortOperator(so, order);
+		InMemSortOperator srt = new InMemSortOperator(so, order);
 		Tuple t;
 		
 		for (int i = 0; i < 3; i++)

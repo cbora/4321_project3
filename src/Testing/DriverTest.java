@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 
+import LogicalOperator.LogicalPlanBuilder;
 import Operators.HashDupElimOperator;
 import Operators.Operator;
 import Operators.ScanOperator;
-import Operators.SortOperator;
+import Operators.InMemSortOperator;
 import Project.DbCatalog;
-import Project.Driver;
 import Project.TableInfo;
 import Project.Tuple;
 import net.sf.jsqlparser.parser.CCJSqlParser;

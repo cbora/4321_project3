@@ -1,5 +1,6 @@
 package LogicalOperator;
 
+import Operators.PhysicalPlanBuilder;
 import net.sf.jsqlparser.expression.Expression;
 
 /**

@@ -1,17 +1,13 @@
-package Project;
+package LogicalOperator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import LogicalOperator.DuplicateLogicalOperator;
-import LogicalOperator.JoinLogicalOperator;
-import LogicalOperator.LogicalOperator;
-import LogicalOperator.ProjectLogicalOperator;
-import LogicalOperator.SelectLogicalOperator;
-import LogicalOperator.SortLogicalOperator;
-import LogicalOperator.TableLogicalOperator;
+import Project.BuildSelectConditionsVisitor;
+import Project.DbCatalog;
+import Project.TableInfo;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
@@ -27,7 +23,7 @@ import net.sf.jsqlparser.statement.select.SelectItem;
  * @author Han Wen Chen (hc844)
  *
  */
-public class Driver {
+public class LogicalPlanBuilder {
 
 	/* ================================== 
 	 * Fields
@@ -47,7 +43,7 @@ public class Driver {
 	 * Constructor
 	 * @param plain_select - SQL SELECT query
 	 */
-	public Driver(PlainSelect plain_select) {
+	public LogicalPlanBuilder(PlainSelect plain_select) {
 		this.plain_select = plain_select;
 		this.table_mapping = new HashMap<String, Integer>();
 		this.linked_operator = new LinkedList<LogicalOperator>();
