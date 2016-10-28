@@ -80,10 +80,10 @@ public class PhysicalPlanBuilder {
 			j = new TNLJoinOperator(left, right, exp);
 			break;
 		case 1:
-			j = new BNLJoinOperator();
+			j = new BNLJoinOperator(left, right, exp, Integer.parseInt(joinPlan[1]));
 			break;
 		case 2:
-			j = new SMJoinOperator();
+			j = new SMJoinOperator(left, right, exp);
 			break;
 		}
 		

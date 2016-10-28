@@ -1,9 +1,5 @@
 package Operators;
 
-import java.util.HashMap;
-import java.util.Set;
-
-import Project.EvalExpressionVisitor;
 import Project.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 
@@ -19,10 +15,6 @@ public class TNLJoinOperator extends JoinOperator {
 	/* ================================== 
 	 * Fields
 	 * ================================== */
-	private Operator leftChild; // left child operator in operator tree
-	private Operator rightChild; // right child operator in operator tree
-	private HashMap<String, Integer> schema; // schema of tuples returned by this operator
-	private Expression exp; // join condition
 	private Tuple lastLeft; // left tuple we have seen from leftChild
 	
 	/* ================================== 
@@ -35,22 +27,8 @@ public class TNLJoinOperator extends JoinOperator {
 	 * @param exp - expression for the condition we are joining on
 	 */
 	public TNLJoinOperator(Operator leftChild, Operator rightChild, Expression exp) {
-		this.leftChild = leftChild;
-		this.rightChild = rightChild;
-		this.schema = new HashMap<String, Integer>();
-		this.exp = exp;
+		super(leftChild, rightChild, exp);
 		this.lastLeft = this.leftChild.getNextTuple();
-		
-		HashMap<String, Integer> s1 = this.leftChild.getSchema();
-		this.schema.putAll(s1); // add all the left child's columns to schema
-		
-		HashMap<String, Integer> s2 = this.rightChild.getSchema();
-		Set<String> keys = s2.keySet();
-		// add all right child's columns to schema, but increment index
-		// to reflect the fact that they now are located after left child's columns
-		for (String key : keys) {
-			this.schema.put(key, s2.get(key) + s1.size());
-		}
 	}
 	
 	/**
@@ -65,10 +43,6 @@ public class TNLJoinOperator extends JoinOperator {
 	/* ================================== 
 	 * Methods
 	 * ================================== */
-	@Override
-	public HashMap<String, Integer> getSchema() {
-		return this.schema;
-	}
 
 	@Override
 	public Tuple getNextTuple() {
@@ -96,24 +70,6 @@ public class TNLJoinOperator extends JoinOperator {
 		this.leftChild.reset();
 		this.lastLeft = leftChild.getNextTuple();
 		this.rightChild.reset();
-	}
-	
-	@Override
-	public void close() {
-		leftChild.close();
-		rightChild.close();
-	}
-	
-	/**
-	 * Checks if a tuple t passes the condition in join condition
-	 * @param t - tuple we are checking
-	 * @return true if pass, false otherwise
-	 */
-	private boolean passesCondition(Tuple t) {
-		if (this.exp == null)
-			return true;
-		EvalExpressionVisitor e = new EvalExpressionVisitor(this.exp, this.schema, t);
-		return e.getResult();
 	}
 
 }
