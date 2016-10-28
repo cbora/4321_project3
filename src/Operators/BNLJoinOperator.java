@@ -12,6 +12,8 @@ public class BNLJoinOperator extends JoinOperator {
 	private static int INT_SIZE = Integer.SIZE / Byte.SIZE; // bytes per int
 	private Tuple[] buffer; // tuple buffer
 	private int bIndex; // position in tuple buffer
+	private Tuple lastRight; // last tuple returned by rightChild
+	private boolean isEmpty; // flags if either relation is empty
 	
 	/* ================================== 
 	 * Constructors
@@ -21,20 +23,24 @@ public class BNLJoinOperator extends JoinOperator {
 	 * @param leftChild
 	 * @param rightChild
 	 * @param exp - expression for the condition we are joining on
-	 * @param bSize - buffer size in pages
+	 * @param bSize - buffer size in pages (must be >0 otherwise defaults to 1)
 	 */
 	public BNLJoinOperator(Operator leftChild, Operator rightChild, Expression exp, int bSize) {
 		super(leftChild, rightChild, exp);
+		
+		bSize = (bSize > 0) ? bSize : 1;
 		this.buffer = new Tuple[(bSize * PAGE_SIZE) / (INT_SIZE * schema.size())];
 		this.bIndex = 0;
 		fillBuffer();
+		this.lastRight = this.rightChild.getNextTuple();
+		this.isEmpty = this.lastRight == null || buffer[0] == null;
 	}
 	
 	/**
 	 * Cartesian product constructor - set join condition to null
 	 * @param leftChild
 	 * @param rightChild
-	 * @param bSize - buffer siz in pages
+	 * @param bSize - buffer size in pages (must be >0 otherwise defaults to 1)
 	 */
 	public BNLJoinOperator(Operator leftChild, Operator rightChild, int bSize) {
 		this(leftChild, rightChild, null, bSize);
@@ -45,37 +51,38 @@ public class BNLJoinOperator extends JoinOperator {
 	 * ================================== */
 	@Override
 	public Tuple getNextTuple() {
-		Tuple right = rightChild.getNextTuple();
-		
-		// if reached end of right relation, reset right and increment bIndex
-		if (right == null) {
-			rightChild.reset();
-			right = rightChild.getNextTuple();
-			
-			// if right is still null, then right relation is empty, so return null
-			if (right == null)
-				return null;
-			
-			bIndex++;
-		}
-		
-		// if reached end of buffer, refill buffer
-		if (bIndex >= buffer.length) {
-			bIndex = 0;
-			fillBuffer();
-		}
-		
-		Tuple left = buffer[bIndex];
-
-		// if current spot in the buffer is null, we have looked at all tuples in left relation. Return null.
-		if (left == null) {
+		// if either relation is empty, return null
+		if (isEmpty)
 			return null;
+		
+		// If reached end of buffer or reached null Tuple, increment lastRight and proceed
+		if (bIndex >= buffer.length || buffer[bIndex] == null) {
+			// increment lastRight
+			lastRight = rightChild.getNextTuple();
+			
+			// if current spot in buffer is null and lastRight is null, we are done
+			if (bIndex < buffer.length && buffer[bIndex] == null && lastRight == null) {
+				return null;
+			}
+			// else if lastRight is null, we have finished with the current buffer. Refill buffer.
+			else if (lastRight == null) {
+				rightChild.reset();
+				lastRight = rightChild.getNextTuple();
+				
+				fillBuffer();
+				
+				// if new buffer is empty, return null
+				if (buffer[0] == null)
+					return null;
+			}
+			
+			// reset to start of buffer
+			bIndex = 0;
 		}
+						
+		Tuple result = Tuple.concat(buffer[bIndex], lastRight);
+		bIndex++;
 		
-		// concatenate tuple from left relation with tuple from right relation
-		Tuple result = Tuple.concat(left, right);
-		
-		// return result if it passes join condition. otherwise call getNextTuple() again
 		return passesCondition(result) ? result : getNextTuple();
 	}
 
@@ -83,6 +90,7 @@ public class BNLJoinOperator extends JoinOperator {
 	public void reset() {
 		leftChild.reset();
 		rightChild.reset();
+		lastRight = rightChild.getNextTuple();
 		bIndex = 0;
 		fillBuffer();
 	}
