@@ -1,15 +1,14 @@
 package Operators;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
 import Project.Tuple;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 
 public class ExtSortOperator extends SortOperator {
 
-	@Override
-	public HashMap<String, Integer> getSchema() {
-		// TODO Auto-generated method stub
-		return null;
+	public ExtSortOperator(Operator child, ArrayList<OrderByElement> order_by) {
+		super(child, order_by);
 	}
 
 	@Override
@@ -20,12 +19,6 @@ public class ExtSortOperator extends SortOperator {
 
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void close() {
 		// TODO Auto-generated method stub
 
 	}

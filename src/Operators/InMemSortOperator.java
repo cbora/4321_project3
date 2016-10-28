@@ -1,9 +1,7 @@
 package Operators;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 
 import Project.Tuple;
 import Project.TupleComparator;
@@ -21,12 +19,9 @@ public class InMemSortOperator extends SortOperator {
 	/* ================================== 
 	 * Fields
 	 * ================================== */
-	private Operator child; // child operator in operator tree
-	private ArrayList<Tuple> sorted_tuples; // sorted list of tuples retrieved from child
-	private ArrayList<OrderByElement> order_by; // order by expression
-	private HashMap<String, Integer> schema; // schema of tuples returned by operator
-	public int[] sort_order; // priority of the columns in sort (so [1,0] means col1 has priority over col0)
 	private int index; // where we are in sorted_tuples
+	private ArrayList<Tuple> sorted_tuples; // sorted list of tuples retrieved from child
+
 	
 	/* ================================== 
 	 * Constructor
@@ -37,24 +32,15 @@ public class InMemSortOperator extends SortOperator {
 	 * @param order_by - order by expression
 	 */
 	public InMemSortOperator(Operator child, ArrayList<OrderByElement> order_by){
-		this.child = child;
-		this.order_by = order_by;
+		super(child, order_by);
 		this.sorted_tuples = new ArrayList<Tuple>();
-		this.schema = child.getSchema();
-		this.sort_order = new int[this.schema.size()];
 		this.index = 0;
-		makeSortOrder(); // make the sort order array
 		preFetch(); // fetch all the tuples and sort them
 	}
 	
 	/* ================================== 
 	 * Methods
 	 * ================================== */
-	@Override
-	public HashMap<String, Integer> getSchema() {
-		return this.schema;
-	}
-	
 	@Override
 	public Tuple getNextTuple() {	
 		if (index < sorted_tuples.size()) {
@@ -69,36 +55,6 @@ public class InMemSortOperator extends SortOperator {
 	@Override
 	public void reset() {
 		index = 0;
-	}
-	
-	@Override
-	public void close() {
-		child.close();
-	}
-	
-	/**
-	 * Construct sort_order array using order by expression
-	 */
-	private void makeSortOrder() {
-		boolean[] seen_keys = new boolean[schema.size()];
-		Arrays.fill(seen_keys, false);
-		
-		int i = 0;
-		
-		for (; order_by != null && i<order_by.size(); i++){
-			String key_name = order_by.get(i).toString();
-			sort_order[i] = this.schema.get(key_name);
-			seen_keys[this.schema.get(key_name)] = true;
-		}
-		if (order_by != null && order_by.size() == schema.size())
-			return;
-		// if the number of sort orders provided are less than # of columns
-		for (int j = 0; j < seen_keys.length; j++) {
-			if (!seen_keys[j]) {
-				sort_order[i] = j;
-				i++;
-			}
-		}
 	}
 	
 	/**
