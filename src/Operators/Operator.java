@@ -56,14 +56,10 @@ public abstract class Operator {
 	 */
 	public void dump(TupleWriter writer, int i) {
 		Tuple t = getNextTuple();
-
+		
 		while (t != null) {
-			
 			writer.write(t);
 			t = getNextTuple();
-
-	
-			
 		}
 		writer.finalize();
 	}
