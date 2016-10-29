@@ -86,8 +86,8 @@ public class Main {
 					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, joinPlan, sortPlan, tmpDir);
 					Operator o = ppb.getResult();
 				
-					//BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
-					HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum );
+					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
+					//HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum );
 					
 					System.out.println("Query: " + queryNum);
 					long start = System.currentTimeMillis();
