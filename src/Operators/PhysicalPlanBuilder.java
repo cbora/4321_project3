@@ -10,6 +10,7 @@ import LogicalOperator.ProjectLogicalOperator;
 import LogicalOperator.SelectLogicalOperator;
 import LogicalOperator.SortLogicalOperator;
 import LogicalOperator.TableLogicalOperator;
+import Project.JoinExp2OrderByVisitor;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
@@ -84,6 +85,9 @@ public class PhysicalPlanBuilder {
 			j = new BNLJoinOperator(left, right, exp, Integer.parseInt(joinPlan[1]));
 			break;
 		case 2:
+			JoinExp2OrderByVisitor je2ob = new JoinExp2OrderByVisitor(left, right, exp);
+			left = detSort(left, je2ob.getLeft());
+			right = detSort(right, je2ob.getRight());
 			j = new SMJoinOperator(left, right, exp);
 			break;
 		}

@@ -221,6 +221,11 @@ public class ExtSortOperator extends SortOperator {
 	public void reset() {
 		this.output_reader.reset();
 	}
+	
+	@Override
+	public void reset(int index) {
+		
+	}
 
 	@Override
 	public void close() {
