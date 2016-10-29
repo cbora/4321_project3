@@ -66,6 +66,14 @@ public class HumanTupleReader extends TupleReader {
 		}
 	}	
 	
+	@Override
+	public void reset(int index) {
+		reset();
+		for (int i = 0; i < index; i++)
+			read();
+	}
+	
+	@Override
 	public void close() {
 		try {
 			bufferedReader.close();

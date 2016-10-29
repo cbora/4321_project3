@@ -99,7 +99,7 @@ public class ExtSortOperator extends SortOperator {
 	
 	@Override
 	public void reset(int index) {
-		
+		output_reader.reset(index);
 	}
 
 	@Override
@@ -153,6 +153,7 @@ public class ExtSortOperator extends SortOperator {
 	private void extsort() {
 		pass0();
 
+		// keep performing passes until only one file remains
 		while(this.prev_runs > 1) {
 			passN();
 		}
@@ -167,7 +168,8 @@ public class ExtSortOperator extends SortOperator {
 	 */
 	private void pass0() {
 		fillBuffer();
-
+		
+		// handle all runs involving full buffer
 		while(buffer[buffer.length-1] != null) {
 			Arrays.sort(buffer, new TupleComparator(this.sort_order));
 			TupleWriter write = new BinaryTupleWriter(this.tmp_dir + "/" + "0_" + this.prev_runs );
@@ -179,6 +181,7 @@ public class ExtSortOperator extends SortOperator {
 						
 		}
 		
+		// handle final run
 		if (buffer[0] != null) {
 			int i = 0;
 			for(; i<buffer.length; i++){
@@ -209,7 +212,7 @@ public class ExtSortOperator extends SortOperator {
 	}
 	
 	/**
-	 * Performs bSize - 1 way merge
+	 * Performs (bSize - 1) way merge
 	 */
 	private void mergeRuns() {
 		TupleReader[] readers = new TupleReader[this.bSize-1];

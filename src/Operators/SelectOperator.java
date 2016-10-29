@@ -61,6 +61,9 @@ public class SelectOperator extends Operator {
 	}
 	
 	@Override
+	public void reset(int index){}
+	
+	@Override
 	public void close() {
 		child.close();
 	}

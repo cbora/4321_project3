@@ -88,7 +88,7 @@ public class PhysicalPlanBuilder {
 			JoinExp2OrderByVisitor je2ob = new JoinExp2OrderByVisitor(left, right, exp);
 			left = detSort(left, je2ob.getLeft());
 			right = detSort(right, je2ob.getRight());
-			j = new SMJoinOperator(left, right, exp);
+			j = new SMJoinOperator(left, right, exp, ((SortOperator) left).sort_order, ((SortOperator) right).sort_order);
 			break;
 		}
 		

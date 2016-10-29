@@ -63,6 +63,9 @@ public class HashDupElimOperator extends Operator {
 	}
 	
 	@Override
+	public void reset(int index){}
+	
+	@Override
 	public void close() {
 		this.child.close();
 	}	

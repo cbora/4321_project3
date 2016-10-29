@@ -33,6 +33,12 @@ public abstract class Operator {
 	public abstract void reset();
 	
 	/**
+	 * resets operator to a given index
+	 * @param index - index to reset to
+	 */
+	public abstract void reset(int index);
+	
+	/**
 	 * closes any open streams
 	 */
 	public abstract void close();

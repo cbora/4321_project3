@@ -71,5 +71,8 @@ public class TNLJoinOperator extends JoinOperator {
 		this.lastLeft = leftChild.getNextTuple();
 		this.rightChild.reset();
 	}
+	
+	@Override
+	public void reset(int index){}
 
 }

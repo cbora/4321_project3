@@ -55,6 +55,7 @@ public class BinaryTupleReader extends TupleReader {
 		}
 		this.channel = this.input.getChannel();
 		this.buffer = ByteBuffer.allocate(PAGE_SIZE);
+		this.col_number = -1;
 		readPage();
 	}
 
@@ -98,6 +99,26 @@ public class BinaryTupleReader extends TupleReader {
 		this.buffer = ByteBuffer.allocate(PAGE_SIZE);
 		readPage();
 	}
+	
+	/**
+	 * resets the reader back to specific tuple in file
+	 */
+	@Override
+	public void reset(int index) {
+		int tuplesPerPage = (PAGE_SIZE - NUM_META_DATA * BYTES_IN_INT) / (col_number * BYTES_IN_INT);
+		int nPage = index / tuplesPerPage;
+		int tupleToGo = index % tuplesPerPage;
+		long idxIntoPage = nPage * PAGE_SIZE;
+		
+		try {
+			this.channel.position(idxIntoPage);
+			readPage();
+			for (int i = 0; i < tupleToGo; i++)
+				read();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * closes open I/O
@@ -117,10 +138,6 @@ public class BinaryTupleReader extends TupleReader {
 	 * @return true if there were pages remaining, false otherwise
 	 */
 	private boolean readPage() {
-		this.col_number = 0;
-		this.row_number = 0;
-		this.buffer_index = 0;
-
 		int bytesRead;
 		try {
 			bytesRead = this.channel.read(this.buffer);

@@ -16,6 +16,11 @@ public abstract class TupleReader {
 	public abstract void reset();
 	
 	/**
+	 * resets read to a specific point in file
+	 */
+	public abstract void reset(int index);
+	
+	/**
 	 * closes I/O services
 	 */
 	public abstract void close();

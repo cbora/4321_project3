@@ -62,12 +62,6 @@ public abstract class SortOperator extends Operator {
 	}
 	
 	/**
-	 * resets operator to a given index
-	 * @param index - index to reset to
-	 */
-	public abstract void reset(int index);
-	
-	/**
 	 * Construct sort_order array using order by expression
 	 */
 	protected void makeSortOrder(ArrayList<OrderByElement> order_by) {

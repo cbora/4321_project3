@@ -60,5 +60,8 @@ public class SortedDupElimOperator extends Operator {
 	public void close() {
 		this.child.close();
 	}
+	
+	@Override
+	public void reset(int index){}
 
 }

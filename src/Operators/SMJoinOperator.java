@@ -13,7 +13,9 @@ public class SMJoinOperator extends JoinOperator {
 	private Tuple left; // pointer into the left relation
 	private Tuple right; // pointer into the right relation
 	private Tuple rightPartition; // pointer to beginning of right relation's current partition
-	int index; // index of rightPartition in right relation
+	private int[] leftOrder;
+	private int[] rightOrder;
+	private int index; // index of rightPartition in right relation
 	
 	/* ================================== 
 	 * Constructors
@@ -24,11 +26,13 @@ public class SMJoinOperator extends JoinOperator {
 	 * @param rightChild
 	 * @param exp - expression for the condition we are joining on
 	 */
-	public SMJoinOperator(Operator leftChild, Operator rightChild, Expression exp) {
+	public SMJoinOperator(Operator leftChild, Operator rightChild, Expression exp, int[] leftOrder, int[] rightOrder) {
 		super(leftChild, rightChild, exp);
 		this.left = leftChild.getNextTuple();
 		this.right = rightChild.getNextTuple();
 		this.rightPartition = right;
+		this.leftOrder = leftOrder;
+		this.rightOrder = rightOrder;
 		this.index = 0;
 	}
 
@@ -43,8 +47,8 @@ public class SMJoinOperator extends JoinOperator {
 		}
 		
 		// comparators for comparing left and right tuples and right and right tuples
-		TupleDiffComparator tc = new TupleDiffComparator(((SortOperator) leftChild).sort_order, ((SortOperator) rightChild).sort_order) ;
-		TupleComparator tc2 = new TupleComparator(((SortOperator) rightChild).sort_order);
+		TupleDiffComparator tc = new TupleDiffComparator(leftOrder, rightOrder) ;
+		TupleComparator tc2 = new TupleComparator(rightOrder);
 		
 		// loop until left and rightPartition are equal
 		while (tc.compare(left,  rightPartition) != 0) {
@@ -76,7 +80,7 @@ public class SMJoinOperator extends JoinOperator {
 		//if right is now null or we have left current partition, reset right to rightPartition and increment left
 		if (right == null || tc2.compare(rightPartition, right) != 0) {
 			left = leftChild.getNextTuple();
-			((SortOperator) rightChild).reset(index);
+			rightChild.reset(index);
 			right = rightChild.getNextTuple();
 		}
 		return result;
@@ -93,5 +97,8 @@ public class SMJoinOperator extends JoinOperator {
 		this.rightPartition = right;
 		this.index = 0;
 	}
+	
+	@Override
+	public void reset(int index){}
 
 }

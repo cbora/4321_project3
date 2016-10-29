@@ -94,6 +94,9 @@ public class BNLJoinOperator extends JoinOperator {
 		bIndex = 0;
 		fillBuffer();
 	}
+	
+	@Override
+	public void reset(int index){}
 
 	/**
 	 * Fills buffer with next round of tuples from left child
