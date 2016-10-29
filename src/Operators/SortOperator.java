@@ -47,6 +47,8 @@ public abstract class SortOperator extends Operator {
 		child.close();
 	}
 	
+	public abstract void reset(int index);
+	
 	/**
 	 * Construct sort_order array using order by expression
 	 */

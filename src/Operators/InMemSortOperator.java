@@ -57,6 +57,11 @@ public class InMemSortOperator extends SortOperator {
 		index = 0;
 	}
 	
+	@Override
+	public void reset(int index) {
+		this.index = index;  
+	}
+	
 	/**
 	 * Populate sorted_tuples
 	 */

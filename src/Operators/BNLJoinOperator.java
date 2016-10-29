@@ -8,8 +8,8 @@ public class BNLJoinOperator extends JoinOperator {
 	/* ================================== 
 	 * Fields
 	 * ================================== */
-	private static int PAGE_SIZE = 4096; // bytes per page
-	private static int INT_SIZE = Integer.SIZE / Byte.SIZE; // bytes per int
+	private static final int PAGE_SIZE = 4096; // bytes per page
+	private static final int INT_SIZE = Integer.SIZE / Byte.SIZE; // bytes per int
 	private Tuple[] buffer; // tuple buffer
 	private int bIndex; // position in tuple buffer
 	private Tuple lastRight; // last tuple returned by rightChild
