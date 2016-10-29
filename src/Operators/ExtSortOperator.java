@@ -168,7 +168,6 @@ public class ExtSortOperator extends SortOperator {
 	private void pass0() {
 		fillBuffer();
 
-		//change buffer into a list
 		while(buffer[buffer.length-1] != null) {
 			Arrays.sort(buffer, new TupleComparator(this.sort_order));
 			TupleWriter write = new BinaryTupleWriter(this.tmp_dir + "/" + "0_" + this.prev_runs );
@@ -179,6 +178,7 @@ public class ExtSortOperator extends SortOperator {
 			this.prev_runs++;
 						
 		}
+		
 		if (buffer[0] != null) {
 			int i = 0;
 			for(; i<buffer.length; i++){
@@ -190,6 +190,7 @@ public class ExtSortOperator extends SortOperator {
 			write.write(buffer);
 			write.finalize();
 			write.close();
+			this.prev_runs++;
 		}				
 	}
 	
@@ -197,13 +198,12 @@ public class ExtSortOperator extends SortOperator {
 	 * Performs the "Pass N" (where N > 0) phase of external merge sort
 	 */
 	private void passN() {
-		while(this.prev_run_index <= this.prev_runs){
+		while(this.prev_run_index < this.prev_runs){
 			mergeRuns();
 		}
 		this.pass++;
 		
 		this.prev_runs = this.curr_run;
-		this.prev_runs--;
 		this.curr_run = 0;
 		this.prev_run_index = 0;
 	}
@@ -216,7 +216,7 @@ public class ExtSortOperator extends SortOperator {
 		PriorityQueue<TupleWrapper> t = new PriorityQueue<TupleWrapper>(new TupleWrapperComparator(this.sort_order));
 		
 		for (int i=0; i<this.bSize-1; i++) {		
-			if (this.prev_run_index > this.prev_runs){
+			if (this.prev_run_index >= this.prev_runs){
 				break;
 			}			
 			readers[i] = new BinaryTupleReader(this.tmp_dir + "/" + this.pass + "_" + this.prev_run_index);
