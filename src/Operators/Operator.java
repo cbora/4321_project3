@@ -41,11 +41,12 @@ public abstract class Operator {
 	 * Repeatedly calls getNextTuple(), printing the results, until
 	 * no more tuples remain
 	 */
-	public void dump() {
+	public void dump(int i) {
 		Tuple t = getNextTuple();
 		while (t != null) {
 			System.out.println(t);
 			t = getNextTuple();
+			
 		}
 	}
 	
@@ -53,11 +54,16 @@ public abstract class Operator {
 	 * Repeatedly calls getNextTuple(), printing results using the TupleWriter, until
 	 * no more tuples remain
 	 */
-	public void dump(TupleWriter writer) {
+	public void dump(TupleWriter writer, int i) {
 		Tuple t = getNextTuple();
+
 		while (t != null) {
+			
 			writer.write(t);
 			t = getNextTuple();
+
+	
+			
 		}
 		writer.finalize();
 	}

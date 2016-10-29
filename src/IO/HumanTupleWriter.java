@@ -30,7 +30,8 @@ public class HumanTupleWriter extends TupleWriter {
 	
 	public void write(String line) {
 		try {
-			this.bufferedWriter.write(line);
+			this.bufferedWriter.write(line + "\n");
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -56,11 +57,17 @@ public class HumanTupleWriter extends TupleWriter {
 
 	@Override
 	public void write(Tuple t) {
-		
+		write(t.toString());
 	}
 	
 	@Override
 	public void finalize() {
+		
+	}
+
+	@Override
+	public void write(Tuple[] t) {
+		// TODO Auto-generated method stub
 		
 	}
 }

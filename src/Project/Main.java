@@ -87,12 +87,14 @@ public class Main {
 					Operator o = ppb.getResult();
 					
 					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
+					//HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum );
 					
 					long start = System.currentTimeMillis();
-					o.dump(writ);
+					System.out.println("Query: " + queryNum);
+					o.dump(writ, queryNum);
+					
 					long end = System.currentTimeMillis();
 					System.out.println(end - start);
-
 					writ.close();
 					o.close();
 					queryNum++;

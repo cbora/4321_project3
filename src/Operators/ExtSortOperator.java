@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import IO.BinaryTupleReader;
 import IO.BinaryTupleWriter;
+import IO.HumanTupleWriter;
 import IO.TupleReader;
 import IO.TupleWriter;
 import Project.Tuple;
@@ -64,7 +65,7 @@ public class ExtSortOperator extends SortOperator {
 	 * Cleans up temporary directory used in the external sort
 	 */
 	public void cleanup() {
-		
+
 		if(this.tmp_dir.compareTo(this.given_tmp_dir) != 0){
 			//delete tmp_dir
 			File f = new File(this.tmp_dir);
@@ -111,12 +112,14 @@ public class ExtSortOperator extends SortOperator {
 		while(this.prev_runs > 1) {
 			passN();
 		}
+
 		this.output_reader = new BinaryTupleReader(this.tmp_dir + "/" + this.pass + "_" + "0");
 		
 	}
 	
 	public void pass0() {
 		fillBuffer();
+
 		//change buffer into a list
 		while(buffer[buffer.length-1] != null) {
 			Arrays.sort(buffer, new TupleComparator(this.sort_order));
@@ -126,6 +129,7 @@ public class ExtSortOperator extends SortOperator {
 			write.close();
 			fillBuffer();
 			this.prev_runs++;
+						
 		}
 		if (buffer[0] != null) {
 			int i = 0;
@@ -138,55 +142,64 @@ public class ExtSortOperator extends SortOperator {
 			write.write(buffer);
 			write.finalize();
 			write.close();
-		}		
+		}				
 	}
 	
 	public void passN() {
-		while(this.prev_run_index < this.prev_runs){
+		while(this.prev_run_index <= this.prev_runs){
 			mergeRuns();
 		}
 		this.pass++;
+		
 		this.prev_runs = this.curr_run;
+		this.prev_runs--;
 		this.curr_run = 0;
 		this.prev_run_index = 0;
 			
 	}
 
-	public void mergeRuns() {
-		
+	public void mergeRuns() {	
 		TupleReader[] readers = new TupleReader[this.bSize-1];
 		Tuple[]  t = new Tuple[this.bSize-1];
 		for (int i=0; i<this.bSize-1; i++) {
-			if (this.prev_run_index >= this.prev_runs){
+		
+				if (this.prev_run_index > this.prev_runs){
 				//this.prev_run_index				
 				break;
-			}			
+				}			
+
 			readers[i] = new BinaryTupleReader(this.tmp_dir + "/" + this.pass + "_" + this.prev_run_index);
 			this.prev_run_index++; 
 			t[i] = readers[i].read();
 		}	
 		TupleComparator comparator = new TupleComparator(this.sort_order);
 		TupleWriter writer = new BinaryTupleWriter(this.tmp_dir + "/" + (this.pass + 1) + "_" + this.curr_run);
+		
 		while(!isNull(t)){
 			Tuple min = null;
 			int min_index = -1;
 			for (int i=0; i<t.length; i++){
-				if (min == null ){
+					
+				if (t[i] == null){
+					continue;
+				}
+				else if (min == null ){
 					min = t[i];
 					min_index = i;	
 				}
-				else if ( t[i] == null) 
-					continue;
+				
 				else if (comparator.compare(t[i], min) == -1){
 						min = t[i];
 						min_index = i;
 				}				
-			}			
-			t[min_index] = readers[min_index].read();
+			}
+					
+			t[min_index] = readers[min_index].read();								
 			writer.write(min);
 		}
 		writer.finalize();
 		writer.close();
+	
 		this.curr_run++;
 	}
 	
