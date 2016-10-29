@@ -10,10 +10,10 @@ public class SMJoinOperator extends JoinOperator {
 	/* ================================== 
 	 * Fields
 	 * ================================== */
-	private Tuple left;
-	private Tuple right;
-	private Tuple rightPartition;
-	int index;
+	private Tuple left; // pointer into the left relation
+	private Tuple right; // pointer into the right relation
+	private Tuple rightPartition; // pointer to beginning of right relation's current partition
+	int index; // index of rightPartition in right relation
 	
 	/* ================================== 
 	 * Constructors
@@ -31,48 +31,49 @@ public class SMJoinOperator extends JoinOperator {
 		this.rightPartition = right;
 		this.index = 0;
 	}
-	
-	/**
-	 * Cartesian product constructor - set join condition to null
-	 * @param leftChild
-	 * @param rightChild
-	 */
-	public SMJoinOperator(Operator leftChild, Operator rightChild) {
-		this(leftChild, rightChild, null);
-	}
 
 	/* ================================== 
 	 * Methods
 	 * ================================== */
 	@Override
 	public Tuple getNextTuple() {
+		// reached the end, so return null
 		if ((this.left == null || this.rightPartition == null)) {
 			return null;
 		}
 		
+		// comparators for comparing left and right tuples and right and right tuples
 		TupleDiffComparator tc = new TupleDiffComparator(((SortOperator) leftChild).sort_order, ((SortOperator) rightChild).sort_order) ;
 		TupleComparator tc2 = new TupleComparator(((SortOperator) rightChild).sort_order);
 		
+		// loop until left and rightPartition are equal
 		while (tc.compare(left,  rightPartition) != 0) {
+			// while left < rightPartition, increment left
 			while (tc.compare(left, rightPartition) == -1) {
 				left = leftChild.getNextTuple();
+				// reached end of left, return null
 				if (left == null) {
 					return null;
 				}
 			}
 			
+			// while rightPartition > left, increment right & rightPartition
 			while(tc.compare(left, rightPartition) == 1) {
 				rightPartition = rightChild.getNextTuple();
 				right = rightPartition;
 				index++;
+				// reached end of right relation, return null
 				if (rightPartition == null)  {
 					return null;
 				}
 			}
 		}
 				
+		// at this point left and right are equal, concatenate them and increment right
 		Tuple result = Tuple.concat(left, right);
 		right = rightChild.getNextTuple();
+		
+		//if right is now null or we have left current partition, reset right to rightPartition and increment left
 		if (right == null || tc2.compare(rightPartition, right) != 0) {
 			left = leftChild.getNextTuple();
 			((SortOperator) rightChild).reset(index);

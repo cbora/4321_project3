@@ -48,11 +48,23 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 
 public class JoinExp2OrderByVisitor implements ExpressionVisitor {
 
-	private Operator left;
-	private Operator right;
-	private ArrayList<Integer> leftOrderBy;
-	private ArrayList<Integer> rightOrderBy;
+	/* ================================== 
+	 * Fields
+	 * ================================== */
+	private Operator left; // left operator
+	private Operator right; // right operator
+	private ArrayList<Integer> leftOrderBy; // left sort order
+	private ArrayList<Integer> rightOrderBy; // right sort order
 	
+	/* ================================== 
+	 * Constructor
+	 * ================================== */
+	/**
+	 * Constructor
+	 * @param left - left operator
+	 * @param right - right operator
+	 * @param exp - join expression
+	 */
 	public JoinExp2OrderByVisitor(Operator left, Operator right, Expression exp) {
 		this.left = left;
 		this.right = right;
@@ -61,6 +73,13 @@ public class JoinExp2OrderByVisitor implements ExpressionVisitor {
 		exp.accept(this);
 	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
+	/**
+	 * sort order of left relation based on join condition
+	 * @return left sort order
+	 */
 	public int[] getLeft() {
 		int[] result = new int[leftOrderBy.size()];
 		for (int i = 0; i < result.length; i++)
@@ -68,6 +87,10 @@ public class JoinExp2OrderByVisitor implements ExpressionVisitor {
 		return result;
 	}
 	
+	/***
+	 * sort order of right relation based on join condition
+	 * @return
+	 */
 	public int[] getRight() {
 		int[] result = new int[rightOrderBy.size()];
 		for (int i = 0; i < result.length; i++)
@@ -76,7 +99,7 @@ public class JoinExp2OrderByVisitor implements ExpressionVisitor {
 	}
 
 	/**
-	 * sets result to true if both children are true, false otherwise
+	 * visitor for ands
 	 * @param node - node to visit
 	 */
 	@Override
@@ -86,7 +109,7 @@ public class JoinExp2OrderByVisitor implements ExpressionVisitor {
 	}
 
 	/**
-	 * sets result to true if two values on top of stack are equal
+	 * visitor for equals
 	 * @param node - node to visit
 	 */
 	@Override
@@ -96,7 +119,7 @@ public class JoinExp2OrderByVisitor implements ExpressionVisitor {
 	}
 
 	/**
-	 * pushes value in tuple at specified column to the stack
+	 * visitor for cols
 	 * @param node - node to visit
 	 */
 	@Override

@@ -6,17 +6,16 @@ public class TupleDiffComparator implements Comparator<Tuple> {
 	/* ================================== 
 	 * Fields
 	 * ================================== */
-	// order of columns we wish to compare
-	// so if sortOrder = [2,0,1], col2 gets highest priority, col0 next highest priority, col1 next priority
-	private final int[] leftSortOrder; 
-	private final int[] rightSortOrder;
+	private final int[] leftSortOrder; // priority order of cols in left relation
+	private final int[] rightSortOrder; // priority order of cols in right relation
 	
 	/* ================================== 
 	 * Constructors
 	 * ================================== */
 	/**
 	 * Constructor
-	 * @param sortOrder - order of columns we are sorting on
+	 * @param leftSortOrder - priority order of cols in left relation
+	 * @param rightSortOrder - priority order of cols in right relation
 	 */
 	public TupleDiffComparator(int[] leftSortOrder, int[] rightSortOrder) {
 		this.leftSortOrder = leftSortOrder;
@@ -28,7 +27,8 @@ public class TupleDiffComparator implements Comparator<Tuple> {
 	 * Methods
 	 * ================================== */
 	/**
-	 * compares tuples in order of the columns in sortOrder
+	 * compares tuples in order of the columns in leftSortOrder and rightSortOrder respectively
+	 * note: if rightSortOrder and leftSortOrder have different lengths, compares up until the smaller of their length
 	 * @param t1 - first tuple to compare
 	 * @param t2 - second tuple to compare
 	 * @return -1 if t1 < t2 in first column in sortOrder that they differ

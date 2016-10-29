@@ -19,6 +19,11 @@ public abstract class SortOperator extends Operator {
 	/* ================================== 
 	 * Constructor
 	 * ================================== */
+	/**
+	 * OrderBy Expression constructor
+	 * @param child - child operator
+	 * @param order_by - order_by expression
+	 */
 	public SortOperator(Operator child, ArrayList<OrderByElement> order_by) {
 		this.child = child;
 		this.schema = child.getSchema();
@@ -26,6 +31,11 @@ public abstract class SortOperator extends Operator {
 		makeSortOrder(order_by); // make the sort order array
 	}
 	
+	/**
+	 * Sort Order Constructor
+	 * @param child - child  operator
+	 * @param sort_order - priority ranking of cols to sort on
+	 */
 	public SortOperator(Operator child, int[] sort_order) {
 		this.child = child;
 		this.schema = child.getSchema();
@@ -51,6 +61,10 @@ public abstract class SortOperator extends Operator {
 		child.close();
 	}
 	
+	/**
+	 * resets operator to a given index
+	 * @param index - index to reset to
+	 */
 	public abstract void reset(int index);
 	
 	/**
