@@ -13,7 +13,6 @@ public abstract class SortOperator extends Operator {
 	 * Fields
 	 * ================================== */
 	protected Operator child; // child operator in operator tree
-	protected ArrayList<OrderByElement> order_by; // order by expression
 	protected HashMap<String, Integer> schema; // schema of tuples returned by operator
 	public int[] sort_order; // priority of the columns in sort (so [1,0] means col1 has priority over col0)
 	
@@ -22,10 +21,15 @@ public abstract class SortOperator extends Operator {
 	 * ================================== */
 	public SortOperator(Operator child, ArrayList<OrderByElement> order_by) {
 		this.child = child;
-		this.order_by = order_by;
 		this.schema = child.getSchema();
 		this.sort_order = new int[this.schema.size()];
-		makeSortOrder(); // make the sort order array
+		makeSortOrder(order_by); // make the sort order array
+	}
+	
+	public SortOperator(Operator child, int[] sort_order) {
+		this.child = child;
+		this.schema = child.getSchema();
+		this.sort_order = sort_order;
 	}
 	
 	/* ================================== 
@@ -52,7 +56,7 @@ public abstract class SortOperator extends Operator {
 	/**
 	 * Construct sort_order array using order by expression
 	 */
-	protected void makeSortOrder() {
+	protected void makeSortOrder(ArrayList<OrderByElement> order_by) {
 		boolean[] seen_keys = new boolean[schema.size()];
 		Arrays.fill(seen_keys, false);
 		

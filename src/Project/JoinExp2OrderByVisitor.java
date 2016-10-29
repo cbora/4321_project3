@@ -50,23 +50,29 @@ public class JoinExp2OrderByVisitor implements ExpressionVisitor {
 
 	private Operator left;
 	private Operator right;
-	private ArrayList<OrderByElement> leftOrderBy;
-	private ArrayList<OrderByElement> rightOrderBy;
+	private ArrayList<Integer> leftOrderBy;
+	private ArrayList<Integer> rightOrderBy;
 	
 	public JoinExp2OrderByVisitor(Operator left, Operator right, Expression exp) {
 		this.left = left;
 		this.right = right;
-		this.leftOrderBy = new ArrayList<OrderByElement>();
-		this.rightOrderBy = new ArrayList<OrderByElement>();
+		this.leftOrderBy = new ArrayList<Integer>();
+		this.rightOrderBy = new ArrayList<Integer>();
 		exp.accept(this);
 	}
 	
-	public ArrayList<OrderByElement> getLeft() {
-		return leftOrderBy;
+	public int[] getLeft() {
+		int[] result = new int[leftOrderBy.size()];
+		for (int i = 0; i < result.length; i++)
+			result[i] = leftOrderBy.get(i);
+		return result;
 	}
 	
-	public ArrayList<OrderByElement> getRight() {
-		return rightOrderBy;
+	public int[] getRight() {
+		int[] result = new int[rightOrderBy.size()];
+		for (int i = 0; i < result.length; i++)
+			result[i] = rightOrderBy.get(i);
+		return result;
 	}
 
 	/**
@@ -100,10 +106,10 @@ public class JoinExp2OrderByVisitor implements ExpressionVisitor {
 		OrderByElement obe = new OrderByElement();
 		obe.setExpression(node);
 		if (left.getSchema().containsKey(tbl + "." + node.getColumnName())) {
-			leftOrderBy.add(obe);
+			leftOrderBy.add(left.getSchema().get(tbl + "." + node.getColumnName()));
 		}
 		else {
-			rightOrderBy.add(obe);
+			rightOrderBy.add(right.getSchema().get(tbl + "." + node.getColumnName()));
 		}
 	}
 

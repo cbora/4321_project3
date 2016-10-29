@@ -3,12 +3,11 @@ package Project;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
-import IO.BinaryTupleWriter;
+import IO.HumanTupleWriter;
 import LogicalOperator.LogicalOperator;
 import LogicalOperator.LogicalPlanBuilder;
 import Operators.Operator;
 import Operators.PhysicalPlanBuilder;
-import Operators.SMJoinOperator;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -86,14 +85,12 @@ public class Main {
 					
 					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, joinPlan, sortPlan, tmpDir);
 					Operator o = ppb.getResult();
-//					if (queryNum != 7)
-//						System.out.println(o.getNextTuple());
-//					
-					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
-					//HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum );
+				
+					//BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
+					HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum );
 					
-					long start = System.currentTimeMillis();
 					System.out.println("Query: " + queryNum);
+					long start = System.currentTimeMillis();
 					o.dump(writ, queryNum);
 					long end = System.currentTimeMillis();
 					System.out.println(end - start);

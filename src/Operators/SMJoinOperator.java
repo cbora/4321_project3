@@ -14,7 +14,6 @@ public class SMJoinOperator extends JoinOperator {
 	private Tuple right;
 	private Tuple rightPartition;
 	int index;
-	int idx = 0;
 	
 	/* ================================== 
 	 * Constructors
@@ -57,38 +56,29 @@ public class SMJoinOperator extends JoinOperator {
 		while (tc.compare(left,  rightPartition) != 0) {
 			while (tc.compare(left, rightPartition) == -1) {
 				left = leftChild.getNextTuple();
-				if (left == null) 
+				if (left == null) {
 					return null;
+				}
 			}
 			
 			while(tc.compare(left, rightPartition) == 1) {
 				rightPartition = rightChild.getNextTuple();
+				right = rightPartition;
 				index++;
-				if (rightPartition == null) 
+				if (rightPartition == null)  {
 					return null;
+				}
 			}
 		}
-		
-		right = rightPartition;
-		
+				
 		Tuple result = Tuple.concat(left, right);
 		right = rightChild.getNextTuple();
 		if (right == null || tc2.compare(rightPartition, right) != 0) {
 			left = leftChild.getNextTuple();
-			//right = rightPartition;
 			((SortOperator) rightChild).reset(index);
 			right = rightChild.getNextTuple();
 		}
-		System.out.println(result);
 		return result;
-//		if (idx < 100) {
-//			Tuple result = new Tuple(leftChild.getSchema().size() + rightChild.getSchema().size());
-//			for (int i = 0; i > result.length(); i++)
-//				result.add(i, i);
-//			idx++;
-//			return result;
-//		}
-//		return null;
 	}
 
 	@Override

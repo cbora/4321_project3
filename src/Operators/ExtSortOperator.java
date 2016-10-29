@@ -48,6 +48,20 @@ public class ExtSortOperator extends SortOperator {
 		extsort();		
 	}
 	
+	public ExtSortOperator(Operator child, int[] sort_order, String tmp_dir, int bSize) {
+		//public ExtSortOperator(Operator child, ArrayList<OrderByElement> order_by) {
+		super(child, sort_order);
+		this.bSize = (bSize > 0) ? bSize : 1;
+		this.buffer = new Tuple[(bSize * PAGE_SIZE) / (INT_SIZE * schema.size())];
+		this.given_tmp_dir = tmp_dir;
+		this.prev_runs = 0;
+		this.prev_run_index = 0;
+		this.pass = 0;
+		this.curr_run = 0;
+		makeTemp(); // make subdirectory		
+		extsort();		
+	}
+	
 	
 	public void makeTemp() {
 		UUID uuid = UUID.randomUUID();

@@ -38,6 +38,13 @@ public class InMemSortOperator extends SortOperator {
 		preFetch(); // fetch all the tuples and sort them
 	}
 	
+	public InMemSortOperator(Operator child, int[] sort_order){
+		super(child, sort_order);
+		this.sorted_tuples = new ArrayList<Tuple>();
+		this.index = 0;
+		preFetch(); // fetch all the tuples and sort them
+	}
+	
 	/* ================================== 
 	 * Methods
 	 * ================================== */

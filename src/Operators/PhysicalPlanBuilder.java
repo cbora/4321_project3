@@ -116,6 +116,28 @@ public class PhysicalPlanBuilder {
 		
 		return s;
 	}
+	
+	/**
+	 * Constructs appropriate SortOperator base don sortPlan
+	 * @param o - child operator
+	 * @param so - sort order
+	 * @return SortOperator
+	 */
+	private SortOperator detSort(Operator o, int[] so) {
+		int sortType = Integer.parseInt(sortPlan[0]);
+		SortOperator s = null;
+		
+		switch (sortType) {
+		case 0:
+			s = new InMemSortOperator(o, so);
+			break;
+		case 1:
+			s = new ExtSortOperator(o, so, this.tmp_dir,Integer.parseInt(sortPlan[1]));
+			break;
+		}
+		
+		return s;
+	}
 
 	/**
 	 * @param lo
@@ -184,7 +206,7 @@ public class PhysicalPlanBuilder {
 		lo.getChild().accept(this);
 		Operator o = pStack.pop();
 		if (!(o instanceof SortOperator)) {
-			SortOperator s = detSort(o, null);
+			SortOperator s = detSort(o, (ArrayList<OrderByElement>) null);
 			o = s;
 		}
 		SortedDupElimOperator s = new SortedDupElimOperator(o);
