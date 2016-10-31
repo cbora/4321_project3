@@ -1,26 +1,5 @@
 package Testing;
 
-import static org.junit.Assert.*;
-
-import java.io.StringReader;
-import java.util.ArrayList;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import LogicalOperator.LogicalPlanBuilder;
-import Operators.HashDupElimOperator;
-import Operators.Operator;
-import Operators.ScanOperator;
-import Operators.InMemSortOperator;
-import Project.DbCatalog;
-import Project.TableInfo;
-import Project.Tuple;
-import net.sf.jsqlparser.parser.CCJSqlParser;
-import net.sf.jsqlparser.statement.select.OrderByElement;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
-
 public class DriverTest {
 	/*
 	@Before

@@ -46,6 +46,13 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
+/**
+ * Converts a join expression into arrays of what cols are involved in the join
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class JoinExp2OrderByVisitor implements ExpressionVisitor {
 
 	/* ================================== 

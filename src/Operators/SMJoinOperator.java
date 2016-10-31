@@ -5,6 +5,13 @@ import Project.TupleComparator;
 import Project.TupleDiffComparator;
 import net.sf.jsqlparser.expression.Expression;
 
+/**
+ * Join Operator that used SMJ
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class SMJoinOperator extends JoinOperator {
 
 	/* ================================== 

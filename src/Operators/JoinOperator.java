@@ -7,6 +7,13 @@ import Project.EvalExpressionVisitor;
 import Project.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 
+/**
+ * Join Operator abstract class
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public abstract class JoinOperator extends Operator {
 
 	/* ================================== 

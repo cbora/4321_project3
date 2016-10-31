@@ -3,6 +3,14 @@ package Operators;
 import Project.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 
+/**
+ * Join Operator that used BNLJ
+ * 
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class BNLJoinOperator extends JoinOperator {
 	
 	/* ================================== 
@@ -99,7 +107,7 @@ public class BNLJoinOperator extends JoinOperator {
 	public void reset(int index){}
 
 	/**
-	 * Fills buffer with next round of tuples from left child
+	 * Fills buffer with next round of tuples from left child (pads with nulls if buffer not filled)
 	 */
 	private void fillBuffer() {
 		Tuple t;

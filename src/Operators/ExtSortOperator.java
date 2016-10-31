@@ -16,7 +16,14 @@ import Project.Tuple;
 import Project.TupleComparator;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
-
+/**
+ * Sort Operator that uses external merge sort
+ * 
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class ExtSortOperator extends SortOperator {
 	
 	/* ================================== 
@@ -243,7 +250,7 @@ public class ExtSortOperator extends SortOperator {
 	}
 	
 	/**
-	 * Fills buffer with next round of tuples from left child
+	 * Fills buffer with next round of tuples from left child (pads with nulls if buffer not filled)
 	 */
 	private void fillBuffer() {
 		Tuple t;
@@ -262,6 +269,9 @@ public class ExtSortOperator extends SortOperator {
 	/* ================================== 
 	 * Inner Classes
 	 * ================================== */
+	/**
+	 * Wrapper used to contain tuples as well as the index of the reader said tuple came from
+	 */
 	private class TupleWrapper {
 		public Tuple tuple;
 		public int pos;
@@ -272,6 +282,9 @@ public class ExtSortOperator extends SortOperator {
 		}
 	}
 	
+	/**
+	 * Comparator for TupleWrapper - ignores the TupleWrapper.pos and functions the same as TupleComparator
+	 */
 	private class TupleWrapperComparator implements Comparator<TupleWrapper> {
 		private final int[] sortOrder; 
 		

@@ -4,7 +4,7 @@ import Project.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 
 /**
- * Operator for joining tuples from two child operators
+ * Join Operator that uses TNLJ
  * @author Richard Henwood (rbh228)
  * @author Chris Bora (cdb239)
  * @author Han Wen Chen (hc844)

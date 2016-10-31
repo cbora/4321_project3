@@ -52,7 +52,7 @@ public class RandomTupleGenerator {
 	 * @param numTuples - number tuples to generate
 	 * @param numCols - number of columns to give each tuple
 	 */
-	public static void genSortedTuples(String output, int numTuples, int numCols) {
+	public static void genSortedTuples(String output, int numTuples, int numCols, int[] order) {
 		ArrayList<Tuple> tuples = new ArrayList<Tuple>();
 		Random rand = new Random();
 		
@@ -64,10 +64,6 @@ public class RandomTupleGenerator {
 			}
 			tuples.add(t);
 		}
-		
-		int order[] = new int[numCols];
-		for (int i = 0; i < numCols; i++) 
-			order[i] = i;
 		
 		Collections.sort(tuples, new TupleComparator(order)); 
 		

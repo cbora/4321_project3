@@ -7,6 +7,13 @@ import java.util.HashMap;
 import Project.Tuple;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
+/**
+ * Sort Operator abstract class
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public abstract class SortOperator extends Operator {
 	
 	/* ================================== 

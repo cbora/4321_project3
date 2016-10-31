@@ -8,7 +8,7 @@ import Project.TupleComparator;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
 /**
- * Operator for sorting tuples
+ * Operator for sorting tuples in memory
  * @author Richard Henwood (rbh228)
  * @author Chris Bora (cdb239)
  * @author Han Wen Chen (hc844)
@@ -27,8 +27,8 @@ public class InMemSortOperator extends SortOperator {
 	 * Constructor
 	 * ================================== */
 	/**
-	 * Constructor
-	 * @param child
+	 * Order By Constructor
+	 * @param child - child operator
 	 * @param order_by - order by expression
 	 */
 	public InMemSortOperator(Operator child, ArrayList<OrderByElement> order_by){
@@ -38,6 +38,11 @@ public class InMemSortOperator extends SortOperator {
 		preFetch(); // fetch all the tuples and sort them
 	}
 	
+	/**
+	 * Sort Order Constructor
+	 * @param child - child operator
+	 * @param sort_order - priority ordering of cols
+	 */
 	public InMemSortOperator(Operator child, int[] sort_order){
 		super(child, sort_order);
 		this.sorted_tuples = new ArrayList<Tuple>();

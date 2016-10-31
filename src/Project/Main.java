@@ -3,7 +3,7 @@ package Project;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
-import IO.HumanTupleWriter;
+import IO.BinaryTupleWriter;
 import LogicalOperator.LogicalOperator;
 import LogicalOperator.LogicalPlanBuilder;
 import Operators.Operator;
@@ -72,9 +72,8 @@ public class Main {
 			Statement statement;
 			int queryNum = 1;
 			
-			try{
-				while ((statement = parser.Statement()) != null) {
-	
+			while ((statement = parser.Statement()) != null) {
+				try {
 					Select select = (Select) statement;
 					
 					PlainSelect body = (PlainSelect) select.getSelectBody();	
@@ -82,13 +81,13 @@ public class Main {
 					LogicalPlanBuilder d = new LogicalPlanBuilder(body);
 					LogicalOperator po = d.getRoot();
 					
-					
+						
 					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, joinPlan, sortPlan, tmpDir);
 					Operator o = ppb.getResult();
-				
+					
 					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
 					//HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum );
-					
+						
 					System.out.println("Query: " + queryNum);
 					long start = System.currentTimeMillis();
 					o.dump(writ, queryNum);
@@ -97,13 +96,13 @@ public class Main {
 					writ.close();
 					o.close();
 					queryNum++;
+				} catch (Exception e) {
+						System.err.println("Exception occurred during processing query " + queryNum);
+						e.printStackTrace();
+						queryNum++;
 				}
 				
-			} catch(Exception e){
-				System.err.println("Exception occurred during processing query " + queryNum);
-				e.printStackTrace();
-				queryNum++;
-			}
+			} 
 		} catch (Exception e) {
 			System.err.println("Exception occurred during parsing");
 			e.printStackTrace();

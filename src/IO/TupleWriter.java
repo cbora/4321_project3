@@ -2,6 +2,14 @@ package IO;
 
 import Project.Tuple;
 
+/**
+ * Abstract class for writing tuples
+ * 
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public abstract class TupleWriter {
 
 	/**
