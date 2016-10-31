@@ -59,39 +59,75 @@ public class BNLJoinOperator extends JoinOperator {
 	 * ================================== */
 	@Override
 	public Tuple getNextTuple() {
-		// if either relation is empty, return null
-		if (isEmpty)
-			return null;
-		
-		// If reached end of buffer or reached null Tuple, increment lastRight and proceed
-		if (bIndex >= buffer.length || buffer[bIndex] == null) {
-			// increment lastRight
-			lastRight = rightChild.getNextTuple();
-			
-			// if current spot in buffer is null and lastRight is null, we are done
-			if (bIndex < buffer.length && buffer[bIndex] == null && lastRight == null) {
+		do {
+			// if either relation is empty, return null
+			if (isEmpty)
 				return null;
-			}
-			// else if lastRight is null, we have finished with the current buffer. Refill buffer.
-			else if (lastRight == null) {
-				rightChild.reset();
+				
+			// If reached end of buffer or reached null Tuple, increment lastRight and proceed
+			if (bIndex >= buffer.length || buffer[bIndex] == null) {
+				// increment lastRight
 				lastRight = rightChild.getNextTuple();
 				
-				fillBuffer();
-				
-				// if new buffer is empty, return null
-				if (buffer[0] == null)
+				// if current spot in buffer is null and lastRight is null, we are done
+				if (bIndex < buffer.length && buffer[bIndex] == null && lastRight == null) {
 					return null;
-			}
-			
-			// reset to start of buffer
-			bIndex = 0;
-		}
+				}
+				// else if lastRight is null, we have finished with the current buffer. Refill buffer.
+				else if (lastRight == null) {
+					rightChild.reset();
+					lastRight = rightChild.getNextTuple();
 						
-		Tuple result = Tuple.concat(buffer[bIndex], lastRight);
-		bIndex++;
-		
-		return passesCondition(result) ? result : getNextTuple();
+					fillBuffer();
+					
+					// if new buffer is empty, return null
+					if (buffer[0] == null)
+						return null;
+				}
+						
+				// reset to start of buffer
+				bIndex = 0;
+			}
+							
+			Tuple result = Tuple.concat(buffer[bIndex], lastRight);
+			bIndex++;
+				
+			if (passesCondition(result))
+				return result;
+		} while (true);
+//		// if either relation is empty, return null
+//		if (isEmpty)
+//			return null;
+//		
+//		// If reached end of buffer or reached null Tuple, increment lastRight and proceed
+//		if (bIndex >= buffer.length || buffer[bIndex] == null) {
+//			// increment lastRight
+//			lastRight = rightChild.getNextTuple();
+//			
+//			// if current spot in buffer is null and lastRight is null, we are done
+//			if (bIndex < buffer.length && buffer[bIndex] == null && lastRight == null) {
+//				return null;
+//			}
+//			// else if lastRight is null, we have finished with the current buffer. Refill buffer.
+//			else if (lastRight == null) {
+//				rightChild.reset();
+//				lastRight = rightChild.getNextTuple();
+//				
+//				fillBuffer();
+//				
+//				// if new buffer is empty, return null
+//				if (buffer[0] == null)
+//					return null;
+//			}
+//			
+//			// reset to start of buffer
+//			bIndex = 0;
+//		}
+//						
+//		Tuple result = Tuple.concat(buffer[bIndex], lastRight);
+//		bIndex++;
+//		
+//		return passesCondition(result) ? result : getNextTuple();
 	}
 
 	@Override

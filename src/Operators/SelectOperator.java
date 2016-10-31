@@ -46,13 +46,21 @@ public class SelectOperator extends Operator {
 
 	@Override
 	public Tuple getNextTuple() {
-		Tuple t = child.getNextTuple();
-		if (t == null) 
-			return null;
-		else if (passesCondition(t))
-			return t;
-		else 
-			return getNextTuple();
+		do {
+			Tuple t = child.getNextTuple();
+			if (t == null)
+				return null;
+			else if (passesCondition(t))
+				return t;
+		} while (true);
+		
+//		Tuple t = child.getNextTuple();
+//		if (t == null) 
+//			return null;
+//		else if (passesCondition(t))
+//			return t;
+//		else 
+//			return getNextTuple();
 	}
 	
 	@Override
