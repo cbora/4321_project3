@@ -32,6 +32,7 @@ public class RandomTupleGenerator {
 	public static void genTuples(String output, int numTuples, int numCols) {
 		BinaryTupleWriter writer = new BinaryTupleWriter(output);
 		Random rand = new Random();
+		ArrayList<Tuple> holder = new ArrayList<Tuple>();
 		
 		for (int i = 0; i < numTuples; i++) {
 			Tuple t = new Tuple(numCols);
@@ -39,9 +40,12 @@ public class RandomTupleGenerator {
 			for (int j = 1; j < numCols; j++) {
 				t.add(rand.nextInt(1000), j);
 			}
-			writer.write(t);
+			holder.add(t);
 		}
 		
+		Collections.shuffle(holder);
+		
+		writer.write((Tuple[]) holder.toArray());
 		writer.finalize();
 		writer.close();
 	}
