@@ -2,14 +2,17 @@ package Project;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
 
 import IO.BinaryTupleWriter;
 import LogicalOperator.LogicalOperator;
 import LogicalOperator.LogicalPlanBuilder;
+import Operators.InMemSortOperator;
 import Operators.Operator;
 import Operators.PhysicalPlanBuilder;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 
@@ -28,6 +31,11 @@ public class Main {
 		final String outputDir = args[1];
 		final String tmpDir = args[2];
 		final String queriesFile = "queries.sql";
+		
+		//get random tuples
+//		String path = "/home/rhenwood39/Documents/CS4320-4321/p3/Samples/samples/input2";
+//		RandomTupleGenerator.genTuples(path + "/db/data/TestTable1", 2000, 2);
+//		RandomTupleGenerator.genTuples(path + "/db/data/TestTable2", 2500, 3);
 		
 		// Read from schema to construct DB catalog
 		try {
@@ -89,6 +97,7 @@ public class Main {
 					//HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum );
 						
 					System.out.println("Query: " + queryNum);
+					System.out.println(statement);
 					long start = System.currentTimeMillis();
 					o.dump(writ, queryNum);
 					long end = System.currentTimeMillis();

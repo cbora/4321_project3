@@ -23,9 +23,9 @@ public class Benchmark {
 		
 		Benchmark bench = new Benchmark();
 		String queries[] = {
-				"",
-				"",
-				""
+				"SELECT S.A, S.B, B.G FROM Sailors S, Reserves R, Boats B WHERE S.C < 500 AND S.A = R.E AND R.F = B.G",
+				"SELECT S.A, S.B, B.G FROM Sailors S, Reserves R, Boats B WHERE S.A = R.E AND R.F = B.G",
+				"SELECT * FROM Sailors S, Reserves R WHERE S.A = R.E"
 		};
 		String methods[] = {"0", "1", "2", "2"};
 		bench.setup();
@@ -45,36 +45,54 @@ public class Benchmark {
 	
 	
 	public void setup() {
-		TableInfo boats = new TableInfo("src/Boats", "Boats");
-		boats.getColumns().add("B1");
-		boats.getColumns().add("B2");
-		boats.getColumns().add("B3");
 		
-		TableInfo res = new TableInfo("src/Reserves", "Reserves");
-		res.getColumns().add("R1");
-		res.getColumns().add("R2");
+		String path = "/home/rhenwood39/Documents/CS4320-4321/p3/Samples/samples/input2";
+
+		TableInfo sail = new TableInfo(path + "/db/data/Sailors", "Sailors");
+		sail.getColumns().add("A");
+		sail.getColumns().add("B");
+		sail.getColumns().add("C");
+		sail.getColumns().add("D");
 		
-		TableInfo sail = new TableInfo("src/Sailors", "Sailors");
-		sail.getColumns().add("S1");
-		sail.getColumns().add("S2");
-		sail.getColumns().add("S3");
+		TableInfo res = new TableInfo(path + "/db/data/Reserves", "Reserves");
+		res.getColumns().add("E");
+		res.getColumns().add("F");
 		
-		TableInfo st = new TableInfo("src/SortTest", "SortTest");
-		st.getColumns().add("A");
-		st.getColumns().add("B");
-		st.getColumns().add("C");
+		TableInfo boats = new TableInfo(path + "/db/data/Boats", "Boats");
+		boats.getColumns().add("G");
+		boats.getColumns().add("H");
+		boats.getColumns().add("I");		
 		
-		TableInfo dup = new TableInfo("src/Duplicates","Duplicated");
-		dup.getColumns().add("X");
-		dup.getColumns().add("Y");
-		dup.getColumns().add("Z");
-		
-		DbCatalog catalog = DbCatalog.getInstance();
-		catalog.addTable("Boats", boats);
-		catalog.addTable("Reserves", res);
-		catalog.addTable("Sailors", sail);
-		catalog.addTable("SortTest", st);
-		catalog.addTable("Duplicates", dup);
+//		TableInfo boats = new TableInfo("src/Boats", "Boats");
+//		boats.getColumns().add("B1");
+//		boats.getColumns().add("B2");
+//		boats.getColumns().add("B3");
+//		
+//		TableInfo res = new TableInfo("src/Reserves", "Reserves");
+//		res.getColumns().add("R1");
+//		res.getColumns().add("R2");
+//		
+//		TableInfo sail = new TableInfo("src/Sailors", "Sailors");
+//		sail.getColumns().add("S1");
+//		sail.getColumns().add("S2");
+//		sail.getColumns().add("S3");
+//		
+//		TableInfo st = new TableInfo("src/SortTest", "SortTest");
+//		st.getColumns().add("A");
+//		st.getColumns().add("B");
+//		st.getColumns().add("C");
+//		
+//		TableInfo dup = new TableInfo("src/Duplicates","Duplicated");
+//		dup.getColumns().add("X");
+//		dup.getColumns().add("Y");
+//		dup.getColumns().add("Z");
+//		
+//		DbCatalog catalog = DbCatalog.getInstance();
+//		catalog.addTable("Boats", boats);
+//		catalog.addTable("Reserves", res);
+//		catalog.addTable("Sailors", sail);
+//		catalog.addTable("SortTest", st);
+//		catalog.addTable("Duplicates", dup);
 	}
 	
 	public void TNLJ(String query) {
@@ -125,11 +143,11 @@ public class Benchmark {
 
 	public void join(String query, String method, String nPage) {
 		
-		String joinPlan[] = null;
+		String joinPlan[] = new String[2];
 		joinPlan[0] = method;
 		joinPlan[1] = nPage;
 		
-		String sortPlan[] = {"1"}; // External Sort 
+		String sortPlan[] = {"1", "5"}; // External Sort 
 		
 		
 		String tmpDir = "./";

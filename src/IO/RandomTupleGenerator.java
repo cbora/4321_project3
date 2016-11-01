@@ -45,7 +45,8 @@ public class RandomTupleGenerator {
 		
 		Collections.shuffle(holder);
 		
-		writer.write((Tuple[]) holder.toArray());
+		for (int i = 0; i < holder.size(); i++)
+			writer.write(holder.get(i));
 		writer.finalize();
 		writer.close();
 	}

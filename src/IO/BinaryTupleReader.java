@@ -34,6 +34,7 @@ public class BinaryTupleReader extends TupleReader {
 	private int col_number; // number of columns in tuple
 	private int row_number; // number of rows in buffer
 	private int buffer_index; // where we are in the buffer
+	private boolean isEmpty; // flags empty file
 
 	/*
 	 * ================================== 
@@ -56,7 +57,7 @@ public class BinaryTupleReader extends TupleReader {
 		this.channel = this.input.getChannel();
 		this.buffer = ByteBuffer.allocate(PAGE_SIZE);
 		this.col_number = -1;
-		readPage();
+		this.isEmpty = !readPage();
 	}
 
 	/*
@@ -71,6 +72,8 @@ public class BinaryTupleReader extends TupleReader {
 	 */
 	@Override
 	public Tuple read() {
+		if (isEmpty)
+			return null;
 		if (this.buffer_index / BYTES_IN_INT == (this.col_number * this.row_number + NUM_META_DATA)) {
 			if (!readPage())
 				return null;
