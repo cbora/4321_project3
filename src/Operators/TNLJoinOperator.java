@@ -63,24 +63,6 @@ public class TNLJoinOperator extends JoinOperator {
 			if (passesCondition(result))
 				return result;
 		} while (true);
-		
-//		Tuple right = this.rightChild.getNextTuple();
-//		if (lastLeft == null)
-//			return null;
-//		// if rightChild returns null, we should reset it and increment left
-//		if (right == null) { 
-//			this.rightChild.reset();
-//			lastLeft = this.leftChild.getNextTuple();
-//			right = this.rightChild.getNextTuple();
-//			// if left null, we've checked all tuples. if right still null, right is empty relation
-//			if (lastLeft == null || right == null)
-//				return null;
-//		}
-//		Tuple result = Tuple.concat(lastLeft, right);
-//		if (passesCondition(result))
-//			return result;
-//		else
-//			return getNextTuple();
 	}
 
 	@Override
