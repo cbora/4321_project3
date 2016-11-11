@@ -44,41 +44,35 @@ public class BPlusTree {
 	 * @param key
 	 * @return value
 	 */
-//	public LinkedList<RecordID> search(Integer key) {
-//		return tree_search(this.root, key);
-//	}
-//	
-//	public LinkedList<RecordID> tree_search(Node<Integer, LinkedList<RecordID>> root, Integer key){
-//		if (root.isLeafNode){
-//			LeafNode<Integer, LinkedList<RecordID>> leaf = (LeafNode<Integer, LinkedList<RecordID>>) root;
-//			
-//			//find if and where key is located
-//			ArrayList<Integer> keys = leaf.getKeys();
-//			int pos = keys.indexOf(key);
-//			if (pos < 0)
-//				return null;
-//			
-//			//if key is in leaf, return corresponding value
-//			ArrayList<LinkedList<RecordID>> values = leaf.getValues();
-//			return values.get(pos);
-//		}
-//		else{
-//			IndexNode<Integer, LinkedList<RecordID>> index = (IndexNode<Integer, LinkedList<RecordID>>) root;
-//			
-//			ArrayList<Integer> index_keys = index.getKeys();
-//			ArrayList<Node<Integer, LinkedList<RecordID>>> index_children = index.getChildren();
-//			
-//			//find which pointer to follow and make recursive call to search
-//			for (int i=0; i<index_keys.size(); i++){
-//				if( key.compareTo(index_keys.get(i)) < 0){					
-//					Node<Integer, LinkedList<RecordID>> new_node = index_children.get(i); 
-//					return tree_search(new_node, key);
-//				}
-//			}				
-//			Node<Integer, LinkedList<RecordID>> new_node = index_children.get(index_children.size()-1);
-//			return tree_search(new_node, key);
-//		}
-//	}
+	public Integer search(Integer key) {
+		IndexNode<Integer> root = (IndexNode<Integer>) reader.read(reader.getRootPage());
+		return tree_search(root, key);
+	}
+	
+	public Integer tree_search(Node root, Integer key){
+		if (root.isLeafNode){
+			LeafNode leaf = (LeafNode) root;
+			
+			ArrayList<LinkedList<RecordID>> values = leaf.getValues();
+			return leaf.getPos();
+		}
+		else{
+			IndexNode<Integer> index = (IndexNode<Integer>) root;
+			
+			ArrayList<Integer> index_keys = index.getKeys();
+			ArrayList<Integer> index_children = index.getChildren();
+			
+			//find which pointer to follow and make recursive call to search
+			for (int i=0; i<index_keys.size(); i++){
+				if( key.compareTo(index_keys.get(i)) < 0){					
+					Node new_node = reader.read(index_children.get(i)); 
+					return tree_search(new_node, key);
+				}
+			}				
+			Node new_node = reader.read(index_children.get(index_children.size()-1));
+			return tree_search(new_node, key);
+		}
+	}
 	
 	public void close() {
 		this.reader.close();
