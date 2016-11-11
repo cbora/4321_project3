@@ -4,7 +4,6 @@ import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 public class BinaryNodeWriter {
 	
@@ -78,7 +77,7 @@ public class BinaryNodeWriter {
 		int buffer_index = BYTES_IN_INT * 2;
 		
 		ArrayList<Integer> keys = n.getKeys();
-		ArrayList<LinkedList<RecordID>> values = n.getValues();
+		ArrayList<ArrayList<RecordID>> values = n.getValues();
 		
 		for (int i = 0; i < keys.size(); i++) {
 			buffer.putInt(buffer_index, keys.get(i));

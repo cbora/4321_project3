@@ -2,36 +2,33 @@ package Indexing;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Map;
 
 import Operators.ScanOperator;
 import Project.Tuple;
 
-/**
- * BPlusTree Class Assumptions: 1. No duplicate keys inserted 2. Order D:
- * D<=number of keys in a node <=2*D 3. All keys are non-negative
- */
 public class BPlusTree {
 
-	private String outputFile;
+	private String indexFile;
 	private int D;
 	private int nLeaves;
 	private int rootIndex;
 	private BinaryNodeReader reader;
 	
-	public BPlusTree(int D, ScanOperator scan, String outputFile) {
-		this.outputFile = outputFile;
+	public BPlusTree(int D, ScanOperator scan, int tuplePos, String indexFile) {
+		this.indexFile = indexFile;
 		this.D = D;
 		this.nLeaves = 0;
 		
-		bulkLoad(scan);
+		bulkLoad(scan, tuplePos);
 		
-		this.reader = new BinaryNodeReader(outputFile);
+		this.reader = new BinaryNodeReader(indexFile);
 	}
 	
-	public BPlusTree(String outputFile) {
-		this.reader = new BinaryNodeReader(outputFile);
+	public BPlusTree(String indexFile) {
+		this.indexFile = indexFile;
+		this.reader = new BinaryNodeReader(indexFile);
 		
 		this.rootIndex = this.reader.getRootPage();
 		this.nLeaves = this.reader.getNumLeaves();
@@ -44,17 +41,17 @@ public class BPlusTree {
 	 * @param key
 	 * @return value
 	 */
-	public Integer search(Integer key) {
-		IndexNode<Integer> root = (IndexNode<Integer>) reader.read(reader.getRootPage());
+	public LeafNode search(Integer key) {
+		IndexNode<Integer> root = (IndexNode<Integer>) reader.read(rootIndex);
 		return tree_search(root, key);
 	}
 	
-	public Integer tree_search(Node root, Integer key){
+	public LeafNode tree_search(Node root, Integer key){
 		if (root.isLeafNode){
 			LeafNode leaf = (LeafNode) root;
 			
-			ArrayList<LinkedList<RecordID>> values = leaf.getValues();
-			return leaf.getPos();
+			ArrayList<ArrayList<RecordID>> values = leaf.getValues();
+			return leaf;
 		}
 		else{
 			IndexNode<Integer> index = (IndexNode<Integer>) root;
@@ -74,6 +71,14 @@ public class BPlusTree {
 		}
 	}
 	
+	public LeafNode readNextLeaf(LeafNode leaf) {
+		int pos = leaf.getPos() + 1;
+		if (pos > reader.getNumLeaves()) {
+			return null;
+		}
+		return (LeafNode) reader.read(pos);
+	}
+	
 	public void close() {
 		this.reader.close();
 	}
@@ -83,8 +88,8 @@ public class BPlusTree {
 	 * @param
 	 * 
 	 */
-	private void bulkLoad(ScanOperator scan) {
-		ArrayList<DataEntry> entries = formatEntries(scan);
+	private void bulkLoad(ScanOperator scan, int tuplePos) {
+		ArrayList<DataEntry> entries = formatEntries(scan, tuplePos);
 		
 		ArrayList<Node> nodes = new ArrayList<Node>();
 		ArrayList<Node> nodesFromLastRound = makeLeafNodes(entries, nodes);
@@ -96,7 +101,7 @@ public class BPlusTree {
 		}
 		this.rootIndex = nodes.size();
 		
-		BinaryNodeWriter writer = new BinaryNodeWriter(outputFile, nodes, this.nLeaves, this.D);
+		BinaryNodeWriter writer = new BinaryNodeWriter(indexFile, nodes, this.nLeaves, this.D);
 		writer.write();
 		writer.close();
 	}
@@ -115,8 +120,8 @@ public class BPlusTree {
 	}
 	
 	private ArrayList<Node> makeIndexNodes(ArrayList<Node> lastRound, ArrayList<Node> nodes) {
-		int indexNodes = lastRound.size() / 2*D;
-		if(lastRound.size()%(2*D) != 0)
+		int indexNodes = lastRound.size() / (2 * D + 1);
+		if(lastRound.size() % (2 * D + 1) != 0)
 			indexNodes++;
 		ArrayList<Node> indexes = new ArrayList<Node>();
 		
@@ -125,7 +130,7 @@ public class BPlusTree {
 			return indexes ;
 		}
 		
-		boolean isUnderflow = lastRound.size()%(2*D) < D/2;	
+		boolean isUnderflow = (lastRound.size() % (2 * D + 1)) - 1 < D/2;	
 		
 		int k = 0;
 		for(int i=0; i<indexNodes; i++){
@@ -134,7 +139,7 @@ public class BPlusTree {
 			if ( i >= indexNodes-2 && isUnderflow) {
 				int remaining = lastRound.size() - k;
 				
-				for (int j=0; j<remaining/2 && k < lastRound.size(); j++, k++){
+				for (int j=0; j <= remaining/2 - 1 && k < lastRound.size(); j++, k++){
 					if (index.getChildren().size() == 0){
 						index.insertChild(lastRound.get(k));
 					}
@@ -160,7 +165,7 @@ public class BPlusTree {
 			}
 			
 			else {
-				for (int j=0; j<2*D; j++, k++){
+				for (int j=0; j<=2*D && k < lastRound.size(); j++, k++){
 					if (index.getChildren().size() == 0) {
 						index.insertChild(lastRound.get(k));
 					}
@@ -191,14 +196,14 @@ public class BPlusTree {
 				int remaining = entries.size() - k;
 			
 				for( int j=0; j<remaining/2 && k < entries.size(); j++, k++){					
-					leaf.insertSorted(entries.get(k).k, entries.get(k).rid);
+					leaf.insert(entries.get(k).k, entries.get(k).rid);
 				}
 				leaves.add(leaf);
 				nodes.add(leaf);
 				
 				LeafNode leaf2 = new LeafNode(nodes.size() + 1);
 				for(; k < entries.size(); k++){					
-					leaf2.insertSorted(entries.get(k).k, entries.get(k).rid);
+					leaf2.insert(entries.get(k).k, entries.get(k).rid);
 				}
 				leaves.add(leaf2);
 				nodes.add(leaf2);
@@ -207,7 +212,7 @@ public class BPlusTree {
 			}
 			else {
 				for( int j=0; j<2*D && k < entries.size(); j++, k++){					
-					leaf.insertSorted(entries.get(k).k, entries.get(k).rid);
+					leaf.insert(entries.get(k).k, entries.get(k).rid);
 				}
 			}
 			leaves.add(leaf);
@@ -217,9 +222,9 @@ public class BPlusTree {
 	}
 		
 	
-	private ArrayList<DataEntry> formatEntries(ScanOperator scan) {
+	private ArrayList<DataEntry> formatEntries(ScanOperator scan, int tuplePos) {
 		Tuple t;
-		HashMap<Integer, LinkedList<RecordID>> map = new HashMap<Integer, LinkedList<RecordID>>();
+		HashMap<Integer, ArrayList<RecordID>> map = new HashMap<Integer, ArrayList<RecordID>>();
 		ArrayList<DataEntry> entries= new ArrayList<DataEntry>();
 		int pageid = 0;
 		int tupleid = 0;
@@ -227,17 +232,17 @@ public class BPlusTree {
 		while((t=scan.getNextTuple())!=null){						
 			RecordID rid = new RecordID(pageid, tupleid);
 			tupleid++;
-			if (!map.containsKey(0)){
-				map.put(0, new LinkedList<RecordID>());				
+			if (!map.containsKey(t.getVal(tuplePos))){
+				map.put(t.getVal(tuplePos), new ArrayList<RecordID>());				
 			}
-			map.get(0).push(rid);
+			map.get(t.getVal(tuplePos)).add(rid);
 			if(scan.pageStatus()) {
 				tupleid=0;
 				pageid++;
 			}
 		} 
 
-		for (Map.Entry<Integer, LinkedList<RecordID>> m : map.entrySet()) {
+		for (Map.Entry<Integer, ArrayList<RecordID>> m : map.entrySet()) {
 			entries.add(new DataEntry(m.getKey(), m.getValue()));
 		}
 		Collections.sort(entries);
@@ -249,6 +254,7 @@ public class BPlusTree {
 		if (node.isLeafNode){
 			return node.getKeys().get(0);
 		}
+		System.out.println(node.getKeys());
 		return makeKey(((IndexNode<Node>) node).getChildren().get(0));
 	}
 
