@@ -87,6 +87,9 @@ public class BinaryTupleReader extends TupleReader {
 		return t;
 	}
 
+	public boolean pageIsFinished() {
+		return (this.buffer_index / BYTES_IN_INT == (this.col_number * this.row_number + NUM_META_DATA));		
+	}
 	/**
 	 * resets the reader back to the start of the file
 	 */

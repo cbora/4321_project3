@@ -35,6 +35,9 @@ public class HumanTupleReader extends TupleReader {
 		//this(tableInfo.get)
 	}
 	
+	public boolean pageIsFinished() {
+		return false;
+	}
 	public Tuple read(){
 		String line = "";
 		

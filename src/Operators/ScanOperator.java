@@ -82,7 +82,10 @@ public class ScanOperator extends Operator {
 		
 		return t;
 	}
-
+	
+	public boolean pageStatus() {
+		return reader.pageIsFinished();
+	}
 	@Override
 	public void reset() {
 		reader.reset();
