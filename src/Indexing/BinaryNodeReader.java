@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 public class BinaryNodeReader {
 
@@ -121,7 +121,7 @@ public class BinaryNodeReader {
 			int nRids = buffer.getInt(buffer_index);
 			buffer_index += BYTES_IN_INT;
 			
-			LinkedList<RecordID> list = new LinkedList<RecordID>();
+			ArrayList<RecordID> list = new ArrayList<RecordID>();
 			for (int j = 0; j < nRids; j++) {
 				int pid = buffer.getInt(buffer_index);
 				buffer_index += BYTES_IN_INT;
@@ -132,7 +132,7 @@ public class BinaryNodeReader {
 				list.add(new RecordID(pid, tid));
 			}
 			
-			leaf.insertSorted(key, list);
+			leaf.insert(key, list);
 		}
 		
 		return leaf;

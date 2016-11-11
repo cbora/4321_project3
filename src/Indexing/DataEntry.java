@@ -1,13 +1,13 @@
 package Indexing;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 public class DataEntry implements Comparable<DataEntry> {
 
 	public int k;
-	public LinkedList<RecordID> rid;
+	public ArrayList<RecordID> rid;
 	
-	public DataEntry(int key, LinkedList<RecordID> rid) {
+	public DataEntry(int key, ArrayList<RecordID> rid) {
 		this.k = key;
 		this.rid = rid;
 	}

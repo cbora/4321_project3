@@ -125,6 +125,17 @@ public class BinaryTupleReader extends TupleReader {
 			e.printStackTrace();
 		}
 	}
+	
+	public void reset(int pageid, int tupleid) {
+		try {
+			this.channel.position(pageid * PAGE_SIZE);
+			readPage();
+			for (int i = 0; i < tupleid; i++)
+				read();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * closes open I/O
