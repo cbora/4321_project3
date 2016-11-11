@@ -1,20 +1,17 @@
 package Indexing;
 import java.util.ArrayList;
 
-public class Node<K extends Comparable<K>, T> {
+public class Node {
 	protected boolean isLeafNode;
-	protected ArrayList<K> keys;
-
-	public boolean isOverflowed() {
-		return keys.size() > 2 * BPlusTree.D;
-	}
-
-	public boolean isUnderflowed() {
-		return keys.size() < BPlusTree.D;
+	protected ArrayList<Integer> keys;
+	protected int pos;
+	
+	public ArrayList<Integer> getKeys() {
+		return keys;
 	}
 	
-	public ArrayList<K> getKeys() {
-		return keys;
+	public int getPos() {
+		return pos;
 	}
 
 }

@@ -1,53 +1,53 @@
 package Indexing;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 
 
-public class IndexNode<K extends Comparable<K>, T> extends Node<K,T> {
+public class IndexNode<T> extends Node {
 
 	// m nodes
-	protected ArrayList<Node<K,T>> children; // m+1 children
+	protected ArrayList<T> children; // m+1 children
 
-	public IndexNode(K key, Node<K,T> child0, Node<K,T> child1) {
+	public IndexNode(int pos) {
 		isLeafNode = false;
-		keys = new ArrayList<K>();
+		keys = new ArrayList<Integer>();
+		children = new ArrayList<T>();
+		this.pos = pos;
+	}
+
+	public IndexNode(Integer key, T child0, T child1, int pos) {
+		isLeafNode = false;
+		keys = new ArrayList<Integer>();
 		keys.add(key);
-		children = new ArrayList<Node<K,T>>();
+		children = new ArrayList<T>();
 		children.add(child0);
 		children.add(child1);
+		this.pos = pos;
 	}
-
-	public IndexNode() {}
 		
 	
-	public IndexNode(List<K> newKeys, List<Node<K,T>> newChildren) {
+	public IndexNode(List<Integer> newKeys, List<T> newChildren, int pos) {
 		isLeafNode = false;
 
-		keys = new ArrayList<K>(newKeys);
-		children = new ArrayList<Node<K,T>>(newChildren);
+		keys = new ArrayList<Integer>(newKeys);
+		children = new ArrayList<T>(newChildren);
+		this.pos = pos;
 	}
 
-	/**
-	 * insert the entry into this node at the specified index so that it still
-	 * remains sorted
-	 * 
-	 * @param new_child
-	 * @param index
-	 */
-	public void insertSorted(Entry<K, Node<K,T>> new_child, int index) {
-		K key = new_child.getKey();
-		Node<K,T> child = (Node<K,T>) new_child.getValue();
-		if (index >= keys.size()) {
-			keys.add(key);
-			children.add(child);
-		} else {
-			keys.add(index, key);
-			children.add(index+1, child);
-		}
+	public void insertKey(Integer key) {
+		keys.add(key);
+	}
+	
+	public void insertChild(T child) {
+		children.add(child);
+	}
+	
+	public void insert(Integer key, T child) {
+		insertKey(key);
+		insertChild(child);
 	}
 
-	public ArrayList<Node<K, T>> getChildren() {
+	public ArrayList<T> getChildren() {
 		return this.children;
 	}
 }

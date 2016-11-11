@@ -1,53 +1,37 @@
 package Indexing;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-public class LeafNode<K extends Comparable<K>, T> extends Node<K, T> {
-	protected ArrayList<T> values;
-	protected LeafNode<K,T> nextLeaf;
-	protected LeafNode<K,T> previousLeaf;
+public class LeafNode extends Node {
+	protected ArrayList<LinkedList<RecordID>> values;
 
-  	public LeafNode() {
+  	public LeafNode(int pos) {
   		isLeafNode = true;
-  		keys = new ArrayList<K>();
-		values = new ArrayList<T>();
+  		keys = new ArrayList<Integer>();
+		values = new ArrayList<LinkedList<RecordID>>();
+		this.pos = pos;
   	}
   	
-	public LeafNode(K firstKey, T firstValue) {
+	public LeafNode(Integer firstKey, LinkedList<RecordID> firstValue, int pos) {
 		isLeafNode = true;
-		keys = new ArrayList<K>();
-		values = new ArrayList<T>();
+		keys = new ArrayList<Integer>();
+		values = new ArrayList<LinkedList<RecordID>>();
 		keys.add(firstKey);
 		values.add(firstValue);
-
+		this.pos = pos;
 	}
 	
-	public LeafNode(List<K> newKeys, List<T> newValues) {
+	public LeafNode(List<Integer> newKeys, List<LinkedList<RecordID>> newValues, int pos) {
 		isLeafNode = true;
-		keys = new ArrayList<K>(newKeys);
-		values = new ArrayList<T>(newValues);
-
+		keys = new ArrayList<Integer>(newKeys);
+		values = new ArrayList<LinkedList<RecordID>>(newValues);
+		this.pos = pos;
 	}
 	
-	public ArrayList<T> getValues() {
+	public ArrayList<LinkedList<RecordID>> getValues() {
 		return this.values;
-	}
-	
-	public void setNext(LeafNode<K, T> leaf) {	
-		nextLeaf = leaf;
-	}
-	
-	public void setPrevious(LeafNode<K, T> leaf) {
-		previousLeaf = leaf;
-	}
-	
-	public LeafNode<K, T> getNext() {
-		return this.nextLeaf;
-	}
-
-	public LeafNode<K, T> getPrevious() {
-		return this.previousLeaf;
 	}
 
 	/**
@@ -56,7 +40,7 @@ public class LeafNode<K extends Comparable<K>, T> extends Node<K, T> {
 	 * @param key
 	 * @param value
 	 */
-	public void insertSorted(K key, T value) {
+	public void insertSorted(Integer key, LinkedList<RecordID> value) {
 		if (key.compareTo(keys.get(0)) < 0) {
 			keys.add(0, key);
 			values.add(0, value);
@@ -64,7 +48,7 @@ public class LeafNode<K extends Comparable<K>, T> extends Node<K, T> {
 			keys.add(key);
 			values.add(value);
 		} else {
-			ListIterator<K> iterator = keys.listIterator();
+			ListIterator<Integer> iterator = keys.listIterator();
 			while (iterator.hasNext()) {
 				if (iterator.next().compareTo(key) > 0) {
 					int position = iterator.previousIndex();

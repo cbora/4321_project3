@@ -1,12 +1,9 @@
 package Indexing;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import Operators.ScanOperator;
 import Project.Tuple;
@@ -14,169 +11,31 @@ import Project.Tuple;
 /**
  * BPlusTree Class Assumptions: 1. No duplicate keys inserted 2. Order D:
  * D<=number of keys in a node <=2*D 3. All keys are non-negative
- * TODO: Rename to BPlusTree
  */
-public class BPlusTree<K extends Comparable<K>, T> {
+public class BPlusTree {
 
-	public Node<Integer, LinkedList<RecordID>> root;
-	public int D;
-	private ScanOperator op;
-	private HashMap<Integer, LinkedList<RecordID>> ln;
-	//private ArrayList<Node<Integer, LinkedList<RecordID>>> rids;
-	private ArrayList<DataEntry> entries;
-	private boolean sort;
+	private String outputFile;
+	private int D;
+	private int nLeaves;
+	private int rootIndex;
+	private BinaryNodeReader reader;
 	
-	public BPlusTree(int D, ScanOperator op, boolean sort) {
+	public BPlusTree(int D, ScanOperator scan, String outputFile) {
+		this.outputFile = outputFile;
 		this.D = D;
-		root = null;
-		this.op = op;
-		this.sort = sort;
+		this.nLeaves = 0;
+		
+		bulkLoad(scan);
+		
+		this.reader = new BinaryNodeReader(outputFile);
 	}
 	
-	
-	/**
-	 * Bulk loading function 
-	 * @param
-	 * 
-	 */
-	public void bulkLoading() {
-		ArrayList<Node<Integer, LinkedList<RecordID>>> l = makeLeafNodes();
-		ArrayList<Node<Integer, LinkedList<RecordID>>> ins = makeIndexNodes(l);
-		while (ins.size() > 0){
-			ins = makeIndexNodes(ins);
-		}
-	}
-	
-	public void makeRoot(ArrayList<Node<Integer, LinkedList<RecordID>>> lns) {
-		IndexNode<Integer, LinkedList<RecordID>> nodes = null;		
-		for(int j=0; j < lns.size(); j++){
-			if ( nodes == null){
-				nodes = new IndexNode<Integer, LinkedList<RecordID>>(makeKey(lns.get(j+1)), lns.get(j), lns.get(j+1));
-				j++;				
-			}
-			else {
-				nodes.insertSorted(new AbstractMap.SimpleEntry<Integer, Node<Integer, LinkedList<RecordID>>>(makeKey(lns.get(j+1)), lns.get(j)), j);
-			}
-		}		
-		this.root = nodes;
-	}
-	
-	
-	public ArrayList<Node<Integer, LinkedList<RecordID>>> makeIndexNodes(ArrayList<Node<Integer, LinkedList<RecordID>>> lns) {
-		int indexNodes = lns.size() / 2*D;
+	public BPlusTree(String outputFile) {
+		this.reader = new BinaryNodeReader(outputFile);
 		
-		if(lns.size()%(2*D) != 0)
-			indexNodes++;
-		ArrayList<Node<Integer, LinkedList<RecordID>>> ins= new ArrayList<Node<Integer, LinkedList<RecordID>>>();
-		if (indexNodes == 1){
-			makeRoot(lns);
-			return ins;
-		}
-		boolean b = lns.size()%(2*D) < D/2;		
-		int k = 0;
-		
-		for(int i=0; i<indexNodes; i++){
-			IndexNode<Integer, LinkedList<RecordID>> nodes = null;
-			if ( i >= indexNodes-2 && b) {
-				int remaining = lns.size() - k;
-				for (int j=0; j<remaining/2 && k < lns.size(); j++, k++){
-					if ( nodes == null){
-						nodes = new IndexNode<Integer, LinkedList<RecordID>>(makeKey(lns.get(k+1)), lns.get(k), lns.get(k+1));
-						k++;
-						j++;
-					}
-					else {	
-						nodes.insertSorted(new AbstractMap.SimpleEntry<Integer, Node<Integer, LinkedList<RecordID>>>(makeKey(lns.get(k+1)), lns.get(k)), j);
-					}
-				}
-				IndexNode<Integer, LinkedList<RecordID>> nodes2 = null;
-				for(int j=0; k < lns.size(); k++, j++){
-					if ( nodes2 == null){
-						nodes2 = new IndexNode<Integer, LinkedList<RecordID>>(makeKey(lns.get(k+1)), lns.get(k), lns.get(k+1));
-						k++;
-						j++;
-					}
-					else {
-						nodes.insertSorted(new AbstractMap.SimpleEntry<Integer, Node<Integer, LinkedList<RecordID>>>(makeKey(lns.get(k+1)), lns.get(k)), j);
-					}
-				}
-			ins.add(nodes);
-			ins.add(nodes2);
-			break;
-				
-			}
-			for (int j=0; j<2*D; j++, k++){
-				if (nodes == null) {
-					nodes = new IndexNode<Integer, LinkedList<RecordID>>(makeKey(lns.get(k+1)), lns.get(k), lns.get(k+1));
-					k++;
-					j++;
-				}
-				else {
-					nodes.insertSorted(new AbstractMap.SimpleEntry<Integer, Node<Integer, LinkedList<RecordID>>>(makeKey(lns.get(k+1)),  lns.get(k)), j);
-				}
-			}
-			ins.add(nodes);
-		}
-		return ins;
-	}
-	
-	public ArrayList<Node<Integer, LinkedList<RecordID>>> makeLeafNodes() {
-		int leaves = entries.size() / (2*D);
-		if(entries.size()%(2*D) != 0)
-			leaves++;
-		
-		boolean b = entries.size()%(2*D) < D/2;		
-		ArrayList<Node<Integer, LinkedList<RecordID>>> lNodes = new ArrayList<Node<Integer, LinkedList<RecordID>>>();
-		int k = 0;
-		for(int i=0; i<leaves; i++){
-			LeafNode<Integer, LinkedList<RecordID>> ln = new LeafNode<Integer, LinkedList<RecordID>>();
-			if(i >= leaves - 2 && b){
-				int remaining = entries.size() - k;
-				for( int j=0; j<remaining/2 && k < entries.size(); j++, k++){					
-					ln.insertSorted(entries.get(k).k, entries.get(k).rid);
-				}
-				LeafNode<Integer, LinkedList<RecordID>> ln2 = new LeafNode<Integer, LinkedList<RecordID>>();
-				for(; k < entries.size(); k++){					
-					ln2.insertSorted(entries.get(k).k, entries.get(k).rid);
-				}
-				lNodes.add(ln);
-				lNodes.add(ln2);
-				break;
-			}
-			else {
-				for( int j=0; j<2*D && k < entries.size(); j++, k++){					
-					ln.insertSorted(entries.get(k).k, entries.get(k).rid);
-				}
-			}
-			lNodes.add(ln);			
-		}		
-		
-		return lNodes;
-	}
-		
-	
-	public void formatEntries() {
-		Tuple t;
-		int pageid = 0;
-		int tupleid = 0;
-		
-		while((t=op.getNextTuple())!=null){						
-			RecordID rid = new RecordID(pageid, tupleid);
-			tupleid++;
-			if (!ln.containsKey(0)){
-				ln.put(0, new LinkedList<RecordID>());				
-			}
-			ln.get(0).push(rid);
-			if(op.pageStatus()) {
-				tupleid=0;
-				pageid++;
-			}
-		} 
-
-		for (Map.Entry<Integer, LinkedList<RecordID>> m : ln.entrySet()) {
-			entries.add(new DataEntry(m.getKey(), m.getValue()));
-		}
-		Collections.sort((List) entries);			
+		this.rootIndex = this.reader.getRootPage();
+		this.nLeaves = this.reader.getNumLeaves();
+		this.D = this.reader.getOrder();
 	}
 	
 	/**
@@ -185,48 +44,218 @@ public class BPlusTree<K extends Comparable<K>, T> {
 	 * @param key
 	 * @return value
 	 */
-	public LinkedList<RecordID> search(Integer key) {
-		return tree_search(this.root, key);
+//	public LinkedList<RecordID> search(Integer key) {
+//		return tree_search(this.root, key);
+//	}
+//	
+//	public LinkedList<RecordID> tree_search(Node<Integer, LinkedList<RecordID>> root, Integer key){
+//		if (root.isLeafNode){
+//			LeafNode<Integer, LinkedList<RecordID>> leaf = (LeafNode<Integer, LinkedList<RecordID>>) root;
+//			
+//			//find if and where key is located
+//			ArrayList<Integer> keys = leaf.getKeys();
+//			int pos = keys.indexOf(key);
+//			if (pos < 0)
+//				return null;
+//			
+//			//if key is in leaf, return corresponding value
+//			ArrayList<LinkedList<RecordID>> values = leaf.getValues();
+//			return values.get(pos);
+//		}
+//		else{
+//			IndexNode<Integer, LinkedList<RecordID>> index = (IndexNode<Integer, LinkedList<RecordID>>) root;
+//			
+//			ArrayList<Integer> index_keys = index.getKeys();
+//			ArrayList<Node<Integer, LinkedList<RecordID>>> index_children = index.getChildren();
+//			
+//			//find which pointer to follow and make recursive call to search
+//			for (int i=0; i<index_keys.size(); i++){
+//				if( key.compareTo(index_keys.get(i)) < 0){					
+//					Node<Integer, LinkedList<RecordID>> new_node = index_children.get(i); 
+//					return tree_search(new_node, key);
+//				}
+//			}				
+//			Node<Integer, LinkedList<RecordID>> new_node = index_children.get(index_children.size()-1);
+//			return tree_search(new_node, key);
+//		}
+//	}
+	
+	public void close() {
+		this.reader.close();
 	}
 	
-	public LinkedList<RecordID> tree_search(Node<Integer, LinkedList<RecordID>> root, Integer key){
-		if (root.isLeafNode){
-			LeafNode<Integer, LinkedList<RecordID>> leaf = (LeafNode<Integer, LinkedList<RecordID>>) root;
-			
-			//find if and where key is located
-			ArrayList<Integer> keys = leaf.getKeys();
-			int pos = keys.indexOf(key);
-			if (pos < 0)
-				return null;
-			
-			//if key is in leaf, return corresponding value
-			ArrayList<LinkedList<RecordID>> values = leaf.getValues();
-			return values.get(pos);
+	/**
+	 * Bulk loading function 
+	 * @param
+	 * 
+	 */
+	private void bulkLoad(ScanOperator scan) {
+		ArrayList<DataEntry> entries = formatEntries(scan);
+		
+		ArrayList<Node> nodes = new ArrayList<Node>();
+		ArrayList<Node> nodesFromLastRound = makeLeafNodes(entries, nodes);
+		this.nLeaves = nodesFromLastRound.size();
+		
+		nodesFromLastRound = makeIndexNodes(nodesFromLastRound, nodes);
+		while (nodesFromLastRound.size() > 1){
+			nodesFromLastRound = makeIndexNodes(nodesFromLastRound, nodes);
 		}
-		else{
-			IndexNode<Integer, LinkedList<RecordID>> index = (IndexNode<Integer, LinkedList<RecordID>>) root;
+		this.rootIndex = nodes.size();
+		
+		BinaryNodeWriter writer = new BinaryNodeWriter(outputFile, nodes, this.nLeaves, this.D);
+		writer.write();
+		writer.close();
+	}
+	
+	private IndexNode<Node> makeRoot(ArrayList<Node> lastRound, ArrayList<Node> nodes) {
+		IndexNode<Node> index = new IndexNode<Node>(nodes.size() + 1);		
+		for(int j=0; j < lastRound.size(); j++){
+			if ( index.getChildren().size() == 0){
+				index.insertChild(lastRound.get(j));
+			}
+			else {
+				index.insert(makeKey(lastRound.get(j)), lastRound.get(j));
+			}
+		}		
+		return index;
+	}
+	
+	private ArrayList<Node> makeIndexNodes(ArrayList<Node> lastRound, ArrayList<Node> nodes) {
+		int indexNodes = lastRound.size() / 2*D;
+		if(lastRound.size()%(2*D) != 0)
+			indexNodes++;
+		ArrayList<Node> indexes = new ArrayList<Node>();
+		
+		if (indexNodes == 1){
+			indexes.add(makeRoot(lastRound, nodes));
+			return indexes ;
+		}
+		
+		boolean isUnderflow = lastRound.size()%(2*D) < D/2;	
+		
+		int k = 0;
+		for(int i=0; i<indexNodes; i++){
+			IndexNode<Node> index = new IndexNode<Node>(nodes.size() + 1);
 			
-			ArrayList<Integer> index_keys = index.getKeys();
-			ArrayList<Node<Integer, LinkedList<RecordID>>> index_children = index.getChildren();
-			
-			//find which pointer to follow and make recursive call to search
-			for (int i=0; i<index_keys.size(); i++){
-				if( key.compareTo(index_keys.get(i)) < 0){					
-					Node<Integer, LinkedList<RecordID>> new_node = index_children.get(i); 
-					return tree_search(new_node, key);
+			if ( i >= indexNodes-2 && isUnderflow) {
+				int remaining = lastRound.size() - k;
+				
+				for (int j=0; j<remaining/2 && k < lastRound.size(); j++, k++){
+					if (index.getChildren().size() == 0){
+						index.insertChild(lastRound.get(k));
+					}
+					else {	
+						index.insert(makeKey(lastRound.get(k)), lastRound.get(k));
+					}
 				}
-			}				
-			Node<Integer, LinkedList<RecordID>> new_node = index_children.get(index_children.size()-1);
-			return tree_search(new_node, key);
+				indexes.add(index);
+				nodes.add(index);
+				
+				IndexNode<Node> index2 = new IndexNode<Node>(nodes.size() + 1);
+				for(; k < lastRound.size(); k++){
+					if ( index2.getChildren().size() == 0){
+						index2.insertChild(lastRound.get(k));
+					}
+					else {
+						index.insert(makeKey(lastRound.get(k)), lastRound.get(k));
+					}
+				}
+				indexes.add(index2);
+				nodes.add(index2);
+				break;	
+			}
+			
+			else {
+				for (int j=0; j<2*D; j++, k++){
+					if (index.getChildren().size() == 0) {
+						index.insertChild(lastRound.get(k));
+					}
+					else {
+						index.insert(makeKey(lastRound.get(k)), lastRound.get(k));
+					}
+				}
+				indexes.add(index);
+				nodes.add(index);
+			}
 		}
+		return indexes ;
 	}
 	
-	public Integer makeKey(Node<Integer, LinkedList<RecordID>> node) {
+	private ArrayList<Node> makeLeafNodes(ArrayList<DataEntry> entries, ArrayList<Node> nodes) {
+		int nLeaves = entries.size() / (2*D);
+		if(entries.size()%(2*D) != 0)
+			nLeaves++;
+		boolean isUnderflow = entries.size()%(2*D) < D/2;	
+		
+		ArrayList<Node> leaves = new ArrayList<Node>();
+		
+		int k = 0;
+		for(int i = 0; i < nLeaves; i++){
+			LeafNode leaf = new LeafNode(nodes.size() + 1);
+		
+			if(i >= nLeaves - 2 && isUnderflow){
+				int remaining = entries.size() - k;
+			
+				for( int j=0; j<remaining/2 && k < entries.size(); j++, k++){					
+					leaf.insertSorted(entries.get(k).k, entries.get(k).rid);
+				}
+				leaves.add(leaf);
+				nodes.add(leaf);
+				
+				LeafNode leaf2 = new LeafNode(nodes.size() + 1);
+				for(; k < entries.size(); k++){					
+					leaf2.insertSorted(entries.get(k).k, entries.get(k).rid);
+				}
+				leaves.add(leaf2);
+				nodes.add(leaf2);
+				
+				break;
+			}
+			else {
+				for( int j=0; j<2*D && k < entries.size(); j++, k++){					
+					leaf.insertSorted(entries.get(k).k, entries.get(k).rid);
+				}
+			}
+			leaves.add(leaf);
+			nodes.add(leaf);
+		}		
+		return leaves;
+	}
+		
+	
+	private ArrayList<DataEntry> formatEntries(ScanOperator scan) {
+		Tuple t;
+		HashMap<Integer, LinkedList<RecordID>> map = new HashMap<Integer, LinkedList<RecordID>>();
+		ArrayList<DataEntry> entries= new ArrayList<DataEntry>();
+		int pageid = 0;
+		int tupleid = 0;
+		
+		while((t=scan.getNextTuple())!=null){						
+			RecordID rid = new RecordID(pageid, tupleid);
+			tupleid++;
+			if (!map.containsKey(0)){
+				map.put(0, new LinkedList<RecordID>());				
+			}
+			map.get(0).push(rid);
+			if(scan.pageStatus()) {
+				tupleid=0;
+				pageid++;
+			}
+		} 
+
+		for (Map.Entry<Integer, LinkedList<RecordID>> m : map.entrySet()) {
+			entries.add(new DataEntry(m.getKey(), m.getValue()));
+		}
+		Collections.sort(entries);
+		
+		return entries;
+	}
+	
+	private Integer makeKey(Node node) {
 		if (node.isLeafNode){
 			return node.getKeys().get(0);
 		}
-		return makeKey(((IndexNode<Integer, LinkedList<RecordID>>) node).getChildren().get(0));
-		return 0;
-		
+		return makeKey(((IndexNode<Node>) node).getChildren().get(0));
 	}
+
 }
