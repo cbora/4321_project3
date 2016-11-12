@@ -11,22 +11,20 @@ import Project.TableInfo;
 import Project.Tuple;
 import net.sf.jsqlparser.schema.Table;
 
-public class IndexScanOperator extends Operator {
-	
+public abstract class IndexScanOperator extends Operator {
+
 	/* =====================================
 	 * Fields
 	 * ===================================== */
-	private int lowkey;
-	private int highkey;
-	private BPlusTree bTree;
-	private LeafNode currLeaf;
-	private int leafIndex;
-	private int listIndex;
+	protected int lowkey;
+	protected int highkey;
+	protected BPlusTree bTree;
+	protected LeafNode currLeaf;
 	
-	private HashMap<String, Integer> schema;
-	private TableInfo tableInfo;
-	private String tableID;
-	private BinaryTupleReader reader;
+	protected HashMap<String, Integer> schema;
+	protected TableInfo tableInfo;
+	protected String tableID;
+	protected BinaryTupleReader reader;
 
 	/* =====================================
 	 * Constructors
@@ -52,13 +50,6 @@ public class IndexScanOperator extends Operator {
 		this.lowkey = lowkey;
 		this.highkey = highkey;	
 		this.currLeaf = this.bTree.search(lowkey);
-		
-		int i = 0;
-		while(i < currLeaf.getKeys().size() && lowkey < currLeaf.getKeys().get(i)) {
-			i++;
-		}
-		this.leafIndex = i;
-		this.listIndex = 0;
 	}
 	
 	public IndexScanOperator(TableInfo tableInfo, String indexFile, int lowkey, int highkey) {
@@ -68,7 +59,7 @@ public class IndexScanOperator extends Operator {
 	public IndexScanOperator(TableInfo tableInfo, Table tbl, String indexFile, int lowkey, int highkey) {
 		this(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias(), indexFile, lowkey, highkey);
 	}
-
+	
 	/* ===============================================
 	 * Methods
 	 * =============================================== */
@@ -76,41 +67,19 @@ public class IndexScanOperator extends Operator {
 	public HashMap<String, Integer> getSchema() {
 		return schema;
 	}
+	
+	@Override
+	public abstract Tuple getNextTuple();
 
 	@Override
-	public Tuple getNextTuple() {
-		if (listIndex >= currLeaf.getValues().size()) {
-			leafIndex++;
-			listIndex = 0;
-		}
-		if (leafIndex >= currLeaf.getKeys().size()) {
-			currLeaf = bTree.readNextLeaf(currLeaf);
-			leafIndex = 0;
-		}
-		if (currLeaf == null || currLeaf.getKeys().get(leafIndex) > highkey) {
-			return null;
-		}
-		
-		RecordID rid = currLeaf.getValues().get(leafIndex).get(listIndex);
-		listIndex++;
-		reader.reset(rid.pageid, rid.tupleid);
-		return reader.read();
-	}
+	public abstract void reset();
 
 	@Override
-	public void reset() {
-		this.currLeaf = bTree.search(lowkey);
-	}
-
-	@Override
-	public void reset(int index) {
-		
-	}
+	public abstract void reset(int index);
 
 	@Override
 	public void close() {
 		reader.close();
 		bTree.close();
 	}
-
 }

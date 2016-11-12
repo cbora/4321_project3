@@ -34,6 +34,9 @@ public class BinaryNodeWriter {
 	 */
 	public BinaryNodeWriter(String filename, ArrayList<Node> nodes, int nLeaves, int order) {
 		this.filename = filename;
+		this.nodes = nodes;
+		this.nLeaves = nLeaves;
+		this.order = order;
 		try {
 			this.output = new FileOutputStream(this.filename);
 			this.channel = output.getChannel();
