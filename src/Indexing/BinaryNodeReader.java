@@ -138,8 +138,8 @@ public class BinaryNodeReader {
 		return leaf;
 	}
 	
-	private IndexNode<Integer> readIndex(int buffer_index, int pageIndex) {
-		IndexNode<Integer> index = new IndexNode<Integer>(pageIndex);
+	private IndexNode readIndex(int buffer_index, int pageIndex) {
+		IndexNode index = new IndexNode(pageIndex);
 		
 		int nKeys = buffer.getInt(buffer_index);
 		buffer_index += BYTES_IN_INT;

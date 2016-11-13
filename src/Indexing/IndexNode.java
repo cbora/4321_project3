@@ -3,34 +3,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class IndexNode<T> extends Node {
+public class IndexNode extends Node {
 
 	// m nodes
-	protected ArrayList<T> children; // m+1 children
+	protected ArrayList<Integer> children; // m+1 children
 
 	public IndexNode(int pos) {
 		isLeafNode = false;
 		keys = new ArrayList<Integer>();
-		children = new ArrayList<T>();
+		children = new ArrayList<Integer>();
 		this.pos = pos;
 	}
 
-	public IndexNode(Integer key, T child0, T child1, int pos) {
+	public IndexNode(Integer key, Integer child0, Integer child1, int pos) {
 		isLeafNode = false;
 		keys = new ArrayList<Integer>();
 		keys.add(key);
-		children = new ArrayList<T>();
+		children = new ArrayList<Integer>();
 		children.add(child0);
 		children.add(child1);
 		this.pos = pos;
 	}
 		
 	
-	public IndexNode(List<Integer> newKeys, List<T> newChildren, int pos) {
+	public IndexNode(List<Integer> newKeys, List<Integer> newChildren, int pos) {
 		isLeafNode = false;
 
 		keys = new ArrayList<Integer>(newKeys);
-		children = new ArrayList<T>(newChildren);
+		children = new ArrayList<Integer>(newChildren);
 		this.pos = pos;
 	}
 
@@ -38,16 +38,16 @@ public class IndexNode<T> extends Node {
 		keys.add(key);
 	}
 	
-	public void insertChild(T child) {
+	public void insertChild(Integer child) {
 		children.add(child);
 	}
 	
-	public void insert(Integer key, T child) {
+	public void insert(Integer key, Integer child) {
 		insertKey(key);
 		insertChild(child);
 	}
 
-	public ArrayList<T> getChildren() {
+	public ArrayList<Integer> getChildren() {
 		return this.children;
 	}
 }

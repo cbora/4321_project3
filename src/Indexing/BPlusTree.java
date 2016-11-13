@@ -2,7 +2,6 @@ package Indexing;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.ArrayList;
 import java.util.Map;
 
 import Operators.ScanOperator;
@@ -42,19 +41,17 @@ public class BPlusTree {
 	 * @return value
 	 */
 	public LeafNode search(Integer key) {
-		IndexNode<Integer> root = (IndexNode<Integer>) reader.read(rootIndex);
+		IndexNode root = (IndexNode) reader.read(rootIndex);
 		return tree_search(root, key);
 	}
 	
 	public LeafNode tree_search(Node root, Integer key){
 		if (root.isLeafNode){
 			LeafNode leaf = (LeafNode) root;
-			
-			ArrayList<ArrayList<RecordID>> values = leaf.getValues();
 			return leaf;
 		}
 		else{
-			IndexNode<Integer> index = (IndexNode<Integer>) root;
+			IndexNode index = (IndexNode) root;
 			
 			ArrayList<Integer> index_keys = index.getKeys();
 			ArrayList<Integer> index_children = index.getChildren();
@@ -106,14 +103,14 @@ public class BPlusTree {
 		writer.close();
 	}
 	
-	private IndexNode<Node> makeRoot(ArrayList<Node> lastRound, ArrayList<Node> nodes) {
-		IndexNode<Node> index = new IndexNode<Node>(nodes.size() + 1);		
+	private IndexNode makeRoot(ArrayList<Node> lastRound, ArrayList<Node> nodes) {
+		IndexNode index = new IndexNode(nodes.size() + 1);		
 		for(int j=0; j < lastRound.size(); j++){
 			if ( index.getChildren().size() == 0){
-				index.insertChild(lastRound.get(j));
+				index.insertChild(lastRound.get(j).getPos());
 			}
 			else {
-				index.insert(makeKey(lastRound.get(j)), lastRound.get(j));
+				index.insert(makeKey(lastRound.get(j), nodes), lastRound.get(j).getPos());
 			}
 		}		
 		return index;
@@ -126,7 +123,7 @@ public class BPlusTree {
 		ArrayList<Node> indexes = new ArrayList<Node>();
 		
 		if (indexNodes == 1){
-			IndexNode<Node> root = makeRoot(lastRound, nodes);
+			IndexNode root = makeRoot(lastRound, nodes);
 			indexes.add(root);
 			nodes.add(root);
 			return indexes ;
@@ -136,28 +133,28 @@ public class BPlusTree {
 		
 		int k = 0;
 		for(int i=0; i<indexNodes; i++){
-			IndexNode<Node> index = new IndexNode<Node>(nodes.size() + 1);
+			IndexNode index = new IndexNode(nodes.size() + 1);
 			
 			if ( i >= indexNodes-2 && isUnderflow) {
 				int remaining = lastRound.size() - k;
 				for (int j=0; j < remaining/2; j++, k++){
 					if (index.getChildren().size() == 0){
-						index.insertChild(lastRound.get(k));
+						index.insertChild(lastRound.get(k).getPos());
 					}
 					else {	
-						index.insert(makeKey(lastRound.get(k)), lastRound.get(k));
+						index.insert(makeKey(lastRound.get(k), nodes), lastRound.get(k).getPos());
 					}
 				}
 				indexes.add(index);
 				nodes.add(index);
 				
-				IndexNode<Node> index2 = new IndexNode<Node>(nodes.size() + 1);
+				IndexNode index2 = new IndexNode(nodes.size() + 1);
 				for(; k < lastRound.size(); k++){
 					if ( index2.getChildren().size() == 0){
-						index2.insertChild(lastRound.get(k));
+						index2.insertChild(lastRound.get(k).getPos());
 					}
 					else {
-						index2.insert(makeKey(lastRound.get(k)), lastRound.get(k));
+						index2.insert(makeKey(lastRound.get(k), nodes), lastRound.get(k).getPos());
 					}
 				}
 				indexes.add(index2);
@@ -168,10 +165,10 @@ public class BPlusTree {
 			else {
 				for (int j=0; j<=2*D && k < lastRound.size(); j++, k++){
 					if (index.getChildren().size() == 0) {
-						index.insertChild(lastRound.get(k));
+						index.insertChild(lastRound.get(k).getPos());
 					}
 					else {
-						index.insert(makeKey(lastRound.get(k)), lastRound.get(k));
+						index.insert(makeKey(lastRound.get(k), nodes), lastRound.get(k).getPos());
 					}
 				}
 				indexes.add(index);
@@ -193,7 +190,7 @@ public class BPlusTree {
 		for(int i = 0; i < nLeaves; i++){
 			LeafNode leaf = new LeafNode(nodes.size() + 1);
 		
-			if(i >= nLeaves - 2 && isUnderflow){
+			if(i >= nLeaves - 2 && isUnderflow && nLeaves > 1){
 				int remaining = entries.size() - k;
 			
 				for( int j=0; j<remaining/2 && k < entries.size(); j++, k++){					
@@ -251,11 +248,12 @@ public class BPlusTree {
 		return entries;
 	}
 	
-	private Integer makeKey(Node node) {
+	private Integer makeKey(Node node, ArrayList<Node> nodes) {
 		if (node.isLeafNode){
 			return node.getKeys().get(0);
 		}
-		return makeKey(((IndexNode<Node>) node).getChildren().get(0));
+		IndexNode index = (IndexNode) node;
+		return makeKey(nodes.get(index.getChildren().get(0) - 1), nodes);
 	}
 
 }
