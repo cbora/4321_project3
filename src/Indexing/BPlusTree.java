@@ -128,7 +128,9 @@ public class BPlusTree {
 		ArrayList<Node> indexes = new ArrayList<Node>();
 		
 		if (indexNodes == 1){
-			indexes.add(makeRoot(lastRound, nodes));
+			IndexNode<Node> root = makeRoot(lastRound, nodes);
+			indexes.add(root);
+			nodes.add(root);
 			return indexes ;
 		}
 		
@@ -140,8 +142,7 @@ public class BPlusTree {
 			
 			if ( i >= indexNodes-2 && isUnderflow) {
 				int remaining = lastRound.size() - k;
-				
-				for (int j=0; j <= remaining/2 - 1 && k < lastRound.size(); j++, k++){
+				for (int j=0; j < remaining/2; j++, k++){
 					if (index.getChildren().size() == 0){
 						index.insertChild(lastRound.get(k));
 					}
@@ -158,7 +159,7 @@ public class BPlusTree {
 						index2.insertChild(lastRound.get(k));
 					}
 					else {
-						index.insert(makeKey(lastRound.get(k)), lastRound.get(k));
+						index2.insert(makeKey(lastRound.get(k)), lastRound.get(k));
 					}
 				}
 				indexes.add(index2);
@@ -256,7 +257,6 @@ public class BPlusTree {
 		if (node.isLeafNode){
 			return node.getKeys().get(0);
 		}
-		System.out.println(node.getKeys());
 		return makeKey(((IndexNode<Node>) node).getChildren().get(0));
 	}
 
