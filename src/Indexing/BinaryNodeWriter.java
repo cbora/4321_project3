@@ -70,7 +70,7 @@ public class BinaryNodeWriter {
 		if (n.isLeafNode)
 			writeLeaf((LeafNode) n);
 		else 
-			writeIndex((IndexNode<Node>) n);
+			writeIndex((IndexNode) n);
 	}
 	
 	private void writeLeaf(LeafNode n) {
@@ -102,22 +102,22 @@ public class BinaryNodeWriter {
 		writePage();
 	}
 	
-	private void writeIndex(IndexNode<Node> n) {
+	private void writeIndex(IndexNode n) {
 		buffer.putInt(0, 1);
 		buffer.putInt(BYTES_IN_INT * 1, n.getKeys().size());
 		
 		int buffer_index = BYTES_IN_INT * 2;
 		
 		ArrayList<Integer> keys = n.getKeys();
-		ArrayList<Node> children = n.getChildren();
+		ArrayList<Integer> children = n.getChildren();
 
 		for (Integer key : keys) {
 			buffer.putInt(buffer_index, key);
 			buffer_index += BYTES_IN_INT;
 		}
 		
-		for (Node child : children) {
-			buffer.putInt(buffer_index, child.getPos());
+		for (Integer child : children) {
+			buffer.putInt(buffer_index, child);
 			buffer_index += BYTES_IN_INT;
 		}
 		
