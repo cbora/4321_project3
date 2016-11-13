@@ -1,5 +1,7 @@
 package Operators;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -33,6 +35,8 @@ public class PhysicalPlanBuilder {
 	private String[] joinPlan; // Strings that indicate which join plan to use
 	private String[] sortPlan; // String which indicate which sort type to use
 	private String tmp_dir; // Arg temp directory
+	private String input_dir; 
+	private String index; // for index type
 	/*
 	 * ================================== 
 	 * Constructors
@@ -44,14 +48,27 @@ public class PhysicalPlanBuilder {
 	 * @param root
 	 *            - root of logical operator tree
 	 */
-	public PhysicalPlanBuilder(LogicalOperator root, String[] joinPlan, String[] sortPlan, String tmp_dir) {
+	public PhysicalPlanBuilder(LogicalOperator root,  String planConfig, String tmp_dir) {
 		this.pStack = new Stack<Operator>();
-		this.joinPlan = joinPlan;
-		this.sortPlan = sortPlan;
 		this.tmp_dir = tmp_dir;
+		readPlanConfig(planConfig);				
 		root.accept(this);
 	}
+	
+	public void readPlanConfig(String config) {
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(config));
+			this.joinPlan = br.readLine().split(" ");
+			this.sortPlan = br.readLine().split(" ");
+			this.index = br.readLine();
+			br.close();
+		} catch(Exception e) {
+			System.err.println("Exception occured during plan reading");
+			e.printStackTrace();
+		}
+	}
 
+	
 	/*
 	 * ================================== 
 	 * Methods
@@ -114,6 +131,36 @@ public class PhysicalPlanBuilder {
 			break;
 		}
 		
+		return s;
+	}
+	
+	/**
+	 * Constructs appropriate ScanOperator based on the config file
+	 * @param o - child operator
+	 * @param 
+	 * @return ScanOperator
+	 * 
+	 */
+	private SelectOperator detScan(Operator o, Expression exp) {
+		int indexType = this.index.equals("0") ? 0 : 1;
+				
+		SelectOperator s = null;
+		switch (indexType) {
+		
+		case 0:
+			
+			return new SelectOperator(o, exp);
+		case 1:
+			String indexInfo = this.input_dir + "/db/index_info.txt";
+			String indexDir = this.input_dir + "/db/indexes";
+			// if this Operator is not of instance Scan Operator return just SelectOperator
+			if (! (o instanceof ScanOperator))
+				return new SelectOperator(o, exp);
+			//make expression visitor to determine low and high key
+			
+			
+			
+		}
 		return s;
 	}
 	

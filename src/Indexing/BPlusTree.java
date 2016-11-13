@@ -17,6 +17,7 @@ public class BPlusTree {
 	private BinaryNodeReader reader;
 	
 	public BPlusTree(int D, ScanOperator scan, int tuplePos, String indexFile) {
+		// build constructor
 		this.indexFile = indexFile;
 		this.D = D;
 		this.nLeaves = 0;
@@ -27,6 +28,7 @@ public class BPlusTree {
 	}
 	
 	public BPlusTree(String indexFile) {
+		// already exists
 		this.indexFile = indexFile;
 		this.reader = new BinaryNodeReader(indexFile);
 		
