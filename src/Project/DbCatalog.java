@@ -1,5 +1,6 @@
 package Project;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -53,5 +54,9 @@ public class DbCatalog {
 	 */
 	public TableInfo get(String tableName) {
 		return hash.get(tableName);
+	}
+	
+	public ArrayList<String> getTableNames() {
+		return new ArrayList<String>(hash.keySet());
 	}
 }

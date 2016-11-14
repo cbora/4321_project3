@@ -18,8 +18,8 @@ public class UnclusteredIndexScanOperator extends IndexScanOperator {
 	/* =====================================
 	 * Constructors
 	 * ===================================== */
-	public UnclusteredIndexScanOperator(TableInfo tableInfo, String tableID, String indexFile, int lowkey, int highkey) {
-		super(tableInfo, tableID, indexFile, lowkey, highkey);
+	public UnclusteredIndexScanOperator(TableInfo tableInfo, String tableID, int lowkey, int highkey) {
+		super(tableInfo, tableID, lowkey, highkey);
 		
 		this.firstLeaf = this.currLeaf;
 		this.leafIndex = -1;
@@ -27,12 +27,12 @@ public class UnclusteredIndexScanOperator extends IndexScanOperator {
 		this.listIndex = 0;
 	}
 	
-	public UnclusteredIndexScanOperator(TableInfo tableInfo, String indexFile, int lowkey, int highkey) {
-		super(tableInfo, tableInfo.getTableName(), indexFile, lowkey, highkey);
+	public UnclusteredIndexScanOperator(TableInfo tableInfo, int lowkey, int highkey) {
+		super(tableInfo, tableInfo.getTableName(), lowkey, highkey);
 	}
 	
-	public UnclusteredIndexScanOperator(TableInfo tableInfo, Table tbl, String indexFile, int lowkey, int highkey) {
-		super(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias(), indexFile, lowkey, highkey);
+	public UnclusteredIndexScanOperator(TableInfo tableInfo, Table tbl, int lowkey, int highkey) {
+		super(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias(), lowkey, highkey);
 	}
 
 	/* ===============================================
@@ -43,7 +43,8 @@ public class UnclusteredIndexScanOperator extends IndexScanOperator {
 	public Tuple getNextTuple() {
 		if (this.leafIndex == -1) {
 			int i = 0;
-			while(i < currLeaf.getKeys().size() && lowkey < currLeaf.getKeys().get(i)) {
+			System.out.println(currLeaf.getKeys().size() + ", " + lowkey + " < " + currLeaf.getKeys().get(i));
+			while(i < currLeaf.getKeys().size() && lowkey > currLeaf.getKeys().get(i)) {
 				i++;
 			}
 			if (i == currLeaf.getKeys().size()) {
@@ -51,6 +52,7 @@ public class UnclusteredIndexScanOperator extends IndexScanOperator {
 			}
 			else {
 				this.leafIndex = i;
+				System.out.println("set leaf index: " + leafIndex);
 				this.firstLeafIndex = this.leafIndex;
 				this.listIndex = 0;
 			}
@@ -70,6 +72,7 @@ public class UnclusteredIndexScanOperator extends IndexScanOperator {
 		}
 		
 		RecordID rid = currLeaf.getValues().get(leafIndex).get(listIndex);
+		System.out.println(rid);
 		listIndex++;
 		reader.reset(rid.pageid, rid.tupleid);
 		return reader.read();

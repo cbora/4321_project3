@@ -35,6 +35,7 @@ public class BinaryTupleReader extends TupleReader {
 	private int row_number; // number of rows in buffer
 	private int buffer_index; // where we are in the buffer
 	private boolean isEmpty; // flags empty file
+	private boolean hasRead; // flag to indicate whether we have read yet
 
 	/*
 	 * ================================== 
@@ -57,7 +58,8 @@ public class BinaryTupleReader extends TupleReader {
 		this.channel = this.input.getChannel();
 		this.buffer = ByteBuffer.allocate(PAGE_SIZE);
 		this.col_number = -1;
-		this.isEmpty = !readPage();
+		this.isEmpty = false;
+		this.hasRead = false;
 	}
 
 	/*
@@ -72,6 +74,10 @@ public class BinaryTupleReader extends TupleReader {
 	 */
 	@Override
 	public Tuple read() {
+		if (!this.hasRead) {
+			readPage();
+		}
+		
 		if (isEmpty)
 			return null;
 		if (this.buffer_index / BYTES_IN_INT == (this.col_number * this.row_number + NUM_META_DATA)) {
@@ -128,7 +134,9 @@ public class BinaryTupleReader extends TupleReader {
 	
 	public void reset(int pageid, int tupleid) {
 		try {
+			System.out.println(this.channel.position());
 			this.channel.position(pageid * PAGE_SIZE);
+			System.out.println("" + pageid * PAGE_SIZE + " vs. " + this.channel.position());
 			readPage();
 			for (int i = 0; i < tupleid; i++)
 				read();
@@ -155,11 +163,16 @@ public class BinaryTupleReader extends TupleReader {
 	 * @return true if there were pages remaining, false otherwise
 	 */
 	private boolean readPage() {
+		this.hasRead = true;
 		int bytesRead;
 		try {
 			bytesRead = this.channel.read(this.buffer);
-			if (bytesRead <= 0)
+			if (bytesRead <= 0) {
+				if (!this.hasRead)
+					this.isEmpty = true;
+				this.hasRead = true;
 				return false;
+			}
 			this.buffer.flip();
 			this.col_number = (int) this.buffer.getInt(0);
 			this.row_number = this.buffer.getInt(4);
@@ -168,6 +181,7 @@ public class BinaryTupleReader extends TupleReader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		this.hasRead = true;
 		return true;
 	}
 

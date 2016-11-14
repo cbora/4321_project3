@@ -29,7 +29,7 @@ public abstract class IndexScanOperator extends Operator {
 	/* =====================================
 	 * Constructors
 	 * ===================================== */
-	public IndexScanOperator(TableInfo tableInfo, String tableID, String indexFile, int lowkey, int highkey) {
+	public IndexScanOperator(TableInfo tableInfo, String tableID, int lowkey, int highkey) {
 		super();
 		
 		this.tableInfo = tableInfo;
@@ -46,18 +46,24 @@ public abstract class IndexScanOperator extends Operator {
 			this.schema.put(this.tableID + "." + columns.get(i), i);
 		}
 		
+		String indexFile = tableInfo.getIndexPath();
 		this.bTree = new BPlusTree(indexFile);
 		this.lowkey = lowkey;
 		this.highkey = highkey;	
 		this.currLeaf = this.bTree.search(lowkey);
+		for (int i = 0; i < currLeaf.getKeys().size(); i++) {
+			System.out.println(currLeaf.getKeys().get(i) + " : " + currLeaf.getValues().get(i));
+		}
+		System.out.println();
+		//reader.read();
 	}
 	
-	public IndexScanOperator(TableInfo tableInfo, String indexFile, int lowkey, int highkey) {
-		this(tableInfo, tableInfo.getTableName(), indexFile, lowkey, highkey);
+	public IndexScanOperator(TableInfo tableInfo, int lowkey, int highkey) {
+		this(tableInfo, tableInfo.getTableName(), lowkey, highkey);
 	}
 	
-	public IndexScanOperator(TableInfo tableInfo, Table tbl, String indexFile, int lowkey, int highkey) {
-		this(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias(), indexFile, lowkey, highkey);
+	public IndexScanOperator(TableInfo tableInfo, Table tbl, int lowkey, int highkey) {
+		this(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias(), lowkey, highkey);
 	}
 	
 	/* ===============================================

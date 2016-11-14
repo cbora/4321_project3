@@ -6,7 +6,6 @@ public class RecordID implements Comparable<RecordID> {
 	public int tupleid; 
 	
 	public RecordID(int pageid, int tupleid) {
-		// TODO Auto-generated constructor stub
 		this.pageid = pageid;
 		this.tupleid = tupleid;
 	}
@@ -23,6 +22,11 @@ public class RecordID implements Comparable<RecordID> {
 			return 1;
 		else 
 			return 0;						
+	}
+	
+	@Override
+	public String toString() {
+		return ("(pid: " + pageid + ", tid: " + tupleid + ")");
 	}
 
 }

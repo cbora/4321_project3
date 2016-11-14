@@ -98,4 +98,12 @@ public class ScanOperator extends Operator {
 	public void close() {
 		reader.close();
 	}
+	
+	public TableInfo getTableInfo() {
+		return this.tableInfo;
+	}
+	
+	public String getTableID() {
+		return this.tableID;
+	}
 }

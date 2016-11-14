@@ -2,6 +2,8 @@ package Project;
 
 import java.util.ArrayList;
 
+import Indexing.IndexInfo;
+
 /**
  * Container to hold info about tables
  * @author Richard Henwood (rbh228)
@@ -16,6 +18,7 @@ public class TableInfo {
 	 * ================================== */
 	private String filePath; // path to file containing table
 	private String tableName; // name of table
+	private IndexInfo indexInfo;
 	private ArrayList<String> columns; // name of the columns in order
 	
 	/* ================================== 
@@ -30,6 +33,7 @@ public class TableInfo {
 		this.filePath = filePath;
 		this.tableName = tableName;
 		this.columns = new ArrayList<String>();
+		this.indexInfo = null;
 	}
 
 	/* ================================== 
@@ -75,4 +79,36 @@ public class TableInfo {
 		return columns;
 	}	
 	
+	public void setIndexInfo(IndexInfo indexInfo) {
+		this.indexInfo = indexInfo;
+	}
+	
+	public IndexInfo getIndexInfo() {
+		return this.indexInfo;
+	}
+	
+	public String getIndexAttribute() {
+		if (this.indexInfo == null)
+			return null;
+		return this.indexInfo.getAttribute();
+	}
+	
+	public String getIndexPath() {
+		if (this.indexInfo == null)
+			return null;
+		return this.indexInfo.getIndexPath();
+	}
+	
+	
+	public boolean isClustered() {
+		if (this.indexInfo == null)
+			return false;
+		return this.indexInfo.isClustered();
+	}
 }
+
+
+
+
+
+

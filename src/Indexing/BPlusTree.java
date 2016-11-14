@@ -75,7 +75,14 @@ public class BPlusTree {
 		if (pos > reader.getNumLeaves()) {
 			return null;
 		}
-		return (LeafNode) reader.read(pos);
+		
+		LeafNode newLeaf = (LeafNode) reader.read(pos);
+		for (int i = 0; i < newLeaf.getKeys().size(); i++) {
+			System.out.println(newLeaf.getKeys().get(i) + " : " + newLeaf.getValues().get(i));
+		}
+		System.out.println();
+
+		return newLeaf;
 	}
 	
 	public void close() {
@@ -131,7 +138,7 @@ public class BPlusTree {
 			return indexes ;
 		}
 		
-		boolean isUnderflow = (lastRound.size() % (2 * D + 1)) - 1 < D/2;	
+		boolean isUnderflow = (lastRound.size() % (2 * D + 1)) - 1 < D;	
 		
 		int k = 0;
 		for(int i=0; i<indexNodes; i++){
@@ -184,7 +191,7 @@ public class BPlusTree {
 		int nLeaves = entries.size() / (2*D);
 		if(entries.size()%(2*D) != 0)
 			nLeaves++;
-		boolean isUnderflow = entries.size()%(2*D) < D/2;	
+		boolean isUnderflow = entries.size()%(2*D) < D;	
 		
 		ArrayList<Node> leaves = new ArrayList<Node>();
 		
@@ -194,13 +201,13 @@ public class BPlusTree {
 		
 			if(i >= nLeaves - 2 && isUnderflow && nLeaves > 1){
 				int remaining = entries.size() - k;
-			
+
 				for( int j=0; j<remaining/2 && k < entries.size(); j++, k++){					
 					leaf.insert(entries.get(k).k, entries.get(k).rid);
 				}
 				leaves.add(leaf);
 				nodes.add(leaf);
-				
+								
 				LeafNode leaf2 = new LeafNode(nodes.size() + 1);
 				for(; k < entries.size(); k++){					
 					leaf2.insert(entries.get(k).k, entries.get(k).rid);

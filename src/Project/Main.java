@@ -1,12 +1,15 @@
 package Project;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 
 import IO.BinaryTupleWriter;
 import IO.Configuration;
+import IO.HumanTupleWriter;
 import Indexing.BPlusTree;
-import Indexing.IndexConfig;
 import Indexing.IndexInfo;
 import LogicalOperator.LogicalOperator;
 import LogicalOperator.LogicalPlanBuilder;
@@ -56,63 +59,99 @@ public class Main {
     			e.printStackTrace();    			
 		 }
 		
-		Main m = new Main();
+		String indexInfo = config.getInputDir() + "/db/index_info.txt";
+		parseIndexConfig(indexInfo, config.getInputDir(), dbC);
+		
 		if (config.runOption() == 1) {
-			m.buildIndexes(config.getInputDir());
+			buildIndexes();
 		}
 		else if(config.runOption() == 2) {
-			m.buildIndexes(config.getInputDir());
-			m.runQueries(config.getInputDir(), config.getOutputDir(), config.getTmpDir());
+			buildIndexes();
+			runQueries(config.getInputDir(), config.getOutputDir(), config.getTmpDir());
 		}
 		else if(config.runOption() == 3) {
-			m.runQueries(config.getInputDir(), config.getOutputDir(), config.getTmpDir());
+			runQueries(config.getInputDir(), config.getOutputDir(), config.getTmpDir());
 		}
 				
 	}
 	
-	public void buildIndexes(String input) {
+	public static void buildIndexes() {
 		DbCatalog dbC = DbCatalog.getInstance();
+		ArrayList<String> tables = dbC.getTableNames();
 		
-		String indexInfo = input + "/db/index_info.txt";
-		IndexConfig config = new IndexConfig(indexInfo);
-		for (int i=0; i< config.indices.size(); i++){
-			ScanOperator scan = null;
-			IndexInfo info = config.indices.get(i);
-			int pos = scan.getSchema().get(info.attribute);
-			int sort_order[] = {pos};
-			if (info.clustered){
-				scan = new ScanOperator(dbC.get(info.table));				
+		for (String table : tables){
+			ScanOperator scan;
+			IndexInfo info = dbC.get(table).getIndexInfo();
+			
+			if (info == null)
+				continue;
+			
+			int pos;
+			if (info.isClustered()){
+				scan = new ScanOperator(dbC.get(table), table);
+				pos = scan.getSchema().get(table + "." + info.getAttribute());
+				
+				int sort_order[] = {pos};
 				InMemSortOperator sort = new InMemSortOperator(scan, sort_order );
-				BinaryTupleWriter writer = new BinaryTupleWriter(dbC.get(info.table).getFilePath());
-				sort.dump(writer, 0);
+				
+				BinaryTupleWriter writer = new BinaryTupleWriter(dbC.get(table).getFilePath());
+				sort.dump(writer);
 				writer.close();
 				sort.close();
-				scan = new ScanOperator(dbC.get(info.table));
+				
+				scan = new ScanOperator(dbC.get(table), table);
 			}				
 			else {
-				scan = new ScanOperator(dbC.get(info.table));
+				scan = new ScanOperator(dbC.get(table), table);
+				pos = scan.getSchema().get(table + "." + info.getAttribute());
 			}
-			String indexFile = input + "/db/indexes/index_file_" + i +".txt";	
-			BPlusTree bplus= new BPlusTree(info.D, scan, pos, indexFile);
+			
+			System.out.println("table: " + table);
+			System.out.println("D: " + info.getD());
+			System.out.println("attribute col num: " + pos);
+			System.out.println("clustered: " + info.isClustered());
+			System.out.println();
+			BPlusTree bplus= new BPlusTree(info.getD(), scan, pos, info.getIndexPath());
+			bplus.close();
 			scan.close();
 		}
 		
 	}
 	
-	public void runQueries(String input, String output, String tmp) {
+	public static void parseIndexConfig(String configfile, String input, DbCatalog dbC) {
+		FileReader fileReader;
+		BufferedReader bufferedReader;
+		
+		try {
+			fileReader = new FileReader(configfile);
+			bufferedReader = new BufferedReader(fileReader);
+			
+			String line;
+			try { 
+				while((line = bufferedReader.readLine()) != null) {
+					String[] parts = line.split(" ");
+					String indexPath = input + "/db/indexes/" + parts[0] + "." + parts[1];
+					IndexInfo i = new IndexInfo(indexPath, parts[1], parts[2], parts[3]);
+					dbC.get(parts[0]).setIndexInfo(i);
+				}
+				
+			}catch (IOException ex) {
+				System.out.println("error reading config file " + configfile);
+			}
+		}catch(FileNotFoundException ex) {
+			System.out.println("Unable to open file " + configfile);
+		}
+	}
+	
+	public static void runQueries(String input, String output, String tmp) {
 		 
 		final String inputDir = input;
 		final String outputDir = output;
 		final String tmpDir = tmp;
 		final String queriesFile = "queries.sql";
 		
-		//get random tuples
-//		String path = "/home/rhenwood39/Documents/CS4320-4321/p3/Samples/samples/input2";
-//		RandomTupleGenerator.genTuples(path + "/db/data/TestTable1", 2000, 2);
-//		RandomTupleGenerator.genTuples(path + "/db/data/TestTable2", 2500, 3);
-		
-		
 		String planConfig = inputDir + "/plan_builder_config.txt";
+		
 		// Parse and evaluate queries
 		try {
 			CCJSqlParser parser = new CCJSqlParser(new FileReader(inputDir + "/" + queriesFile));
@@ -134,9 +173,10 @@ public class Main {
 					Operator o = ppb.getResult();
 					
 					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
-						
+					//HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum);
+					
 					long start = System.currentTimeMillis();
-					o.dump(writ, queryNum);
+					o.dump(writ);
 					long end = System.currentTimeMillis();
 
 					writ.close();

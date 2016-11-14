@@ -14,18 +14,18 @@ public class ClusteredIndexScanOperator extends IndexScanOperator {
 	/* =====================================
 	 * Constructors
 	 * ===================================== */
-	public ClusteredIndexScanOperator(TableInfo tableInfo, String tableID, String indexFile, int lowkey, int highkey) {
-		super(tableInfo, tableID, indexFile, lowkey, highkey);
+	public ClusteredIndexScanOperator(TableInfo tableInfo, String tableID, int lowkey, int highkey) {
+		super(tableInfo, tableID, lowkey, highkey);
 		this.pageid = -1;
 		this.tupleid = -1;
 	}
 	
-	public ClusteredIndexScanOperator(TableInfo tableInfo, String indexFile, int lowkey, int highkey) {
-		super(tableInfo, tableInfo.getTableName(), indexFile, lowkey, highkey);
+	public ClusteredIndexScanOperator(TableInfo tableInfo, int lowkey, int highkey) {
+		super(tableInfo, tableInfo.getTableName(), lowkey, highkey);
 	}
 	
-	public ClusteredIndexScanOperator(TableInfo tableInfo, Table tbl, String indexFile, int lowkey, int highkey) {
-		super(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias(), indexFile, lowkey, highkey);
+	public ClusteredIndexScanOperator(TableInfo tableInfo, Table tbl, int lowkey, int highkey) {
+		super(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias(), lowkey, highkey);
 	}
 	
 	/* ===============================================

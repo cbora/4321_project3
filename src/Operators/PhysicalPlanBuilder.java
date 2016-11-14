@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Stack;
 
+import Indexing.IndexExpressionVisitor;
 import LogicalOperator.DuplicateLogicalOperator;
 import LogicalOperator.JoinLogicalOperator;
 import LogicalOperator.LogicalOperator;
@@ -135,36 +136,6 @@ public class PhysicalPlanBuilder {
 	}
 	
 	/**
-	 * Constructs appropriate ScanOperator based on the config file
-	 * @param o - child operator
-	 * @param 
-	 * @return ScanOperator
-	 * 
-	 */
-	private SelectOperator detScan(Operator o, Expression exp) {
-		int indexType = this.index.equals("0") ? 0 : 1;
-				
-		SelectOperator s = null;
-		switch (indexType) {
-		
-		case 0:
-			
-			return new SelectOperator(o, exp);
-		case 1:
-			String indexInfo = this.input_dir + "/db/index_info.txt";
-			String indexDir = this.input_dir + "/db/indexes";
-			// if this Operator is not of instance Scan Operator return just SelectOperator
-			if (! (o instanceof ScanOperator))
-				return new SelectOperator(o, exp);
-			//make expression visitor to determine low and high key
-			
-			
-			
-		}
-		return s;
-	}
-	
-	/**
 	 * Constructs appropriate SortOperator base don sortPlan
 	 * @param o - child operator
 	 * @param so - sort order
@@ -185,6 +156,56 @@ public class PhysicalPlanBuilder {
 		
 		return s;
 	}
+	
+	/**
+	 * Constructs appropriate ScanOperator based on the config file
+	 * @param o - child operator
+	 * @param 
+	 * @return ScanOperator
+	 * 
+	 */
+	private Operator detSelect(Operator o, Expression exp) {
+		int indexType = Integer.parseInt(index);
+				
+		switch (indexType) {
+		case 0:	
+			return new SelectOperator(o, exp);
+		case 1:		
+			// if child is not of instance Scan Operator return just SelectOperator
+			if (! (o instanceof ScanOperator))
+				return new SelectOperator(o, exp);
+			ScanOperator scan = (ScanOperator) o;
+			
+			//make expression visitor to determine low and high key
+			IndexExpressionVisitor indexVisitor = new IndexExpressionVisitor(exp, scan.getTableInfo());
+			if (indexVisitor.canUseIndex()) {
+				int lowkey = indexVisitor.getLowkey();
+				int highkey = indexVisitor.getHighkey();
+				System.out.println("(" + lowkey + ", " + highkey + ")");
+				
+				IndexScanOperator iso;
+				if (scan.getTableInfo().isClustered()) {
+					System.out.println("clustered");
+					iso = new ClusteredIndexScanOperator(scan.getTableInfo(), scan.getTableID(), lowkey, highkey);
+				}
+				else {
+					System.out.println("unclustered");
+					iso = new UnclusteredIndexScanOperator(scan.getTableInfo(), scan.getTableID(), lowkey, highkey);
+				}
+				scan.close();
+
+				if (indexVisitor.getOtherSlctExps() != null)
+					return new SelectOperator(iso, indexVisitor.getOtherSlctExps());
+				else
+					return iso;
+			}
+			else {
+				return new SelectOperator(scan, exp);
+			}
+		}
+		
+		return null;
+	}
 
 	/**
 	 * @param lo
@@ -202,8 +223,8 @@ public class PhysicalPlanBuilder {
 	public void visit(SelectLogicalOperator lo) {
 		lo.getChild().accept(this);
 		Operator o = pStack.pop();
-		SelectOperator s = new SelectOperator(o, lo.getExp());
-		pStack.push(s);
+		Operator slct = detSelect(o, lo.getExp());
+		pStack.push(slct);
 	}
 	
 	/**
