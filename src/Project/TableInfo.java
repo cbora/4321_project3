@@ -18,7 +18,7 @@ public class TableInfo {
 	 * ================================== */
 	private String filePath; // path to file containing table
 	private String tableName; // name of table
-	private IndexInfo indexInfo;
+	private IndexInfo indexInfo; // info about index in this table (null if no index)
 	private ArrayList<String> columns; // name of the columns in order
 	
 	/* ================================== 
@@ -79,27 +79,46 @@ public class TableInfo {
 		return columns;
 	}	
 	
+	/**
+	 * 
+	 * @param indexInfo
+	 */
 	public void setIndexInfo(IndexInfo indexInfo) {
 		this.indexInfo = indexInfo;
 	}
 	
+	/**
+	 * 
+	 * @return indexInfo
+	 */
 	public IndexInfo getIndexInfo() {
 		return this.indexInfo;
 	}
 	
+	/**
+	 * 
+	 * @return index attribute (null if no index)
+	 */
 	public String getIndexAttribute() {
 		if (this.indexInfo == null)
 			return null;
 		return this.indexInfo.getAttribute();
 	}
 	
+	/**
+	 * 
+	 * @return path to index file (null if no index)
+	 */
 	public String getIndexPath() {
 		if (this.indexInfo == null)
 			return null;
 		return this.indexInfo.getIndexPath();
 	}
 	
-	
+	/**
+	 * 
+	 * @return whether index is clustered (false if no index)
+	 */
 	public boolean isClustered() {
 		if (this.indexInfo == null)
 			return false;

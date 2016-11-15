@@ -11,24 +11,39 @@ import Project.TableInfo;
 import Project.Tuple;
 import net.sf.jsqlparser.schema.Table;
 
+/**
+ * Index Scan Operator abstract class
+ * 
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public abstract class IndexScanOperator extends Operator {
 
 	/* =====================================
 	 * Fields
 	 * ===================================== */
-	protected int lowkey;
-	protected int highkey;
-	protected BPlusTree bTree;
-	protected LeafNode currLeaf;
+	protected int lowkey; // lowkey of range we care about
+	protected int highkey; // highkey of range we care about
+	protected BPlusTree bTree; // b+ tree index
+	protected LeafNode currLeaf; // leaf node we are on right now
 	
-	protected HashMap<String, Integer> schema;
-	protected TableInfo tableInfo;
-	protected String tableID;
-	protected BinaryTupleReader reader;
+	protected HashMap<String, Integer> schema; // schema of the tuples we are reading
+	protected TableInfo tableInfo; // info about table we are reading from
+	protected String tableID; // id we are using for table
+	protected BinaryTupleReader reader; // reads from table file
 
 	/* =====================================
 	 * Constructors
 	 * ===================================== */
+	/**
+	 * Constructor
+	 * @param tableInfo - info about table we are reading from
+	 * @param tableID - id of table we are reading from
+	 * @param lowkey - lowkey of range we want
+	 * @param highkey - highkey of range we want
+	 */
 	public IndexScanOperator(TableInfo tableInfo, String tableID, int lowkey, int highkey) {
 		super();
 		
@@ -54,10 +69,24 @@ public abstract class IndexScanOperator extends Operator {
 
 	}
 	
+	/**
+	 * Constructor
+	 * @param tableInfo - info about table we are reading from
+	 * @param tableID - id of table we are reading from
+	 * @param lowkey - lowkey of range we want
+	 * @param highkey - highkey of range we want
+	 */
 	public IndexScanOperator(TableInfo tableInfo, int lowkey, int highkey) {
 		this(tableInfo, tableInfo.getTableName(), lowkey, highkey);
 	}
 	
+	/**
+	 * Constructor
+	 * @param tableInfo - info about table we are reading from
+	 * @param tableID - id of table we are reading from
+	 * @param lowkey - lowkey of range we want
+	 * @param highkey - highkey of range we want
+	 */
 	public IndexScanOperator(TableInfo tableInfo, Table tbl, int lowkey, int highkey) {
 		this(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias(), lowkey, highkey);
 	}

@@ -56,6 +56,10 @@ public class PhysicalPlanBuilder {
 		root.accept(this);
 	}
 	
+	/**
+	 * reads from file to get joinplan, sortplan, and index plan
+	 * @param config - filepath
+	 */
 	public void readPlanConfig(String config) {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(config));
@@ -158,10 +162,10 @@ public class PhysicalPlanBuilder {
 	}
 	
 	/**
-	 * Constructs appropriate ScanOperator based on the config file
+	 * Constructs appropriate Selection plan based on the config file
 	 * @param o - child operator
-	 * @param 
-	 * @return ScanOperator
+	 * @param exp - select expression
+	 * @return operator for handling selection
 	 * 
 	 */
 	private Operator detSelect(Operator o, Expression exp) {
@@ -178,7 +182,8 @@ public class PhysicalPlanBuilder {
 			
 			//make expression visitor to determine low and high key
 			IndexExpressionVisitor indexVisitor = new IndexExpressionVisitor(exp, scan.getTableInfo());
-			if (indexVisitor.canUseIndex()) {
+			
+			if (indexVisitor.canUseIndex()) { // if we can use the index, use it
 				int lowkey = indexVisitor.getLowkey();
 				int highkey = indexVisitor.getHighkey();
 				
@@ -191,7 +196,7 @@ public class PhysicalPlanBuilder {
 				}
 				scan.close();
 
-				if (indexVisitor.getOtherSlctExps() != null)
+				if (indexVisitor.getOtherSlctExps() != null) // add select operator if select conditions index can't handle
 					return new SelectOperator(iso, indexVisitor.getOtherSlctExps());
 				else
 					return iso;
