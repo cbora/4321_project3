@@ -5,6 +5,13 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
+/**
+ * Writes nodes to index file
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class BinaryNodeWriter {
 	
 	/*
@@ -19,9 +26,10 @@ public class BinaryNodeWriter {
 	private ByteBuffer buffer; // buffer for holding data to be written
 	private FileOutputStream output; // output stream
 	private FileChannel channel; // channel
-	private ArrayList<Node> nodes;
-	private int nLeaves;
-	private int order;
+	
+	private ArrayList<Node> nodes; // nodes to be written
+	private int nLeaves; // number of leaves
+	private int order; // order of tree
 
 	/*
 	 * ================================== 
@@ -31,6 +39,9 @@ public class BinaryNodeWriter {
 	/**
 	 * Constructor
 	 * @param filename - name of file we are writing to
+	 * @param nodes - list of nodes to write
+	 * @param nLeaves - number of leaves
+	 * @param order - order of tree
 	 */
 	public BinaryNodeWriter(String filename, ArrayList<Node> nodes, int nLeaves, int order) {
 		this.filename = filename;
@@ -52,12 +63,21 @@ public class BinaryNodeWriter {
 	 * ==================================
 	 */
 	
+	/**
+	 * writes tree to file
+	 */
 	public void write() {
 		writeHeader(nodes.size(), nLeaves, order);
 		for (Node n : nodes) 
 			write(n);
 	}
 	
+	/**
+	 * Writes header
+	 * @param rtIndex - index of root
+	 * @param nLeaves - number of leaves
+	 * @param order - order of tree
+	 */
 	private void writeHeader(int rtIndex, int nLeaves, int order) {
 		buffer.putInt(0, rtIndex);
 		buffer.putInt(BYTES_IN_INT * 1, nLeaves);
@@ -66,6 +86,10 @@ public class BinaryNodeWriter {
 		writePage();
 	}
 	
+	/**
+	 * writes node to file
+	 * @param n - node to be written
+	 */
 	private void write(Node n) {
 		if (n.isLeafNode)
 			writeLeaf((LeafNode) n);
@@ -73,6 +97,10 @@ public class BinaryNodeWriter {
 			writeIndex((IndexNode) n);
 	}
 	
+	/**
+	 * writes leaf node to file
+	 * @param n - leaf to be written
+	 */
 	private void writeLeaf(LeafNode n) {
 		buffer.putInt(0, 0);
 		buffer.putInt(BYTES_IN_INT * 1, n.getKeys().size());
@@ -102,6 +130,10 @@ public class BinaryNodeWriter {
 		writePage();
 	}
 	
+	/**
+	 * writes index node to file
+	 * @param n - index node to be written
+	 */
 	private void writeIndex(IndexNode n) {
 		buffer.putInt(0, 1);
 		buffer.putInt(BYTES_IN_INT * 1, n.getKeys().size());

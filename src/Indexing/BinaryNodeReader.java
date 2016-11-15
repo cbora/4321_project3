@@ -7,6 +7,13 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
+/**
+ * Reads nodes from index file
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class BinaryNodeReader {
 
 	/*
@@ -22,9 +29,9 @@ public class BinaryNodeReader {
 	private FileInputStream input; // Input Stream
 	private FileChannel channel; // Channel
 	
-	private int rootPage;
-	private int nLeafPages;
-	private int D;
+	private int rootPage; // page root is on
+	private int nLeafPages; // number leaves
+	private int D; // order of tree
 
 	/*
 	 * ================================== 
@@ -61,8 +68,9 @@ public class BinaryNodeReader {
 	 */
 
 	/**
-	 * reads the next tuple from the file
-	 * @return the next tuple in the file if it exists, null otherwise
+	 * reads the node on page #pageIndex
+	 * @param pageIndex - page we want to read from
+	 * @return node at page #pageIndex
 	 */
 	public Node read(int pageIndex) {
 		long byteIndex = pageIndex * PAGE_SIZE;
@@ -96,18 +104,36 @@ public class BinaryNodeReader {
 		}
 	}
 	
+	/**
+	 * 
+	 * @return page index of root
+	 */
 	public int getRootPage() {
 		return this.rootPage;
 	}
 	
+	/**
+	 * 
+	 * @return number of leaves in tree
+	 */
 	public int getNumLeaves() {
 		return this.nLeafPages;
 	}
 	
+	/**
+	 * 
+	 * @return order of the tree
+	 */
 	public int getOrder() {
 		return this.D;
 	}
 	
+	/**
+	 * Reads a leaf node
+	 * @param buffer_index - current position in buffer 
+	 * @param pageIndex - page we are reading from
+	 * @return LeafNode at pageIndex
+	 */
 	private LeafNode readLeaf(int buffer_index, int pageIndex) {
 		LeafNode leaf = new LeafNode(pageIndex);
 		
@@ -138,6 +164,12 @@ public class BinaryNodeReader {
 		return leaf;
 	}
 	
+	/**
+	 * Reads IndexNode
+	 * @param buffer_index - current position in buffer
+	 * @param pageIndex - page we are reading from
+	 * @return IndexNode at pageIndex
+	 */
 	private IndexNode readIndex(int buffer_index, int pageIndex) {
 		IndexNode index = new IndexNode(pageIndex);
 		

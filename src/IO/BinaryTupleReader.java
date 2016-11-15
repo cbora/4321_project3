@@ -134,9 +134,7 @@ public class BinaryTupleReader extends TupleReader {
 	
 	public void reset(int pageid, int tupleid) {
 		try {
-			System.out.println(this.channel.position());
 			this.channel.position(pageid * PAGE_SIZE);
-			System.out.println("" + pageid * PAGE_SIZE + " vs. " + this.channel.position());
 			readPage();
 			for (int i = 0; i < tupleid; i++)
 				read();

@@ -51,11 +51,7 @@ public abstract class IndexScanOperator extends Operator {
 		this.lowkey = lowkey;
 		this.highkey = highkey;	
 		this.currLeaf = this.bTree.search(lowkey);
-		for (int i = 0; i < currLeaf.getKeys().size(); i++) {
-			System.out.println(currLeaf.getKeys().get(i) + " : " + currLeaf.getValues().get(i));
-		}
-		System.out.println();
-		//reader.read();
+
 	}
 	
 	public IndexScanOperator(TableInfo tableInfo, int lowkey, int highkey) {

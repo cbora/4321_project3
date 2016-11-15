@@ -106,11 +106,6 @@ public class Main {
 				pos = scan.getSchema().get(table + "." + info.getAttribute());
 			}
 			
-			System.out.println("table: " + table);
-			System.out.println("D: " + info.getD());
-			System.out.println("attribute col num: " + pos);
-			System.out.println("clustered: " + info.isClustered());
-			System.out.println();
 			BPlusTree bplus= new BPlusTree(info.getD(), scan, pos, info.getIndexPath());
 			bplus.close();
 			scan.close();
@@ -172,8 +167,8 @@ public class Main {
 					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, planConfig, tmpDir);
 					Operator o = ppb.getResult();
 					
-					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
-					//HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum);
+					//BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
+					HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum);
 					
 					long start = System.currentTimeMillis();
 					o.dump(writ);

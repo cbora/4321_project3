@@ -181,15 +181,12 @@ public class PhysicalPlanBuilder {
 			if (indexVisitor.canUseIndex()) {
 				int lowkey = indexVisitor.getLowkey();
 				int highkey = indexVisitor.getHighkey();
-				System.out.println("(" + lowkey + ", " + highkey + ")");
 				
 				IndexScanOperator iso;
 				if (scan.getTableInfo().isClustered()) {
-					System.out.println("clustered");
 					iso = new ClusteredIndexScanOperator(scan.getTableInfo(), scan.getTableID(), lowkey, highkey);
 				}
 				else {
-					System.out.println("unclustered");
 					iso = new UnclusteredIndexScanOperator(scan.getTableInfo(), scan.getTableID(), lowkey, highkey);
 				}
 				scan.close();

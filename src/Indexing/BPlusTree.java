@@ -7,14 +7,38 @@ import java.util.Map;
 import Operators.ScanOperator;
 import Project.Tuple;
 
+/**
+ * B+ Tree
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class BPlusTree {
 
-	private String indexFile;
-	private int D;
-	private int nLeaves;
-	private int rootIndex;
-	private BinaryNodeReader reader;
+	/*
+	 * ================================== 
+	 * Fields
+	 * ==================================
+	 */
+	private String indexFile; // where tree is stored
+	private int D; // order of tree
+	private int nLeaves; // number of leaves
+	private int rootIndex; // page root is at
+	private BinaryNodeReader reader; // reader that reads from indexFile
 	
+	/*
+	 * ================================== 
+	 * Constructors
+	 * ==================================
+	 */
+	/**
+	 * Constructor that allows us to  build a tree
+	 * @param D - order of tree
+	 * @param scan - scan operator reading from table we want to index
+	 * @param tuplePos - which column are we indexing
+	 * @param indexFile - where tree is stored
+	 */
 	public BPlusTree(int D, ScanOperator scan, int tuplePos, String indexFile) {
 		// build constructor
 		this.indexFile = indexFile;
@@ -26,6 +50,10 @@ public class BPlusTree {
 		this.reader = new BinaryNodeReader(indexFile);
 	}
 	
+	/**
+	 * Constructor that allows us to read from index that already exists
+	 * @param indexFile - location of tree
+	 */
 	public BPlusTree(String indexFile) {
 		// already exists
 		this.indexFile = indexFile;
@@ -36,6 +64,11 @@ public class BPlusTree {
 		this.D = this.reader.getOrder();
 	}
 	
+	/*
+	 * ================================== 
+	 * Methods
+	 * ==================================
+	 */
 	/**
 	 * Search the value for a specific key
 	 * 
@@ -70,6 +103,11 @@ public class BPlusTree {
 		}
 	}
 	
+	/**
+	 * Reads right sibling of leaf
+	 * @param leaf - leaf we want to the sibling of
+	 * @return right sibling of leaf or null if it does not exist
+	 */
 	public LeafNode readNextLeaf(LeafNode leaf) {
 		int pos = leaf.getPos() + 1;
 		if (pos > reader.getNumLeaves()) {
@@ -77,22 +115,21 @@ public class BPlusTree {
 		}
 		
 		LeafNode newLeaf = (LeafNode) reader.read(pos);
-		for (int i = 0; i < newLeaf.getKeys().size(); i++) {
-			System.out.println(newLeaf.getKeys().get(i) + " : " + newLeaf.getValues().get(i));
-		}
-		System.out.println();
 
 		return newLeaf;
 	}
 	
+	/**
+	 * closes any open I/O
+	 */
 	public void close() {
 		this.reader.close();
 	}
 	
 	/**
 	 * Bulk loading function 
-	 * @param
-	 * 
+	 * @param scan - scan operator reading from table we want to index
+	 * @param tuplePos - column we are indexing 
 	 */
 	private void bulkLoad(ScanOperator scan, int tuplePos) {
 		ArrayList<DataEntry> entries = formatEntries(scan, tuplePos);
@@ -112,6 +149,12 @@ public class BPlusTree {
 		writer.close();
 	}
 	
+	/**
+	 * create root node
+	 * @param lastRound - nodes we produced last iteration
+	 * @param nodes - all nodes so far
+	 * @return - root
+	 */
 	private IndexNode makeRoot(ArrayList<Node> lastRound, ArrayList<Node> nodes) {
 		IndexNode index = new IndexNode(nodes.size() + 1);		
 		for(int j=0; j < lastRound.size(); j++){
@@ -125,6 +168,12 @@ public class BPlusTree {
 		return index;
 	}
 	
+	/**
+	 * creates index nodes 
+	 * @param lastRound - nodes produced last iteration
+	 * @param nodes - nodes produced so far
+	 * @return - index nodes from this round
+	 */
 	private ArrayList<Node> makeIndexNodes(ArrayList<Node> lastRound, ArrayList<Node> nodes) {
 		int indexNodes = lastRound.size() / (2 * D + 1);
 		if(lastRound.size() % (2 * D + 1) != 0)
@@ -187,6 +236,12 @@ public class BPlusTree {
 		return indexes ;
 	}
 	
+	/**
+	 * produces leaf layer
+	 * @param entries - data entries we wish to store in leaves
+	 * @param nodes - list that will contain all nodes we produce
+	 * @return - list of leaf nodes produced
+	 */
 	private ArrayList<Node> makeLeafNodes(ArrayList<DataEntry> entries, ArrayList<Node> nodes) {
 		int nLeaves = entries.size() / (2*D);
 		if(entries.size()%(2*D) != 0)
@@ -228,7 +283,12 @@ public class BPlusTree {
 		return leaves;
 	}
 		
-	
+	/**
+	 * creates sorted list of data entries we wish to store in leaves
+	 * @param scan - scan operator reading from table we want to index
+	 * @param tuplePos - column we want to index
+	 * @return - list of data entries to be added to the leaves
+	 */
 	private ArrayList<DataEntry> formatEntries(ScanOperator scan, int tuplePos) {
 		Tuple t;
 		HashMap<Integer, ArrayList<RecordID>> map = new HashMap<Integer, ArrayList<RecordID>>();
@@ -257,6 +317,12 @@ public class BPlusTree {
 		return entries;
 	}
 	
+	/**
+	 * repeatedly follows the left most child pointer until we reach a leaf and returns leaf's left most key
+	 * @param node - node we want to start at
+	 * @param nodes - list of all nodes we've created
+	 * @return left most key of left most leaf descendant
+	 */
 	private Integer makeKey(Node node, ArrayList<Node> nodes) {
 		if (node.isLeafNode){
 			return node.getKeys().get(0);
