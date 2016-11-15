@@ -81,7 +81,7 @@ public class BPlusTree {
 	}
 	
 	public LeafNode tree_search(Node root, Integer key){
-		if (root.isLeafNode){
+		if (root.isLeafNode){ // if we are at a leaf node, return
 			LeafNode leaf = (LeafNode) root;
 			return leaf;
 		}
@@ -110,7 +110,7 @@ public class BPlusTree {
 	 */
 	public LeafNode readNextLeaf(LeafNode leaf) {
 		int pos = leaf.getPos() + 1;
-		if (pos > reader.getNumLeaves()) {
+		if (pos > reader.getNumLeaves()) { // if there is no right sibling, return null
 			return null;
 		}
 		
@@ -132,18 +132,25 @@ public class BPlusTree {
 	 * @param tuplePos - column we are indexing 
 	 */
 	private void bulkLoad(ScanOperator scan, int tuplePos) {
+		// get list of data entries to put in leaf layer
 		ArrayList<DataEntry> entries = formatEntries(scan, tuplePos);
 		
-		ArrayList<Node> nodes = new ArrayList<Node>();
-		ArrayList<Node> nodesFromLastRound = makeLeafNodes(entries, nodes);
+		ArrayList<Node> nodes = new ArrayList<Node>(); // will hold all nodes in tree
+		
+		// add leaves to nodes array
+		ArrayList<Node> nodesFromLastRound = makeLeafNodes(entries, nodes); 
 		this.nLeaves = nodesFromLastRound.size();
 		
+		// create first index layer
 		nodesFromLastRound = makeIndexNodes(nodesFromLastRound, nodes);
+		
+		// keep going until we only added one node last round (at this point we've reached the root
 		while (nodesFromLastRound.size() > 1){
 			nodesFromLastRound = makeIndexNodes(nodesFromLastRound, nodes);
 		}
 		this.rootIndex = nodes.size();
 		
+		// write all nodes to disk
 		BinaryNodeWriter writer = new BinaryNodeWriter(indexFile, nodes, this.nLeaves, this.D);
 		writer.write();
 		writer.close();
@@ -193,8 +200,10 @@ public class BPlusTree {
 		for(int i=0; i<indexNodes; i++){
 			IndexNode index = new IndexNode(nodes.size() + 1);
 			
-			if ( i >= indexNodes-2 && isUnderflow) {
+			if ( i >= indexNodes-2 && isUnderflow) { // if we are at the end and there will be underflow in last two nodes
 				int remaining = lastRound.size() - k;
+				
+				// handle second to last node
 				for (int j=0; j < remaining/2; j++, k++){
 					if (index.getChildren().size() == 0){
 						index.insertChild(lastRound.get(k).getPos());
@@ -206,6 +215,7 @@ public class BPlusTree {
 				indexes.add(index);
 				nodes.add(index);
 				
+				// handle last node
 				IndexNode index2 = new IndexNode(nodes.size() + 1);
 				for(; k < lastRound.size(); k++){
 					if ( index2.getChildren().size() == 0){
@@ -220,7 +230,7 @@ public class BPlusTree {
 				break;	
 			}
 			
-			else {
+			else { // typical case - add 2*D keys to index node
 				for (int j=0; j<=2*D && k < lastRound.size(); j++, k++){
 					if (index.getChildren().size() == 0) {
 						index.insertChild(lastRound.get(k).getPos());
@@ -254,15 +264,17 @@ public class BPlusTree {
 		for(int i = 0; i < nLeaves; i++){
 			LeafNode leaf = new LeafNode(nodes.size() + 1);
 		
-			if(i >= nLeaves - 2 && isUnderflow && nLeaves > 1){
+			if(i >= nLeaves - 2 && isUnderflow && nLeaves > 1){ // if we are at the end and there will be underflow in last node
 				int remaining = entries.size() - k;
 
+				// handle second to last node
 				for( int j=0; j<remaining/2 && k < entries.size(); j++, k++){					
 					leaf.insert(entries.get(k).k, entries.get(k).rid);
 				}
 				leaves.add(leaf);
 				nodes.add(leaf);
 								
+				// handle last node
 				LeafNode leaf2 = new LeafNode(nodes.size() + 1);
 				for(; k < entries.size(); k++){					
 					leaf2.insert(entries.get(k).k, entries.get(k).rid);
@@ -272,7 +284,7 @@ public class BPlusTree {
 				
 				break;
 			}
-			else {
+			else { // typical case - add 2*D entries to leaf
 				for( int j=0; j<2*D && k < entries.size(); j++, k++){					
 					leaf.insert(entries.get(k).k, entries.get(k).rid);
 				}
@@ -296,6 +308,7 @@ public class BPlusTree {
 		int pageid = 0;
 		int tupleid = 0;
 		
+		// read all tuples from disk and place them in key -> list<record id> hashmap
 		while((t=scan.getNextTuple())!=null){						
 			RecordID rid = new RecordID(pageid, tupleid);
 			tupleid++;
@@ -309,9 +322,12 @@ public class BPlusTree {
 			}
 		} 
 
+		// construct data entries based on hash map
 		for (Map.Entry<Integer, ArrayList<RecordID>> m : map.entrySet()) {
 			entries.add(new DataEntry(m.getKey(), m.getValue()));
 		}
+		
+		// sort entries on key
 		Collections.sort(entries);
 		
 		return entries;

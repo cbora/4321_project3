@@ -5,19 +5,35 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+/**
+ * Class that represents info in config file
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class Configuration {
 
-	private String configfile;
-	private FileReader fileReader;
+	/*
+	 * ================================== 
+	 * Fields
+	 * ==================================
+	 */
+	private String configfile; // path to config file
+	private FileReader fileReader; 
 	private BufferedReader bufferedReader;
 	private String inputDir; // directory to be used
 	private String outputDir;  // output directory to be used
-	private String tmpDir;
-	private boolean index;
+	private String tmpDir; // temp directory to be used for scratch work
+	private boolean index; //
 	private boolean evaluate;
 	
+	/*
+	 * ================================== 
+	 * Constructor
+	 * ==================================
+	 */
 	public Configuration(String configfile) {
-		// TODO Auto-generated constructor stub
 		this.configfile = configfile;
 		try {
 			this.fileReader = new FileReader(this.configfile);
@@ -37,6 +53,11 @@ public class Configuration {
 		this.evaluate = evaluate;
 	}
 
+	/*
+	 * ================================== 
+	 * Methods
+	 * ==================================
+	 */
 	public void printout() {
 		System.out.println("Input dir     " + this.inputDir);
 		System.out.println("Output dir    " + this.outputDir);

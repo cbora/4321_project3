@@ -132,6 +132,11 @@ public class BinaryTupleReader extends TupleReader {
 		}
 	}
 	
+	/**
+	 * resets to specific page and then to specific tuple on page
+	 * @param pageid
+	 * @param tupleid
+	 */
 	public void reset(int pageid, int tupleid) {
 		try {
 			this.channel.position(pageid * PAGE_SIZE);

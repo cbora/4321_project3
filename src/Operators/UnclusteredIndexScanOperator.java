@@ -6,18 +6,35 @@ import Project.TableInfo;
 import Project.Tuple;
 import net.sf.jsqlparser.schema.Table;
 
+/**
+ * Index Scan Operator for unclustered index
+ * 
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class UnclusteredIndexScanOperator extends IndexScanOperator {
 	
-	private int leafIndex;
-	private int listIndex;
+	/* =====================================
+	 * Fields
+	 * ===================================== */
+	private int leafIndex; // which entry we are at in current leaf
+	private int listIndex; // which list position we are at in current entry
 	
-	private LeafNode firstLeaf;
-	private int firstLeafIndex;
-	
+	private LeafNode firstLeaf; // first leaf we care about
+	private int firstLeafIndex; // first leaf index we care about
 	
 	/* =====================================
 	 * Constructors
 	 * ===================================== */
+	/**
+	 * Constructor
+	 * @param tableInfo - info about table we are reading from
+	 * @param tableID - id of table we are reading from
+	 * @param lowkey - lowkey of range we want
+	 * @param highkey - highkey of range we want
+	 */
 	public UnclusteredIndexScanOperator(TableInfo tableInfo, String tableID, int lowkey, int highkey) {
 		super(tableInfo, tableID, lowkey, highkey);
 		
@@ -27,10 +44,24 @@ public class UnclusteredIndexScanOperator extends IndexScanOperator {
 		this.listIndex = 0;
 	}
 	
+	/**
+	 * Constructor
+	 * @param tableInfo - info about table we are reading from
+	 * @param tableID - id of table we are reading from
+	 * @param lowkey - lowkey of range we want
+	 * @param highkey - highkey of range we want
+	 */
 	public UnclusteredIndexScanOperator(TableInfo tableInfo, int lowkey, int highkey) {
 		super(tableInfo, tableInfo.getTableName(), lowkey, highkey);
 	}
 	
+	/**
+	 * Constructor
+	 * @param tableInfo - info about table we are reading from
+	 * @param tableID - id of table we are reading from
+	 * @param lowkey - lowkey of range we want
+	 * @param highkey - highkey of range we want
+	 */
 	public UnclusteredIndexScanOperator(TableInfo tableInfo, Table tbl, int lowkey, int highkey) {
 		super(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias(), lowkey, highkey);
 	}
@@ -38,9 +69,9 @@ public class UnclusteredIndexScanOperator extends IndexScanOperator {
 	/* ===============================================
 	 * Methods
 	 * =============================================== */
-
 	@Override
 	public Tuple getNextTuple() {
+		// if we have not determined leafIndex yet, determine it
 		if (this.leafIndex == -1) {
 			int i = 0;
 
@@ -57,19 +88,25 @@ public class UnclusteredIndexScanOperator extends IndexScanOperator {
 			}
 		}
 		
+		// if we have finished all list items in current entry, increment leaf index
 		if (listIndex >= currLeaf.getValues().get(leafIndex).size()) {
 			leafIndex++;
 			listIndex = 0;
 		}
+		
+		// if we have read all items in current leaf, increment leaf
 		if (leafIndex >= currLeaf.getKeys().size()) {
 			currLeaf = bTree.readNextLeaf(currLeaf);
 			leafIndex = 0;
 			listIndex = 0;
 		}
+		
+		// if we have read all leaves or have passed high key, return null
 		if (currLeaf == null || currLeaf.getKeys().get(leafIndex) > highkey) {
 			return null;
 		}
 		
+		// get the next tuple using the recordid and increment listIndex
 		RecordID rid = currLeaf.getValues().get(leafIndex).get(listIndex);
 		listIndex++;
 		reader.reset(rid.pageid, rid.tupleid);

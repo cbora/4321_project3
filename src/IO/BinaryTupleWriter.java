@@ -86,6 +86,10 @@ public class BinaryTupleWriter extends TupleWriter {
 
 	}
 	
+	/**
+	 * writes array of tuples to file
+	 * @param t - array of tuples to write
+	 */
 	public void write(Tuple[] t){
 		for (int i=0; i< t.length&&t[i] != null; i++){
 			write(t[i]);

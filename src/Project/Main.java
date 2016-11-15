@@ -33,6 +33,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		
+		// parse config file
 		Configuration config = new Configuration(args[0]);
 		
 		// Build DbCatalog
@@ -59,9 +60,11 @@ public class Main {
     			e.printStackTrace();    			
 		 }
 		
+		// associate indexes with tables
 		String indexInfo = config.getInputDir() + "/db/index_info.txt";
-		parseIndexConfig(indexInfo, config.getInputDir(), dbC);
+		parseIndexConfig(indexInfo, config.getInputDir());
 		
+		// determine which build action to take
 		if (config.runOption() == 1) {
 			buildIndexes();
 		}
@@ -75,6 +78,9 @@ public class Main {
 				
 	}
 	
+	/**
+	 * builds indexes 
+	 */
 	public static void buildIndexes() {
 		DbCatalog dbC = DbCatalog.getInstance();
 		ArrayList<String> tables = dbC.getTableNames();
@@ -83,11 +89,11 @@ public class Main {
 			ScanOperator scan;
 			IndexInfo info = dbC.get(table).getIndexInfo();
 			
-			if (info == null)
+			if (info == null) // if index info is null, no index for this table. just continue
 				continue;
 			
 			int pos;
-			if (info.isClustered()){
+			if (info.isClustered()){ // if it is clustered, sort and overwrite data
 				scan = new ScanOperator(dbC.get(table), table);
 				pos = scan.getSchema().get(table + "." + info.getAttribute());
 				
@@ -106,6 +112,7 @@ public class Main {
 				pos = scan.getSchema().get(table + "." + info.getAttribute());
 			}
 			
+			// build b+ tree index
 			BPlusTree bplus= new BPlusTree(info.getD(), scan, pos, info.getIndexPath());
 			bplus.close();
 			scan.close();
@@ -113,7 +120,13 @@ public class Main {
 		
 	}
 	
-	public static void parseIndexConfig(String configfile, String input, DbCatalog dbC) {
+	/**
+	 * associates table in the catalog with appropriate index information
+	 * @param configfile - path to index config file
+	 * @param input - path to input directory
+	 */
+	public static void parseIndexConfig(String configfile, String input) {
+		DbCatalog dbC = DbCatalog.getInstance();
 		FileReader fileReader;
 		BufferedReader bufferedReader;
 		
@@ -137,7 +150,13 @@ public class Main {
 			System.out.println("Unable to open file " + configfile);
 		}
 	}
-	
+
+	/**
+	 * runs queries
+	 * @param input - path to input directory
+	 * @param output - path to output directory
+	 * @param tmp - path to temp directory
+	 */
 	public static void runQueries(String input, String output, String tmp) {
 		 
 		final String inputDir = input;
