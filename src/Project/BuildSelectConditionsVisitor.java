@@ -61,7 +61,8 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 	 * Fields
 	 * ================================== */
 	private ArrayList <Expression> select; // list of selection expressions
-	private ArrayList <Expression> join; // list of join expressions
+	//private ArrayList <Expression> join; // list of join expressions
+	private Expression join;
 	private Expression extra_exp; // any expressions that don't involve tables
 	private Stack<Column> stack; // stack to keep track of cols seen in expressions
 	private HashMap<String, Integer> table_mapping; // mapping between tables and integers
@@ -81,9 +82,10 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 		for (int i=0; i<table_mapping.size(); i++)
 			select.add(null);
 		
-		join = new ArrayList<Expression>();
-		for (int i=0; i<table_mapping.size()-1; i++)
-			join.add(null);
+		//join = new ArrayList<Expression>();
+		join = null;
+//		for (int i=0; i<table_mapping.size()-1; i++)
+//			join.add(null);
 		
 		extra_exp = null;
 		
@@ -108,7 +110,7 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 	/**
 	 * @return ArrayList of join expressions in left-deep corresponding to ordering provided in table_mapping
 	 */
-	public ArrayList<Expression> getJoin() {
+	public Expression getJoin() {
 		return join;
 	}
 
@@ -155,14 +157,21 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 	 * @param node - join expression
 	 */
 	private void addJoin(Table t1, Table t2 , BinaryExpression node){
-		int index1 = table_mapping.get(t1.getName());
-		int index2 = table_mapping.get(t2.getName());
+//		int index1 = table_mapping.get(t1.getName());
+//		int index2 = table_mapping.get(t2.getName());
+//		
+//		int index = Math.max(index1, index2) - 1; // left deep according to table_mapping
+//		if (join.get(index) == null){ //if no join is present yet
+//			join.set(index, node);
+//		}else { //otherwise and with existing
+//			join.set(index, new AndExpression(join.get(index), node));
+//		}
 		
-		int index = Math.max(index1, index2) - 1; // left deep according to table_mapping
-		if (join.get(index) == null){ //if no join is present yet
-			join.set(index, node);
-		}else { //otherwise and with existing
-			join.set(index, new AndExpression(join.get(index), node));
+		if (join == null) {
+			join = node;
+		}
+		else {
+			join = new AndExpression(join, node);
 		}
 	}
 	

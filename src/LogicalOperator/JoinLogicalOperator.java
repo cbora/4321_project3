@@ -1,5 +1,7 @@
 package LogicalOperator;
 
+import java.util.ArrayList;
+
 import Operators.PhysicalPlanBuilder;
 import net.sf.jsqlparser.expression.Expression;
 
@@ -18,8 +20,10 @@ public class JoinLogicalOperator extends LogicalOperator {
 	 * Fields
 	 * ==================================
 	 */
-	private LogicalOperator left; // left child
-	private LogicalOperator right; // right child
+	//private LogicalOperator left; // left child
+	//private LogicalOperator right; // right child
+	
+	private ArrayList<LogicalOperator> children;
 	private Expression exp; // join expression
 	
 	/*
@@ -33,9 +37,10 @@ public class JoinLogicalOperator extends LogicalOperator {
 	 * @param child2 - right child
 	 * @param exp - join expression
 	 */
-	public JoinLogicalOperator(LogicalOperator left, LogicalOperator right, Expression exp) {
-		this.left = left;
-		this.right = right;
+	public JoinLogicalOperator(ArrayList<LogicalOperator> children, Expression exp) {
+		//this.left = left;
+		//this.right = right;
+		this.children = children;
 		this.exp = exp;
 	}
 
@@ -44,32 +49,9 @@ public class JoinLogicalOperator extends LogicalOperator {
 	 * Methods
 	 * ==================================
 	 */
-	/**
-	 * @return left child
-	 */
-	public LogicalOperator getLeft() {
-		return left;
-	}
 
-	/**
-	 * @param child - new left child
-	 */
-	public void setLeft(LogicalOperator child) {
-		this.left = child;
-	}
-
-	/**
-	 * @return right child
-	 */
-	public LogicalOperator getRight() {
-		return right;
-	}
-
-	/**
-	 * @param child - new right child
-	 */
-	public void setRight(LogicalOperator child) {
-		this.right = child;
+	public ArrayList<LogicalOperator> getChildren() {
+		return this.children;
 	}
 
 	/**

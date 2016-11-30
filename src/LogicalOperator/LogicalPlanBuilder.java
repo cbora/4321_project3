@@ -138,14 +138,9 @@ public class LogicalPlanBuilder {
 	 * until linked_operator has just one element remaining
 	 */
 	private void joinBuilder() {
-		ArrayList<Expression> join_exp = this.bsv.getJoin();
-		int size = linked_operator.size();
-		for (int i=0; i<size-1; i++){
-			LogicalOperator op1 = linked_operator.removeFirst();
-			LogicalOperator op2 = linked_operator.removeFirst();
-			JoinLogicalOperator jo1 = new JoinLogicalOperator(op1, op2, join_exp.get(i));
-			linked_operator.add(0, jo1);
-		}
+		Expression join_exp = this.bsv.getJoin();
+		ArrayList<LogicalOperator> children = new ArrayList<LogicalOperator>(linked_operator);
+		JoinLogicalOperator jol = new JoinLogicalOperator(children, join_exp);
 	}
 	
 	/**
