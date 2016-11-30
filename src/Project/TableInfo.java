@@ -19,7 +19,8 @@ public class TableInfo {
 	private String filePath; // path to file containing table
 	private String tableName; // name of table
 	private IndexInfo indexInfo; // info about index in this table (null if no index)
-	private ArrayList<String> columns; // name of the columns in order
+	private int nTuples;
+	private ArrayList<ColumnInfo> columns; // name of the columns in order
 	
 	/* ================================== 
 	 * Constructors
@@ -32,7 +33,8 @@ public class TableInfo {
 	public TableInfo(String filePath, String tableName) {
 		this.filePath = filePath;
 		this.tableName = tableName;
-		this.columns = new ArrayList<String>();
+		this.nTuples = 0;
+		this.columns = new ArrayList<ColumnInfo>();
 		this.indexInfo = null;
 	}
 
@@ -75,7 +77,7 @@ public class TableInfo {
 	 * getter for list of columns
 	 * @return ArrayList of columns in table
 	 */
-	public ArrayList<String> getColumns() {
+	public ArrayList<ColumnInfo> getColumns() {
 		return columns;
 	}	
 	

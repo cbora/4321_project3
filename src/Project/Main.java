@@ -47,7 +47,7 @@ public class Main {
 		    	String[] line  = read.split(" "); 
 		    	TableInfo t = new TableInfo(config.getInputDir() + "/db/data/" + line[0], line[0]);
 		    	for (int i=1; i < line.length; i++){
-		    		t.getColumns().add(line[i]); 
+		    		t.getColumns().add(new ColumnInfo(line[i])); 
 		    	}
 		    	dbC.addTable(t.getTableName(), t);
         		read = br.readLine();
@@ -63,6 +63,8 @@ public class Main {
 		// associate indexes with tables
 		String indexInfo = config.getInputDir() + "/db/index_info.txt";
 		parseIndexConfig(indexInfo, config.getInputDir());
+		
+		// build stats.txt
 		
 		// determine which build action to take
 		if (config.runOption() == 1) {
@@ -186,8 +188,8 @@ public class Main {
 					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, planConfig, tmpDir);
 					Operator o = ppb.getResult();
 					
-					//BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
-					HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum);
+					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
+					//HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum);
 					
 					long start = System.currentTimeMillis();
 					o.dump(writ);

@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import IO.BinaryTupleReader;
 import IO.TupleReader;
+import Project.ColumnInfo;
 import Project.TableInfo;
 import Project.Tuple;
 import net.sf.jsqlparser.schema.Table;
@@ -41,13 +42,13 @@ public class ScanOperator extends Operator {
 
 		this.reader = new BinaryTupleReader(this.tableInfo.getFilePath());
 		
-		ArrayList<String> columns = tableInfo.getColumns();
+		ArrayList<ColumnInfo> columns = tableInfo.getColumns();
 		this.schema = new HashMap<String, Integer>();
 		
 		// Read from columns in tableInfo
 		// Add (<alias> + "." + <name of column i>, i) to hash map
 		for (int i = 0; i < columns.size(); i++) {
-			this.schema.put(this.tableID + "." + columns.get(i), i);
+			this.schema.put(this.tableID + "." + columns.get(i).column, i);
 		}
 	}
 

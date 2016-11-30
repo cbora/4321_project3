@@ -6,7 +6,7 @@ import java.util.HashMap;
 import IO.BinaryTupleReader;
 import Indexing.BPlusTree;
 import Indexing.LeafNode;
-import Indexing.RecordID;
+import Project.ColumnInfo;
 import Project.TableInfo;
 import Project.Tuple;
 import net.sf.jsqlparser.schema.Table;
@@ -50,7 +50,7 @@ public abstract class IndexScanOperator extends Operator {
 		this.tableInfo = tableInfo;
 		this.tableID = tableID;
 
-		ArrayList<String> columns = tableInfo.getColumns();
+		ArrayList<ColumnInfo> columns = tableInfo.getColumns();
 		this.schema = new HashMap<String, Integer>();
 		
 		this.reader = new BinaryTupleReader(this.tableInfo.getFilePath());
@@ -58,7 +58,7 @@ public abstract class IndexScanOperator extends Operator {
 		// Read from columns in tableInfo
 		// Add (<alias> + "." + <name of column i>, i) to hash map
 		for (int i = 0; i < columns.size(); i++) {
-			this.schema.put(this.tableID + "." + columns.get(i), i);
+			this.schema.put(this.tableID + "." + columns.get(i).column, i);
 		}
 		
 		String indexFile = tableInfo.getIndexPath();
