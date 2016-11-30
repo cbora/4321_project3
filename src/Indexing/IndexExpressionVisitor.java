@@ -1,5 +1,6 @@
 package Indexing;
 
+import Project.ColumnInfo;
 import Project.TableInfo;
 import net.sf.jsqlparser.expression.AllComparisonExpression;
 import net.sf.jsqlparser.expression.AnyComparisonExpression;
@@ -59,7 +60,7 @@ public class IndexExpressionVisitor implements ExpressionVisitor {
 	 */
 	private int lowkey; // lowest key we can use index for
 	private int highkey; // highest key we can use index for
-	private TableInfo tableInfo; // tableInfo on table we want to use index of
+	private ColumnInfo colInfo; // tableInfo on table we want to use index of
 	private Expression otherSlctExps; // select conditions we cannot use index for
 	private boolean canUseIndex; // can we use the index?
 	
@@ -73,10 +74,10 @@ public class IndexExpressionVisitor implements ExpressionVisitor {
 	 * @param e - select expression
 	 * @param tableInfo - tableInfo for table we are querying
 	 */
-	public IndexExpressionVisitor(Expression e, TableInfo tableInfo) {
+	public IndexExpressionVisitor(Expression e, ColumnInfo colInfo) {
 		this.lowkey = Integer.MIN_VALUE;
 		this.highkey = Integer.MAX_VALUE;
-		this.tableInfo = tableInfo;
+		this.colInfo = colInfo;
 		this.otherSlctExps = null;
 		this.canUseIndex = false;
 		if(e != null)
@@ -311,9 +312,9 @@ public class IndexExpressionVisitor implements ExpressionVisitor {
 	 * @return true if we have an index on col
 	 */
 	private boolean isIndex(Column col) {
-		if (this.tableInfo.getIndexInfo() == null)
+		if (this.colInfo.getIndexInfo() == null)
 			return false;
-		return col.getColumnName().equals(tableInfo.getIndexAttribute());
+		return col.getColumnName().equals(colInfo.getIndexAttribute());
 	}
 	
 	/*******************

@@ -18,7 +18,6 @@ public class TableInfo {
 	 * ================================== */
 	private String filePath; // path to file containing table
 	private String tableName; // name of table
-	private IndexInfo indexInfo; // info about index in this table (null if no index)
 	private int nTuples;
 	private ArrayList<ColumnInfo> columns; // name of the columns in order
 	
@@ -35,7 +34,6 @@ public class TableInfo {
 		this.tableName = tableName;
 		this.nTuples = 0;
 		this.columns = new ArrayList<ColumnInfo>();
-		this.indexInfo = null;
 	}
 
 	/* ================================== 
@@ -81,50 +79,12 @@ public class TableInfo {
 		return columns;
 	}	
 	
-	/**
-	 * 
-	 * @param indexInfo
-	 */
-	public void setIndexInfo(IndexInfo indexInfo) {
-		this.indexInfo = indexInfo;
+	public int getNumTuples() {
+		return this.nTuples;
 	}
 	
-	/**
-	 * 
-	 * @return indexInfo
-	 */
-	public IndexInfo getIndexInfo() {
-		return this.indexInfo;
-	}
-	
-	/**
-	 * 
-	 * @return index attribute (null if no index)
-	 */
-	public String getIndexAttribute() {
-		if (this.indexInfo == null)
-			return null;
-		return this.indexInfo.getAttribute();
-	}
-	
-	/**
-	 * 
-	 * @return path to index file (null if no index)
-	 */
-	public String getIndexPath() {
-		if (this.indexInfo == null)
-			return null;
-		return this.indexInfo.getIndexPath();
-	}
-	
-	/**
-	 * 
-	 * @return whether index is clustered (false if no index)
-	 */
-	public boolean isClustered() {
-		if (this.indexInfo == null)
-			return false;
-		return this.indexInfo.isClustered();
+	public void setNumTuples(int n) {
+		this.nTuples = n;
 	}
 }
 

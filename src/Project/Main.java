@@ -4,11 +4,12 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import IO.BinaryTupleWriter;
 import IO.Configuration;
-import IO.HumanTupleWriter;
 import Indexing.BPlusTree;
 import Indexing.IndexInfo;
 import LogicalOperator.LogicalOperator;
@@ -65,6 +66,7 @@ public class Main {
 		parseIndexConfig(indexInfo, config.getInputDir());
 		
 		// build stats.txt
+		buildStats(config.getInputDir());
 		
 		// determine which build action to take
 		if (config.runOption() == 1) {
@@ -151,6 +153,51 @@ public class Main {
 		}catch(FileNotFoundException ex) {
 			System.out.println("Unable to open file " + configfile);
 		}
+	}
+	
+	public static void buildStats(String input) {
+		DbCatalog dbC = DbCatalog.getInstance();
+		
+		PrintWriter writer = null;
+		try {
+			writer = new PrintWriter(input + "/db/stats.txt", "UTF-8");
+		} catch (Exception e) {
+			System.out.println("error in stats");
+		}
+		
+		for (String table : dbC.getTableNames()) {
+			TableInfo tableInfo = dbC.get(table);
+			ScanOperator scan = new ScanOperator(tableInfo, table);
+			HashMap<String, Integer> schema = scan.getSchema();
+			//System.out.println(schema);
+			
+			Tuple t;
+			while ((t = scan.getNextTuple()) != null) {
+				tableInfo.setNumTuples(tableInfo.getNumTuples() + 1);
+				
+				for (ColumnInfo col : tableInfo.getColumns()) {
+					//System.out.println(t.getVal(0));
+					if (t.getVal(schema.get(table + "." + col.column)) > col.max) {
+						col.max = t.getVal(schema.get(table + "." + col.column));
+					}
+					if (t.getVal(schema.get(table + "." + col.column)) < col.min) {
+						col.min = t.getVal(schema.get(table + "." + col.column));
+					}
+				}
+			}
+			
+			try {
+				writer.print(table + " " + tableInfo.getNumTuples() + " ");
+				for (ColumnInfo col : tableInfo.getColumns()) {
+					writer.print(col.column + "," + col.min + "," + col.max + " ");
+				}
+				writer.println();
+			} catch (Exception e) {
+				System.out.println("error writing to stats");
+			}
+		}
+		
+		writer.close();
 	}
 
 	/**
