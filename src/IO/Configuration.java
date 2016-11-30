@@ -44,6 +44,14 @@ public class Configuration {
 		parse();
 		close();
 	}
+	
+	public Configuration(String input, String output, String tmp, boolean index, boolean evaluate){
+		this.inputDir = input;
+		this.outputDir = output;
+		this.tmpDir = tmp;
+		this.index = index;
+		this.evaluate = evaluate;
+	}
 
 	/*
 	 * ================================== 

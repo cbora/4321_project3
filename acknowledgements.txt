@@ -1,11 +1,3 @@
-http://stackoverflow.com/questions/4907683/sort-a-two-dimensional-array-based-on-one-column
- - for idea on how to sort tuples on different columns
+JavaDocs for java library API
 
-https://www.caveofprogramming.com/java/java-file-reading-and-writing-files-in-java.html
- - for how to do file io in java
-
-http://stackoverflow.com/questions/7768071/how-to-delete-directory-content-in-java/8632891
- - for how to delete a file in java
-
-http://stackoverflow.com/questions/3634853/how-to-create-a-directory-in-java
- - for how to create a new directory in java
+BPlusTree code from Homework 2 in CS4320
