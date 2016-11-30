@@ -5,15 +5,17 @@ import Indexing.IndexInfo;
 public class ColumnInfo {
 	
 	public String column; // col name
+	public int pos;
 	public int min; // min value
 	public int max; // max value
 	private IndexInfo indexInfo; // index info for this column
 	
-	public ColumnInfo(String column) {
+	public ColumnInfo(String column, int pos) {
 		this.column = column;
 		this.min = Integer.MAX_VALUE;
 		this.max = Integer.MIN_VALUE;
 		this.indexInfo = null;
+		this.pos = pos;
 	}
 	
 	/**

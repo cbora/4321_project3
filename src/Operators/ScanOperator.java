@@ -1,7 +1,8 @@
 package Operators;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import IO.BinaryTupleReader;
 import IO.TupleReader;
@@ -42,14 +43,15 @@ public class ScanOperator extends Operator {
 
 		this.reader = new BinaryTupleReader(this.tableInfo.getFilePath());
 		
-		ArrayList<ColumnInfo> columns = tableInfo.getColumns();
+		LinkedHashMap<String, ColumnInfo> columns = tableInfo.getColumns();
 		this.schema = new HashMap<String, Integer>();
 		
 		// Read from columns in tableInfo
 		// Add (<alias> + "." + <name of column i>, i) to hash map
-		for (int i = 0; i < columns.size(); i++) {
-			this.schema.put(this.tableID + "." + columns.get(i).column, i);
+		for (Map.Entry<String, ColumnInfo> entry : columns.entrySet()) {
+			this.schema.put(this.tableID + "." + entry.getKey(), entry.getValue().pos);
 		}
+		
 	}
 
 	/**

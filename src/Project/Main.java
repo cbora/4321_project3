@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import IO.BinaryTupleWriter;
 import IO.Configuration;
+import IO.HumanTupleWriter;
 import Indexing.BPlusTree;
 import Indexing.IndexInfo;
 import LogicalOperator.LogicalOperator;
@@ -48,7 +49,7 @@ public class Main {
 		    	String[] line  = read.split(" "); 
 		    	TableInfo t = new TableInfo(config.getInputDir() + "/db/data/" + line[0], line[0]);
 		    	for (int i=1; i < line.length; i++){
-		    		t.getColumns().add(new ColumnInfo(line[i])); 
+		    		t.getColumns().put(line[i], new ColumnInfo(line[i], i - 1)); 
 		    	}
 		    	dbC.addTable(t.getTableName(), t);
         		read = br.readLine();
@@ -90,16 +91,13 @@ public class Main {
 		ArrayList<String> tables = dbC.getTableNames();
 		
 		for (String table : tables){
-			ScanOperator scan;
-			IndexInfo info = dbC.get(table).getIndexInfo();
 			
-			if (info == null) // if index info is null, no index for this table. just continue
-				continue;
-			
-			int pos;
-			if (info.isClustered()){ // if it is clustered, sort and overwrite data
+			if (dbC.get(table).getClusteredIndex() != null) {
+				ScanOperator scan;
+				IndexInfo info = dbC.get(table).getColumns().get(dbC.get(table).getClusteredIndex()).getIndexInfo();
+				
 				scan = new ScanOperator(dbC.get(table), table);
-				pos = scan.getSchema().get(table + "." + info.getAttribute());
+				int pos = scan.getSchema().get(table + "." + info.getAttribute());
 				
 				int sort_order[] = {pos};
 				InMemSortOperator sort = new InMemSortOperator(scan, sort_order );
@@ -110,16 +108,30 @@ public class Main {
 				sort.close();
 				
 				scan = new ScanOperator(dbC.get(table), table);
-			}				
-			else {
-				scan = new ScanOperator(dbC.get(table), table);
-				pos = scan.getSchema().get(table + "." + info.getAttribute());
+				
+				BPlusTree bplus= new BPlusTree(info.getD(), scan, pos, info.getIndexPath());
+				bplus.close();
+				scan.close();
 			}
 			
-			// build b+ tree index
-			BPlusTree bplus= new BPlusTree(info.getD(), scan, pos, info.getIndexPath());
-			bplus.close();
-			scan.close();
+			for (String column : dbC.get(table).getColumns().keySet()) {
+				
+				IndexInfo info = dbC.get(table).getColumns().get(column).getIndexInfo();
+				
+				if (info == null) // if index info is null, no index for this table. just continue
+					continue;
+				
+				if (info.isClustered()) // if it is clustered, continue because done
+					continue;
+					
+				ScanOperator scan = new ScanOperator(dbC.get(table), table);
+				int pos = scan.getSchema().get(table + "." + info.getAttribute());
+				
+				// build b+ tree index
+				BPlusTree bplus= new BPlusTree(info.getD(), scan, pos, info.getIndexPath());
+				bplus.close();
+				scan.close();
+			}
 		}
 		
 	}
@@ -144,7 +156,7 @@ public class Main {
 					String[] parts = line.split(" ");
 					String indexPath = input + "/db/indexes/" + parts[0] + "." + parts[1];
 					IndexInfo i = new IndexInfo(indexPath, parts[1], parts[2], parts[3]);
-					dbC.get(parts[0]).setIndexInfo(i);
+					dbC.get(parts[0]).getColumns().get(parts[1]).setIndexInfo(i);
 				}
 				
 			}catch (IOException ex) {
@@ -175,7 +187,7 @@ public class Main {
 			while ((t = scan.getNextTuple()) != null) {
 				tableInfo.setNumTuples(tableInfo.getNumTuples() + 1);
 				
-				for (ColumnInfo col : tableInfo.getColumns()) {
+				for (ColumnInfo col : tableInfo.getColumns().values()) {
 					//System.out.println(t.getVal(0));
 					if (t.getVal(schema.get(table + "." + col.column)) > col.max) {
 						col.max = t.getVal(schema.get(table + "." + col.column));
@@ -188,7 +200,7 @@ public class Main {
 			
 			try {
 				writer.print(table + " " + tableInfo.getNumTuples() + " ");
-				for (ColumnInfo col : tableInfo.getColumns()) {
+				for (ColumnInfo col : tableInfo.getColumns().values()) {
 					writer.print(col.column + "," + col.min + "," + col.max + " ");
 				}
 				writer.println();
@@ -235,8 +247,8 @@ public class Main {
 					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, planConfig, tmpDir);
 					Operator o = ppb.getResult();
 					
-					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
-					//HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum);
+					//BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
+					HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum);
 					
 					long start = System.currentTimeMillis();
 					o.dump(writ);

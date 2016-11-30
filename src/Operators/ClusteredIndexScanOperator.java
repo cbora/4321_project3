@@ -1,5 +1,6 @@
 package Operators;
 
+import Project.ColumnInfo;
 import Project.TableInfo;
 import Project.Tuple;
 import net.sf.jsqlparser.schema.Table;
@@ -30,8 +31,8 @@ public class ClusteredIndexScanOperator extends IndexScanOperator {
 	 * @param lowkey - lowkey of range we want
 	 * @param highkey - highkey of range we want
 	 */
-	public ClusteredIndexScanOperator(TableInfo tableInfo, String tableID, int lowkey, int highkey) {
-		super(tableInfo, tableID, lowkey, highkey);
+	public ClusteredIndexScanOperator(TableInfo tableInfo, String tableID, ColumnInfo colInfo, int lowkey, int highkey) {
+		super(tableInfo, tableID, colInfo, lowkey, highkey);
 		this.pageid = -1;
 		this.tupleid = -1;
 	}
@@ -42,8 +43,8 @@ public class ClusteredIndexScanOperator extends IndexScanOperator {
 	 * @param lowkey - lowkey of range we want
 	 * @param highkey - highkey of range we want
 	 */
-	public ClusteredIndexScanOperator(TableInfo tableInfo, int lowkey, int highkey) {
-		super(tableInfo, tableInfo.getTableName(), lowkey, highkey);
+	public ClusteredIndexScanOperator(TableInfo tableInfo, ColumnInfo colInfo, int lowkey, int highkey) {
+		super(tableInfo, tableInfo.getTableName(), colInfo, lowkey, highkey);
 	}
 	
 	/**
@@ -53,8 +54,8 @@ public class ClusteredIndexScanOperator extends IndexScanOperator {
 	 * @param lowkey - lowkey of range we want
 	 * @param highkey - highkey of range we want
 	 */
-	public ClusteredIndexScanOperator(TableInfo tableInfo, Table tbl, int lowkey, int highkey) {
-		super(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias(), lowkey, highkey);
+	public ClusteredIndexScanOperator(TableInfo tableInfo, Table tbl, ColumnInfo colInfo, int lowkey, int highkey) {
+		super(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias(), colInfo, lowkey, highkey);
 	}
 	
 	/* ===============================================

@@ -67,7 +67,7 @@ public class ExtSortOperator extends SortOperator {
 		extsort();	// perform sort
 	}
 	
-	/**
+	/*
 	 * Sort Order Constructor
 	 * @param child - child operator
 	 * @param sort_order - priority ordering of cols

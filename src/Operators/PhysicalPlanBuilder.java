@@ -181,25 +181,26 @@ public class PhysicalPlanBuilder {
 			ScanOperator scan = (ScanOperator) o;
 			
 			//make expression visitor to determine low and high key
-			IndexExpressionVisitor indexVisitor = new IndexExpressionVisitor(exp, scan.getTableInfo());
+//			IndexExpressionVisitor indexVisitor = new IndexExpressionVisitor(exp, scan.getTableInfo());
 			
-			if (indexVisitor.canUseIndex()) { // if we can use the index, use it
-				int lowkey = indexVisitor.getLowkey();
-				int highkey = indexVisitor.getHighkey();
-				
-				IndexScanOperator iso;
-				if (scan.getTableInfo().isClustered()) {
-					iso = new ClusteredIndexScanOperator(scan.getTableInfo(), scan.getTableID(), lowkey, highkey);
-				}
-				else {
-					iso = new UnclusteredIndexScanOperator(scan.getTableInfo(), scan.getTableID(), lowkey, highkey);
-				}
-				scan.close();
-
-				if (indexVisitor.getOtherSlctExps() != null) // add select operator if select conditions index can't handle
-					return new SelectOperator(iso, indexVisitor.getOtherSlctExps());
-				else
-					return iso;
+//			if (indexVisitor.canUseIndex()) { // if we can use the index, use it
+			if (false) {
+//				int lowkey = indexVisitor.getLowkey();
+//				int highkey = indexVisitor.getHighkey();
+//				
+//				IndexScanOperator iso;
+//				if (scan.getTableInfo().isClustered()) {
+//					iso = new ClusteredIndexScanOperator(scan.getTableInfo(), scan.getTableID(), lowkey, highkey);
+//				}
+//				else {
+//					iso = new UnclusteredIndexScanOperator(scan.getTableInfo(), scan.getTableID(), lowkey, highkey);
+//				}
+//				scan.close();
+//
+//				if (indexVisitor.getOtherSlctExps() != null) // add select operator if select conditions index can't handle
+//					return new SelectOperator(iso, indexVisitor.getOtherSlctExps());
+//				else
+//					return iso;
 			}
 			else {
 				return new SelectOperator(scan, exp);

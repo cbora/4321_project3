@@ -1,8 +1,7 @@
 package Project;
 
 import java.util.ArrayList;
-
-import Indexing.IndexInfo;
+import java.util.LinkedHashMap;
 
 /**
  * Container to hold info about tables
@@ -19,7 +18,8 @@ public class TableInfo {
 	private String filePath; // path to file containing table
 	private String tableName; // name of table
 	private int nTuples;
-	private ArrayList<ColumnInfo> columns; // name of the columns in order
+	private LinkedHashMap<String, ColumnInfo> columns; // name of the columns in order
+	private String clusteredIndex;
 	
 	/* ================================== 
 	 * Constructors
@@ -33,7 +33,8 @@ public class TableInfo {
 		this.filePath = filePath;
 		this.tableName = tableName;
 		this.nTuples = 0;
-		this.columns = new ArrayList<ColumnInfo>();
+		this.columns = new LinkedHashMap<String, ColumnInfo>();
+		this.clusteredIndex = null;
 	}
 
 	/* ================================== 
@@ -75,7 +76,7 @@ public class TableInfo {
 	 * getter for list of columns
 	 * @return ArrayList of columns in table
 	 */
-	public ArrayList<ColumnInfo> getColumns() {
+	public LinkedHashMap<String, ColumnInfo> getColumns() {
 		return columns;
 	}	
 	
@@ -85,6 +86,14 @@ public class TableInfo {
 	
 	public void setNumTuples(int n) {
 		this.nTuples = n;
+	}
+	
+	public String getClusteredIndex() {
+		return this.clusteredIndex;
+	}
+	
+	public void setClusteredIndex(String clusteredIndex) {
+		this.clusteredIndex = clusteredIndex;
 	}
 }
 

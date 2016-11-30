@@ -2,6 +2,7 @@ package Operators;
 
 import Indexing.LeafNode;
 import Indexing.RecordID;
+import Project.ColumnInfo;
 import Project.TableInfo;
 import Project.Tuple;
 import net.sf.jsqlparser.schema.Table;
@@ -35,8 +36,8 @@ public class UnclusteredIndexScanOperator extends IndexScanOperator {
 	 * @param lowkey - lowkey of range we want
 	 * @param highkey - highkey of range we want
 	 */
-	public UnclusteredIndexScanOperator(TableInfo tableInfo, String tableID, int lowkey, int highkey) {
-		super(tableInfo, tableID, lowkey, highkey);
+	public UnclusteredIndexScanOperator(TableInfo tableInfo, String tableID, ColumnInfo colInfo, int lowkey, int highkey) {
+		super(tableInfo, tableID, colInfo, lowkey, highkey);
 		
 		this.firstLeaf = this.currLeaf;
 		this.leafIndex = -1;
@@ -51,8 +52,8 @@ public class UnclusteredIndexScanOperator extends IndexScanOperator {
 	 * @param lowkey - lowkey of range we want
 	 * @param highkey - highkey of range we want
 	 */
-	public UnclusteredIndexScanOperator(TableInfo tableInfo, int lowkey, int highkey) {
-		super(tableInfo, tableInfo.getTableName(), lowkey, highkey);
+	public UnclusteredIndexScanOperator(TableInfo tableInfo, ColumnInfo colInfo, int lowkey, int highkey) {
+		super(tableInfo, tableInfo.getTableName(), colInfo, lowkey, highkey);
 	}
 	
 	/**
@@ -62,8 +63,8 @@ public class UnclusteredIndexScanOperator extends IndexScanOperator {
 	 * @param lowkey - lowkey of range we want
 	 * @param highkey - highkey of range we want
 	 */
-	public UnclusteredIndexScanOperator(TableInfo tableInfo, Table tbl, int lowkey, int highkey) {
-		super(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias(), lowkey, highkey);
+	public UnclusteredIndexScanOperator(TableInfo tableInfo, Table tbl, ColumnInfo colInfo, int lowkey, int highkey) {
+		super(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias(), colInfo, lowkey, highkey);
 	}
 
 	/* ===============================================

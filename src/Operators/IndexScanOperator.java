@@ -1,7 +1,8 @@
 package Operators;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import IO.BinaryTupleReader;
 import Indexing.BPlusTree;
@@ -31,6 +32,7 @@ public abstract class IndexScanOperator extends Operator {
 	
 	protected HashMap<String, Integer> schema; // schema of the tuples we are reading
 	protected TableInfo tableInfo; // info about table we are reading from
+	protected ColumnInfo colInfo;
 	protected String tableID; // id we are using for table
 	protected BinaryTupleReader reader; // reads from table file
 
@@ -44,24 +46,25 @@ public abstract class IndexScanOperator extends Operator {
 	 * @param lowkey - lowkey of range we want
 	 * @param highkey - highkey of range we want
 	 */
-	public IndexScanOperator(TableInfo tableInfo, String tableID, int lowkey, int highkey) {
+	public IndexScanOperator(TableInfo tableInfo, String tableID, ColumnInfo colInfo, int lowkey, int highkey) {
 		super();
 		
 		this.tableInfo = tableInfo;
+		this.colInfo = colInfo;
 		this.tableID = tableID;
 
-		ArrayList<ColumnInfo> columns = tableInfo.getColumns();
+		LinkedHashMap<String, ColumnInfo> columns = tableInfo.getColumns();
 		this.schema = new HashMap<String, Integer>();
 		
 		this.reader = new BinaryTupleReader(this.tableInfo.getFilePath());
 		
 		// Read from columns in tableInfo
 		// Add (<alias> + "." + <name of column i>, i) to hash map
-		for (int i = 0; i < columns.size(); i++) {
-			this.schema.put(this.tableID + "." + columns.get(i).column, i);
+		for (Map.Entry<String, ColumnInfo> entry : columns.entrySet()) {
+			this.schema.put(this.tableID + "." + entry.getKey(), entry.getValue().pos);
 		}
 		
-		String indexFile = tableInfo.getIndexPath();
+		String indexFile = colInfo.getIndexPath();
 		this.bTree = new BPlusTree(indexFile);
 		this.lowkey = lowkey;
 		this.highkey = highkey;	
@@ -76,8 +79,8 @@ public abstract class IndexScanOperator extends Operator {
 	 * @param lowkey - lowkey of range we want
 	 * @param highkey - highkey of range we want
 	 */
-	public IndexScanOperator(TableInfo tableInfo, int lowkey, int highkey) {
-		this(tableInfo, tableInfo.getTableName(), lowkey, highkey);
+	public IndexScanOperator(TableInfo tableInfo, ColumnInfo colInfo, int lowkey, int highkey) {
+		this(tableInfo, tableInfo.getTableName(), colInfo, lowkey, highkey);
 	}
 	
 	/**
@@ -87,8 +90,8 @@ public abstract class IndexScanOperator extends Operator {
 	 * @param lowkey - lowkey of range we want
 	 * @param highkey - highkey of range we want
 	 */
-	public IndexScanOperator(TableInfo tableInfo, Table tbl, int lowkey, int highkey) {
-		this(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias(), lowkey, highkey);
+	public IndexScanOperator(TableInfo tableInfo, ColumnInfo colInfo, Table tbl, int lowkey, int highkey) {
+		this(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias(), colInfo, lowkey, highkey);
 	}
 	
 	/* ===============================================
