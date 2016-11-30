@@ -25,8 +25,6 @@ public class Configuration {
 	private String inputDir; // directory to be used
 	private String outputDir;  // output directory to be used
 	private String tmpDir; // temp directory to be used for scratch work
-	private boolean index; //
-	private boolean evaluate;
 	
 	/*
 	 * ================================== 
@@ -45,12 +43,10 @@ public class Configuration {
 		close();
 	}
 	
-	public Configuration(String input, String output, String tmp, boolean index, boolean evaluate){
+	public Configuration(String input, String output, String tmp){
 		this.inputDir = input;
 		this.outputDir = output;
 		this.tmpDir = tmp;
-		this.index = index;
-		this.evaluate = evaluate;
 	}
 
 	/*
@@ -62,21 +58,13 @@ public class Configuration {
 		System.out.println("Input dir     " + this.inputDir);
 		System.out.println("Output dir    " + this.outputDir);
 		System.out.println("temp dir      " + this.tmpDir);
-		System.out.println("Indexing      " + this.index);
-		System.out.println("Evaluate      " + this.evaluate);
-		System.out.println("Option        " + runOption());
 	}
 
 	public void parse() {
 		try {
 			this.inputDir = this.bufferedReader.readLine();
 			this.outputDir = this.bufferedReader.readLine();
-			this.tmpDir = this.bufferedReader.readLine();
-			String indexStr = this.bufferedReader.readLine();
-			this.index = indexStr.equals("0") ? false : true;
-			String evaluateStr = this.bufferedReader.readLine();
-			this.evaluate = evaluateStr.equals("0") ? false : true;
-			
+			this.tmpDir = this.bufferedReader.readLine();			
 		}catch (IOException e) {
 			System.out.println("Unable to parse configuration on : " + e);
 		}		
@@ -101,26 +89,6 @@ public class Configuration {
 
 	public String getTmpDir() {
 		return tmpDir;
-	}
-
-	public boolean isIndex() {
-		return index;
-	}
-
-	public boolean isEvaluate() {
-		return evaluate;
-	}
-	
-	public int runOption() {
-		
-		if (this.index && !this.evaluate)
-			return 1;
-		else if (this.index && this.evaluate)
-			return 2;
-		else if(!this.index && this.evaluate)
-			return 3;
-		else 
-			return -1;
 	}
 	
 }
