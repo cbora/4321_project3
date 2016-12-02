@@ -2,6 +2,7 @@ package Project;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.Stack;
 
 import net.sf.jsqlparser.expression.AllComparisonExpression;
@@ -60,6 +61,7 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 	/* ================================== 
 	 * Fields
 	 * ================================== */
+	private UnionFind union;
 	private ArrayList <Expression> select; // list of selection expressions
 	//private ArrayList <Expression> join; // list of join expressions
 	private Expression join;
@@ -78,6 +80,8 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 	 * @param e - WHERE expression
 	 */
 	public BuildSelectConditionsVisitor(HashMap<String, Integer> table_mapping, Expression e) {
+		union = new UnionFind();
+		
 		select = new ArrayList<Expression>();
 		for (int i=0; i<table_mapping.size(); i++)
 			select.add(null);
@@ -95,6 +99,47 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 		
 		if (e != null)
 			e.accept(this);
+		
+		Set<String> attributes = union.getAttributes();
+		for (String attribute : attributes) {
+			UnionFindElement elem = union.find(attribute);
+			if (elem.equals != null) {
+				// construct EqualsTo & call addSelect
+				Table tbl = new Table();
+				tbl.setName(attribute.substring(0, attribute.indexOf('.')));
+				Column col = new Column(tbl, attribute.substring(attribute.indexOf('.')));
+				
+				LongValue val = new LongValue(elem.equals);
+						
+				EqualsTo eq = new EqualsTo(col, val);
+				addSelect(tbl, eq);				
+			}
+			else {
+				if (elem.ceiling != null) {
+					// construct MinorThanEquals & call addSelect
+					Table tbl = new Table();
+					tbl.setName(attribute.substring(0, attribute.indexOf('.')));
+					Column col = new Column(tbl, attribute.substring(attribute.indexOf('.')));
+					
+					LongValue val = new LongValue(elem.equals);
+							
+					MinorThanEquals lte = new MinorThanEquals(col, val);
+					addSelect(tbl, lte);	
+				}
+				
+				if (elem.floor != null) {
+					// construct GreaterThanEquals and call addSelect
+					Table tbl = new Table();
+					tbl.setName(attribute.substring(0, attribute.indexOf('.')));
+					Column col = new Column(tbl, attribute.substring(attribute.indexOf('.')));
+					
+					LongValue val = new LongValue(elem.equals);
+							
+					GreaterThanEquals gte = new GreaterThanEquals(col, val);
+					addSelect(tbl, gte);	
+				}
+			}
+		}
 	}
 	
 	/* ================================== 
@@ -136,17 +181,87 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 		}
 		else if (stack.size() == 1){ // expression involved 1 table, 1 constant	
 			Column c = stack.pop();
-			addSelect(c.getTable(), node);		
+			String attribute = c.getTable().getName() + "." + c.getColumnName();
+			
+			if (!(node instanceof NotEqualsTo)) {
+				// find & update equals, ceil, floor -- second bullet
+				if (union.find(attribute) == null)
+					union.add(attribute);
+				UnionFindElement elem = union.find(attribute);
+				
+				setBounds(elem, node);
+			}
+			else {
+				addSelect(c.getTable(), node);	
+			}
 		}
-		else if (stack.size() == 2){
+		else if (stack.size() == 2){ // expression involves 2 attributes
 			Column c = stack.pop();
+			String attr1 = c.getTable().getName() + "." + c.getColumnName();
+			
 			Column c2 = stack.pop();
-			if (c.getTable().toString().equals(c2.getTable().toString()) ){ // expression involved 2 cols from same table				
-				addSelect(c.getTable(), node);
-			}				
-			else {	// expression involved 2 different tables			
-				addJoin(c.getTable(), c2.getTable(), node);
-			}			
+			String attr2 = c2.getTable().getName() + "." + c2.getColumnName();
+			
+			if (node instanceof EqualsTo) {
+				// union together -- first bullet
+				if (union.find(attr1) == null)
+					union.add(attr1);
+				if (union.find(attr2) == null)
+					union.add(attr2);
+				union.union(attr1, attr2);
+			}
+			else {
+				if (c.getTable().toString().equals(c2.getTable().toString()) ){ // expression involved 2 cols from same table				
+					addSelect(c.getTable(), node);
+				}				
+				else {	// expression involved 2 different tables			
+					addJoin(c.getTable(), c2.getTable(), node);
+				}
+			}
+		}
+	}
+	
+	private void setBounds(UnionFindElement elem, BinaryExpression node) {
+		LongValue val;
+		if (node.getRightExpression() instanceof LongValue) {
+			val = (LongValue) node.getRightExpression();
+		}
+		else if (node.getLeftExpression() instanceof LongValue) {
+			val = (LongValue) node.getLeftExpression();
+			
+			if (node instanceof EqualsTo) 
+				node = new EqualsTo(node.getRightExpression(), node.getLeftExpression());
+			else if (node instanceof GreaterThan) 
+				node = new MinorThan(node.getRightExpression(), node.getLeftExpression());
+			else if (node instanceof GreaterThanEquals) 
+				node = new MinorThanEquals(node.getRightExpression(), node.getLeftExpression());
+			else if (node instanceof MinorThan) 
+				node = new GreaterThan(node.getRightExpression(), node.getLeftExpression());
+			else if (node instanceof MinorThanEquals) 
+				node = new GreaterThanEquals(node.getRightExpression(), node.getLeftExpression());
+			else
+				return;
+		}
+		else {
+			return;
+		}
+		
+		if (node instanceof EqualsTo) {
+			elem.equals = (int) val.toLong();
+			elem.ceiling = (int) val.toLong();
+			elem.floor = (int) val.toLong();
+		}
+		else if (node instanceof GreaterThan) {
+			elem.floor = (int) val.toLong() + 1;
+		}
+		else if (node instanceof GreaterThanEquals) {
+			elem.floor = (int) val.toLong();
+		}
+		else if (node instanceof MinorThan) {
+			elem.ceiling = (int) val.toLong() - 1;
+		}
+		else if (node instanceof MinorThanEquals) {
+			elem.ceiling = (int) val.toLong();
 		}
 	}
 
