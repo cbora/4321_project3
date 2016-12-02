@@ -110,6 +110,7 @@ public class Main {
 				scan = new ScanOperator(dbC.get(table), table);
 				
 				BPlusTree bplus= new BPlusTree(info.getD(), scan, pos, info.getIndexPath());
+				info.setLeaves(bplus.getnLeaves());
 				bplus.close();
 				scan.close();
 			}
@@ -129,6 +130,7 @@ public class Main {
 				
 				// build b+ tree index
 				BPlusTree bplus= new BPlusTree(info.getD(), scan, pos, info.getIndexPath());
+				info.setLeaves(bplus.getnLeaves());
 				bplus.close();
 				scan.close();
 			}

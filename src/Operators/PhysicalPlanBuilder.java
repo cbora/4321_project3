@@ -33,6 +33,7 @@ public class PhysicalPlanBuilder {
 	 * ==================================
 	 */
 	private final int BLOCK_SIZE = 5;
+	private final int PAGE_SIZE = 4096;
 	private final int SORT_TYPE = 1;
 	
 	private Stack<Operator> pStack; // keeps track of physical operators
@@ -148,7 +149,7 @@ public class PhysicalPlanBuilder {
 		TableInfo tableInfo = scan.getTableInfo();
 			
 		// calculate cost of scan
-		int min = calculateScanCost(); 
+		int min = calculateScanCost(tableInfo); 
 		ColumnInfo bestCol = null;
 		int lowkey = 0;
 		int highkey = 0;
@@ -159,7 +160,7 @@ public class PhysicalPlanBuilder {
 			 if (column.getIndexInfo() != null) {
 				 IndexExpressionVisitor indexVisitor = new IndexExpressionVisitor(exp, column);
 				 if (indexVisitor.canUseIndex()) {
-					 int cost = calculateIndexCost();
+					 int cost = calculateIndexCost(tableInfo, column, indexVisitor.getLowkey(), indexVisitor.getHighkey());
 					 if (cost < min) {
 						 min = cost;
 						 bestCol = column;
@@ -191,12 +192,24 @@ public class PhysicalPlanBuilder {
 		}
 	}
 	
-	private int calculateScanCost() {
-		
+	private int calculateScanCost(TableInfo t) {
+		int nTuples = t.getNumTuples();
+		int size = t.getColumns().size();
+		return (nTuples*size)/PAGE_SIZE;
 	}
 	
-	private int calculateIndexCost() {
-		
+	private int calculateIndexCost(TableInfo t, ColumnInfo c, int low, int high) {
+		int r = (Math.min(high, c.max) - Math.max(low, c.min) +1) / (c.max - c.min + 1);
+		int nTuples = t.getNumTuples();
+		if (c.isClustered()){			
+			int size = t.getColumns().size();			
+			int p =(nTuples*size)/PAGE_SIZE;
+			return 3 + p * r;
+		}
+		else {
+			int l = c.getIndexInfo().getLeaves();
+			return  3 + l * r + nTuples * r;
+		}
 	}
 	
 	/**

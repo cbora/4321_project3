@@ -127,6 +127,24 @@ public class BPlusTree {
 	}
 	
 	/**
+	 * 
+	 * @return nLeaves	
+	 */
+	public int getnLeaves() {
+		return nLeaves;
+	}
+	
+	/**
+	 * 
+	 * @param nLeaves
+	 */
+
+	public void setnLeaves(int nLeaves) {
+		this.nLeaves = nLeaves;
+	}
+
+	
+	/**
 	 * Bulk loading function 
 	 * @param scan - scan operator reading from table we want to index
 	 * @param tuplePos - column we are indexing 

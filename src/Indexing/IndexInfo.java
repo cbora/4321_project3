@@ -18,6 +18,7 @@ public class IndexInfo {
 	private String attribute; // column name of column index is on
 	private boolean clustered; // is it clustered
 	private int D; // order of tree
+	private int leaves; // number of leaves
 	
 	/*
 	 * ================================== 
@@ -36,8 +37,9 @@ public class IndexInfo {
 		this.attribute = attribute;
 		this.clustered = clustered;
 		this.D = order;
+		this.leaves = 0;
 	}
-	
+
 	/**
 	 * Constructor
 	 * @param indexPath - path to index
@@ -52,8 +54,10 @@ public class IndexInfo {
 		this.attribute  = attribute;
 		this.clustered = c;
 		this.D = o;
+		this.leaves = 0;
 		
 	}
+	
 
 	/*
 	 * ================================== 
@@ -75,6 +79,21 @@ public class IndexInfo {
 	 */
 	public void setIndexPath(String indexPath) {
 		this.indexPath = indexPath;
+	}
+	
+	/**
+	 * 
+	 * @return leaves
+	 */		
+	public int getLeaves() {
+		return leaves;
+	}
+	/**
+	 * 
+	 * @param leaves
+	 */
+	public void setLeaves(int leaves) {
+		this.leaves = leaves;
 	}
 
 	/**
