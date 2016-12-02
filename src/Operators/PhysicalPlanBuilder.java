@@ -1,7 +1,5 @@
 package Operators;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -13,7 +11,9 @@ import LogicalOperator.ProjectLogicalOperator;
 import LogicalOperator.SelectLogicalOperator;
 import LogicalOperator.SortLogicalOperator;
 import LogicalOperator.TableLogicalOperator;
+import Project.ColumnInfo;
 import Project.JoinExp2OrderByVisitor;
+import Project.TableInfo;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
@@ -140,6 +140,65 @@ public class PhysicalPlanBuilder {
 		return s;
 	}
 	
+	private Operator detSelect(Operator o, Expression exp) {
+		if (! (o instanceof ScanOperator))
+			return new SelectOperator(o, exp);
+		
+		ScanOperator scan = (ScanOperator) o;
+		TableInfo tableInfo = scan.getTableInfo();
+			
+		// calculate cost of scan
+		int min = calculateScanCost(); 
+		ColumnInfo bestCol = null;
+		int lowkey = 0;
+		int highkey = 0;
+		Expression slct = null;
+		
+		// iterate through columns
+		for (ColumnInfo column : tableInfo.getColumns().values()) {
+			 if (column.getIndexInfo() != null) {
+				 IndexExpressionVisitor indexVisitor = new IndexExpressionVisitor(exp, column);
+				 if (indexVisitor.canUseIndex()) {
+					 int cost = calculateIndexCost();
+					 if (cost < min) {
+						 min = cost;
+						 bestCol = column;
+						 lowkey = indexVisitor.getLowkey();
+						 highkey = indexVisitor.getHighkey();
+						 slct = indexVisitor.getOtherSlctExps();
+					 }
+				 }
+			 }
+		}
+		
+		if (bestCol == null) {
+			return new SelectOperator(o, exp);
+		}
+		else {
+			IndexScanOperator iso;
+			if (bestCol.isClustered()) {
+				iso = new ClusteredIndexScanOperator(tableInfo, scan.getTableID(), bestCol, lowkey, highkey);
+			}
+			else {
+				iso = new UnclusteredIndexScanOperator(tableInfo, scan.getTableID(), bestCol, lowkey, highkey);
+			}
+			scan.close();
+
+			if (slct != null) // add select operator if select conditions index can't handle
+				return new SelectOperator(iso, slct);
+			else
+				return iso;
+		}
+	}
+	
+	private int calculateScanCost() {
+		
+	}
+	
+	private int calculateIndexCost() {
+		
+	}
+	
 	/**
 	 * Constructs appropriate Selection plan based on the config file
 	 * @param o - child operator
@@ -147,23 +206,23 @@ public class PhysicalPlanBuilder {
 	 * @return operator for handling selection
 	 * 
 	 */
-	private Operator detSelect(Operator o, Expression exp) {
-		int indexType = Integer.parseInt(index);
-				
-		switch (indexType) {
-		case 0:	
-			return new SelectOperator(o, exp);
-		case 1:		
-			// if child is not of instance Scan Operator return just SelectOperator
-			if (! (o instanceof ScanOperator))
-				return new SelectOperator(o, exp);
-			ScanOperator scan = (ScanOperator) o;
-			
-			//make expression visitor to determine low and high key
+//	private Operator detSelect(Operator o, Expression exp) {
+//		int indexType = Integer.parseInt(index);
+//				
+//		switch (indexType) {
+//		case 0:	
+//			return new SelectOperator(o, exp);
+//		case 1:		
+//			// if child is not of instance Scan Operator return just SelectOperator
+//			if (! (o instanceof ScanOperator))
+//				return new SelectOperator(o, exp);
+//			ScanOperator scan = (ScanOperator) o;
+//			
+//			//make expression visitor to determine low and high key
 //			IndexExpressionVisitor indexVisitor = new IndexExpressionVisitor(exp, scan.getTableInfo());
-			
+//			
 //			if (indexVisitor.canUseIndex()) { // if we can use the index, use it
-			if (false) {
+//			if (false) {
 //				int lowkey = indexVisitor.getLowkey();
 //				int highkey = indexVisitor.getHighkey();
 //				
@@ -180,14 +239,14 @@ public class PhysicalPlanBuilder {
 //					return new SelectOperator(iso, indexVisitor.getOtherSlctExps());
 //				else
 //					return iso;
-			}
-			else {
-				return new SelectOperator(scan, exp);
-			}
-		}
-		
-		return null;
-	}
+//			}
+//			else {
+//				return new SelectOperator(scan, exp);
+//			}
+//		}
+//		
+//		return null;
+//	}
 
 	/**
 	 * @param lo
