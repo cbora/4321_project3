@@ -32,12 +32,11 @@ public class PhysicalPlanBuilder {
 	 * Fields
 	 * ==================================
 	 */
+	private final int BLOCK_SIZE = 5;
+	private final int SORT_TYPE = 1;
+	
 	private Stack<Operator> pStack; // keeps track of physical operators
-	private String[] joinPlan; // Strings that indicate which join plan to use
-	private String[] sortPlan; // String which indicate which sort type to use
 	private String tmp_dir; // Arg temp directory
-	private String input_dir; 
-	private String index; // for index type
 	/*
 	 * ================================== 
 	 * Constructors
@@ -49,28 +48,10 @@ public class PhysicalPlanBuilder {
 	 * @param root
 	 *            - root of logical operator tree
 	 */
-	public PhysicalPlanBuilder(LogicalOperator root,  String planConfig, String tmp_dir) {
+	public PhysicalPlanBuilder(LogicalOperator root,  String tmp_dir) {
 		this.pStack = new Stack<Operator>();
-		this.tmp_dir = tmp_dir;
-		readPlanConfig(planConfig);				
+		this.tmp_dir = tmp_dir;			
 		root.accept(this);
-	}
-	
-	/**
-	 * reads from file to get joinplan, sortplan, and index plan
-	 * @param config - filepath
-	 */
-	public void readPlanConfig(String config) {
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(config));
-			this.joinPlan = br.readLine().split(" ");
-			this.sortPlan = br.readLine().split(" ");
-			this.index = br.readLine();
-			br.close();
-		} catch(Exception e) {
-			System.err.println("Exception occured during plan reading");
-			e.printStackTrace();
-		}
 	}
 
 	
@@ -96,7 +77,7 @@ public class PhysicalPlanBuilder {
 	 * @return JoinOperator
 	 */
 	private JoinOperator detJoin(Operator left, Operator right, Expression exp) {
-		int joinType = Integer.parseInt(joinPlan[0]);
+		int joinType;
 		JoinOperator j = null;
 		
 		switch (joinType) {
@@ -104,7 +85,7 @@ public class PhysicalPlanBuilder {
 			j = new TNLJoinOperator(left, right, exp);
 			break;
 		case 1:
-			j = new BNLJoinOperator(left, right, exp, Integer.parseInt(joinPlan[1]));
+			j = new BNLJoinOperator(left, right, exp, BLOCK_SIZE);
 			break;
 		case 2:
 			JoinExp2OrderByVisitor je2ob = new JoinExp2OrderByVisitor(left, right, exp);
@@ -124,15 +105,14 @@ public class PhysicalPlanBuilder {
 	 * @return SortOperator
 	 */
 	private SortOperator detSort(Operator o, ArrayList<OrderByElement> ob) {
-		int sortType = Integer.parseInt(sortPlan[0]);
 		SortOperator s = null;
 		
-		switch (sortType) {
+		switch (SORT_TYPE) {
 		case 0:
 			s = new InMemSortOperator(o, ob);
 			break;
 		case 1:
-			s = new ExtSortOperator(o, ob, this.tmp_dir,Integer.parseInt(sortPlan[1]));
+			s = new ExtSortOperator(o, ob, this.tmp_dir,BLOCK_SIZE);
 			break;
 		}
 		
@@ -146,15 +126,14 @@ public class PhysicalPlanBuilder {
 	 * @return SortOperator
 	 */
 	private SortOperator detSort(Operator o, int[] so) {
-		int sortType = Integer.parseInt(sortPlan[0]);
 		SortOperator s = null;
 		
-		switch (sortType) {
+		switch (SORT_TYPE) {
 		case 0:
 			s = new InMemSortOperator(o, so);
 			break;
 		case 1:
-			s = new ExtSortOperator(o, so, this.tmp_dir,Integer.parseInt(sortPlan[1]));
+			s = new ExtSortOperator(o, so, this.tmp_dir, BLOCK_SIZE);
 			break;
 		}
 		
