@@ -36,6 +36,8 @@ public abstract class IndexScanOperator extends Operator {
 	protected String tableID; // id we are using for table
 	protected BinaryTupleReader reader; // reads from table file
 
+	private final static int PAGE_SIZE = 4096;
+	private int cost;
 	/* =====================================
 	 * Constructors
 	 * ===================================== */
@@ -69,7 +71,7 @@ public abstract class IndexScanOperator extends Operator {
 		this.lowkey = lowkey;
 		this.highkey = highkey;	
 		this.currLeaf = this.bTree.search(lowkey);
-
+		this.calculateIndexCost(tableInfo, colInfo, lowkey, highkey);
 	}
 	
 	/**
@@ -115,5 +117,23 @@ public abstract class IndexScanOperator extends Operator {
 	public void close() {
 		reader.close();
 		bTree.close();
+	}
+
+	private void calculateIndexCost(TableInfo t, ColumnInfo c, int low, int high) {
+		int r = (Math.min(high, c.max) - Math.max(low, c.min) +1) / (c.max - c.min + 1);
+		int nTuples = t.getNumTuples();
+		if (c.isClustered()){			
+			int size = t.getColumns().size();			
+			int p =(nTuples*size)/PAGE_SIZE;
+			this.cost = 3 + p * r; 
+		}
+		else {
+			int l = c.getIndexInfo().getLeaves();
+			this.cost =  3 + l * r + nTuples * r;
+		}
+	}
+	
+	public int getRelationSize() {
+		return this.cost;
 	}
 }

@@ -27,6 +27,8 @@ public class ScanOperator extends Operator {
 	private String tableID;		   // alias of the table. if there is no alias, tableName is used	
 	private HashMap<String, Integer> schema; // Schema to return from getSchema()
 	private TupleReader reader; // tuplereader for pages
+	private int cost;
+	private final static int PAGE_SIZE = 4096;
 	/* =====================================
 	 * Constructors
 	 * ===================================== */
@@ -51,8 +53,8 @@ public class ScanOperator extends Operator {
 		for (Map.Entry<String, ColumnInfo> entry : columns.entrySet()) {
 			this.schema.put(this.tableID + "." + entry.getKey(), entry.getValue().pos);
 		}
-		
-	}
+		this.calculateScanCost(tableInfo);
+	}	
 
 	/**
 	 * Constructor that sets tableID equal to tableInfo.getTableName()
@@ -109,4 +111,16 @@ public class ScanOperator extends Operator {
 	public String getTableID() {
 		return this.tableID;
 	}
+	
+	private int calculateScanCost(TableInfo t) {
+		int nTuples = t.getNumTuples();
+		int size = t.getColumns().size();
+		this.cost = (nTuples*size)/PAGE_SIZE;
+		
+	}
+	
+	public int getRelationSize() {
+		return this.cost;
+	}
+	
 }

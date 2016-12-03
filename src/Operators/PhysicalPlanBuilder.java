@@ -149,7 +149,7 @@ public class PhysicalPlanBuilder {
 		TableInfo tableInfo = scan.getTableInfo();
 			
 		// calculate cost of scan
-		int min = calculateScanCost(tableInfo); 
+		int min = scan.getRelationSize(); 
 		ColumnInfo bestCol = null;
 		int lowkey = 0;
 		int highkey = 0;
@@ -159,8 +159,15 @@ public class PhysicalPlanBuilder {
 		for (ColumnInfo column : tableInfo.getColumns().values()) {
 			 if (column.getIndexInfo() != null) {
 				 IndexExpressionVisitor indexVisitor = new IndexExpressionVisitor(exp, column);
-				 if (indexVisitor.canUseIndex()) {
-					 int cost = calculateIndexCost(tableInfo, column, indexVisitor.getLowkey(), indexVisitor.getHighkey());
+				 if (indexVisitor.canUseIndex()) {							 
+					IndexScanOperator iso;
+					 if (bestCol.isClustered()) {
+						 iso = new ClusteredIndexScanOperator(tableInfo, scan.getTableID(), bestCol, lowkey, highkey);
+					 }
+					 else {
+						 iso = new UnclusteredIndexScanOperator(tableInfo, scan.getTableID(), bestCol, lowkey, highkey);
+					 }
+					 int cost = iso.getRelationSize();					 
 					 if (cost < min) {
 						 min = cost;
 						 bestCol = column;
@@ -192,75 +199,6 @@ public class PhysicalPlanBuilder {
 		}
 	}
 	
-	private int calculateScanCost(TableInfo t) {
-		int nTuples = t.getNumTuples();
-		int size = t.getColumns().size();
-		return (nTuples*size)/PAGE_SIZE;
-	}
-	
-	private int calculateIndexCost(TableInfo t, ColumnInfo c, int low, int high) {
-		int r = (Math.min(high, c.max) - Math.max(low, c.min) +1) / (c.max - c.min + 1);
-		int nTuples = t.getNumTuples();
-		if (c.isClustered()){			
-			int size = t.getColumns().size();			
-			int p =(nTuples*size)/PAGE_SIZE;
-			return 3 + p * r;
-		}
-		else {
-			int l = c.getIndexInfo().getLeaves();
-			return  3 + l * r + nTuples * r;
-		}
-	}
-	
-	/**
-	 * Constructs appropriate Selection plan based on the config file
-	 * @param o - child operator
-	 * @param exp - select expression
-	 * @return operator for handling selection
-	 * 
-	 */
-//	private Operator detSelect(Operator o, Expression exp) {
-//		int indexType = Integer.parseInt(index);
-//				
-//		switch (indexType) {
-//		case 0:	
-//			return new SelectOperator(o, exp);
-//		case 1:		
-//			// if child is not of instance Scan Operator return just SelectOperator
-//			if (! (o instanceof ScanOperator))
-//				return new SelectOperator(o, exp);
-//			ScanOperator scan = (ScanOperator) o;
-//			
-//			//make expression visitor to determine low and high key
-//			IndexExpressionVisitor indexVisitor = new IndexExpressionVisitor(exp, scan.getTableInfo());
-//			
-//			if (indexVisitor.canUseIndex()) { // if we can use the index, use it
-//			if (false) {
-//				int lowkey = indexVisitor.getLowkey();
-//				int highkey = indexVisitor.getHighkey();
-//				
-//				IndexScanOperator iso;
-//				if (scan.getTableInfo().isClustered()) {
-//					iso = new ClusteredIndexScanOperator(scan.getTableInfo(), scan.getTableID(), lowkey, highkey);
-//				}
-//				else {
-//					iso = new UnclusteredIndexScanOperator(scan.getTableInfo(), scan.getTableID(), lowkey, highkey);
-//				}
-//				scan.close();
-//
-//				if (indexVisitor.getOtherSlctExps() != null) // add select operator if select conditions index can't handle
-//					return new SelectOperator(iso, indexVisitor.getOtherSlctExps());
-//				else
-//					return iso;
-//			}
-//			else {
-//				return new SelectOperator(scan, exp);
-//			}
-//		}
-//		
-//		return null;
-//	}
-
 	/**
 	 * @param lo
 	 *            - node to visit

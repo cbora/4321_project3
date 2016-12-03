@@ -21,7 +21,7 @@ public class SelectOperator extends Operator {
 	private Operator child; // child operator
 	private Expression exp; // selection expression
 	private HashMap<String, Integer> schema; // schema of tuples returned by this operator
-	
+	private int cost;
 	/* ================================== 
 	 * Constructors
 	 * ================================== */
@@ -78,4 +78,7 @@ public class SelectOperator extends Operator {
 		return e.getResult();
 	}
 
+	public int getRelationSize() {
+		return this.cost;
+	}
 }
