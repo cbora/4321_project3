@@ -1,6 +1,7 @@
 package LogicalOperator;
 
 import Operators.PhysicalPlanBuilder;
+import Project.UnionFind;
 import net.sf.jsqlparser.expression.Expression;
 
 /**
@@ -31,7 +32,7 @@ public class SelectLogicalOperator extends LogicalOperator {
 	 * @param child - child operator
 	 * @param ex - selection condition
 	 */
-	public SelectLogicalOperator(LogicalOperator child, Expression ex) {
+	public SelectLogicalOperator(LogicalOperator child, Expression ex, UnionFind union) {
 		this.child = child;
 		this.exp = ex;
 	}

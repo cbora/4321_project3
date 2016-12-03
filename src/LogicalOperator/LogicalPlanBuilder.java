@@ -8,6 +8,7 @@ import java.util.ListIterator;
 import Project.BuildSelectConditionsVisitor;
 import Project.DbCatalog;
 import Project.TableInfo;
+import Project.UnionFind;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
@@ -35,6 +36,7 @@ public class LogicalPlanBuilder {
 	private BuildSelectConditionsVisitor bsv; // retrieves selection/join information regarding our expression
 		// builds selection expression list in order that corresponds with ordering in table_mapping
 		// builds join expression list in left_deep order that corresponds with ordering in table_mapping
+	private UnionFind union;
 	
 	/* ================================== 
 	 * Constructors
@@ -53,6 +55,7 @@ public class LogicalPlanBuilder {
 		
 		// build selection/join operators 
 		this.bsv = new BuildSelectConditionsVisitor(this.table_mapping, this.plain_select.getWhere());
+		this.union = this.bsv.getUnion();
 		selectBuilder();
 		joinBuilder();
 		
@@ -62,7 +65,7 @@ public class LogicalPlanBuilder {
 		// add any selection conditions that don't involve tables
 		Expression extra_exp = this.bsv.getExp(); 		 	
 		if ( extra_exp != null ) {
-			this.root = new SelectLogicalOperator(this.root, extra_exp);
+			this.root = new SelectLogicalOperator(this.root, extra_exp, this.union);
 		}
 		
 		// add projection operator if needed
