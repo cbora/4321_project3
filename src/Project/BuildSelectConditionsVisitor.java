@@ -166,6 +166,10 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 		return extra_exp;
 	}
 	
+	public UnionFind getUnion() {
+		return union;
+	}
+	
 	/**
 	 * Adds expression to the appropriate container (this.select, this.join, this.extra_exp)
 	 * @param node - relational expression (EqualsTo, GreaterThan, etc.)

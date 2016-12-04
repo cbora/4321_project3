@@ -125,7 +125,7 @@ public class LogicalPlanBuilder {
 		int index = 0;
 		while(iter.hasNext()){	// 			
 			if (select_exp.get(index) != null) {
-				SelectLogicalOperator so = new SelectLogicalOperator(iter.next(), select_exp.get(index));			
+				SelectLogicalOperator so = new SelectLogicalOperator(iter.next(), select_exp.get(index), this.union);			
 				iter.set(so);
 			}
 			else {

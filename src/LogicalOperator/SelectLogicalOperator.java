@@ -21,6 +21,7 @@ public class SelectLogicalOperator extends LogicalOperator {
 	 */
 	private LogicalOperator child; // child operator
 	private Expression exp; // selection condition
+	private UnionFind union;
 	
 	/*
 	 * ================================== 
@@ -35,6 +36,7 @@ public class SelectLogicalOperator extends LogicalOperator {
 	public SelectLogicalOperator(LogicalOperator child, Expression ex, UnionFind union) {
 		this.child = child;
 		this.exp = ex;
+		this.union = union;
 	}
 
 	/*
@@ -42,6 +44,11 @@ public class SelectLogicalOperator extends LogicalOperator {
 	 * Methods
 	 * ==================================
 	 */
+	
+	public UnionFind getUnionFind() {
+		return union;
+	}
+	
 	/**
 	 * 
 	 * @return - child operator

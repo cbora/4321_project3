@@ -36,8 +36,8 @@ public abstract class IndexScanOperator extends Operator {
 	protected String tableID; // id we are using for table
 	protected BinaryTupleReader reader; // reads from table file
 
-	private final static int PAGE_SIZE = 4096;
-	private int cost;
+	protected final static int PAGE_SIZE = 4096;
+	protected int cost;
 	/* =====================================
 	 * Constructors
 	 * ===================================== */

@@ -53,7 +53,7 @@ public class ScanOperator extends Operator {
 		for (Map.Entry<String, ColumnInfo> entry : columns.entrySet()) {
 			this.schema.put(this.tableID + "." + entry.getKey(), entry.getValue().pos);
 		}
-		this.calculateScanCost(tableInfo);
+		this.calculateScanCost();
 	}	
 
 	/**
@@ -112,9 +112,9 @@ public class ScanOperator extends Operator {
 		return this.tableID;
 	}
 	
-	private int calculateScanCost(TableInfo t) {
-		int nTuples = t.getNumTuples();
-		int size = t.getColumns().size();
+	private void calculateScanCost() {
+		int nTuples = tableInfo.getNumTuples();
+		int size = tableInfo.getColumns().size();
 		this.cost = (nTuples*size)/PAGE_SIZE;
 		
 	}

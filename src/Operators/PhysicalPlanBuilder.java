@@ -14,6 +14,7 @@ import LogicalOperator.TableLogicalOperator;
 import Project.ColumnInfo;
 import Project.JoinExp2OrderByVisitor;
 import Project.TableInfo;
+import Project.UnionFind;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
@@ -51,7 +52,7 @@ public class PhysicalPlanBuilder {
 	 */
 	public PhysicalPlanBuilder(LogicalOperator root,  String tmp_dir) {
 		this.pStack = new Stack<Operator>();
-		this.tmp_dir = tmp_dir;			
+		this.tmp_dir = tmp_dir;	
 		root.accept(this);
 	}
 
@@ -141,9 +142,9 @@ public class PhysicalPlanBuilder {
 		return s;
 	}
 	
-	private Operator detSelect(Operator o, Expression exp) {
+	private Operator detSelect(Operator o, Expression exp, UnionFind union) {
 		if (! (o instanceof ScanOperator))
-			return new SelectOperator(o, exp);
+			return new SelectOperator(o, exp, union);
 		
 		ScanOperator scan = (ScanOperator) o;
 		TableInfo tableInfo = scan.getTableInfo();
@@ -180,7 +181,7 @@ public class PhysicalPlanBuilder {
 		}
 		
 		if (bestCol == null) {
-			return new SelectOperator(o, exp);
+			return new SelectOperator(o, exp, union);
 		}
 		else {
 			IndexScanOperator iso;
@@ -193,7 +194,7 @@ public class PhysicalPlanBuilder {
 			scan.close();
 
 			if (slct != null) // add select operator if select conditions index can't handle
-				return new SelectOperator(iso, slct);
+				return new SelectOperator(iso, slct, union);
 			else
 				return iso;
 		}
@@ -215,7 +216,7 @@ public class PhysicalPlanBuilder {
 	public void visit(SelectLogicalOperator lo) {
 		lo.getChild().accept(this);
 		Operator o = pStack.pop();
-		Operator slct = detSelect(o, lo.getExp());
+		Operator slct = detSelect(o, lo.getExp(), lo.getUnionFind());
 		pStack.push(slct);
 	}
 	

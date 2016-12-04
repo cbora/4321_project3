@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import Project.EvalExpressionVisitor;
 import Project.Tuple;
+import Project.UnionFind;
 import net.sf.jsqlparser.expression.Expression;
 
 /**
@@ -21,6 +22,7 @@ public class SelectOperator extends Operator {
 	private Operator child; // child operator
 	private Expression exp; // selection expression
 	private HashMap<String, Integer> schema; // schema of tuples returned by this operator
+	private UnionFind union;
 	private int cost;
 	/* ================================== 
 	 * Constructors
@@ -30,10 +32,11 @@ public class SelectOperator extends Operator {
 	 * @param child - child in operator tree
 	 * @param exp - selection condition
 	 */
-	public SelectOperator(Operator child, Expression exp) {
+	public SelectOperator(Operator child, Expression exp, UnionFind union) {
 		this.child = child;
 		this.exp = exp;
 		this.schema = child.getSchema();
+		this.union = union;
 	}
 	
 	/* ================================== 
