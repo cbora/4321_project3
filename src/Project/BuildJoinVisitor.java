@@ -52,6 +52,8 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 	private Expression exp;
 	//private UnionFind union;
 	private ArrayList<Expression> join;
+	private ArrayList<Integer> joinType;
+	
 
 	//public BuildJoinVisitor(HashMap<String, Integer> table_mapping, Expression exp, UnionFind union) {
 	public BuildJoinVisitor(HashMap<String, Integer> table_mapping, Expression exp) {
@@ -59,16 +61,28 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 		this.exp = exp;
 		//this.union = union;
 		this.join = new ArrayList<Expression>();
+		this.joinType = new ArrayList<Integer>();
 		
-		for (int i = 0 ; i < table_mapping.size(); i++)
+		for (int i = 0 ; i < table_mapping.size(); i++) {
 			this.join.add(null);
+			this.joinType.add(null);
+		}
 		
 		//handleUnion();
 		handleExp();
+		
+		for (int i = 0; i < joinType.size(); i++) {
+			if (joinType.get(i) == null)
+				joinType.set(i, 1);
+		}
 	}
 	
 	public ArrayList<Expression> getJoin() {
 		return this.join;
+	}
+	
+	public ArrayList<Integer> getJoinType() {
+		return this.joinType;
 	}
 	
 
@@ -92,7 +106,7 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 		exp.accept(this);
 	}
 	
-	private void addJoin(BinaryExpression node) {
+	private void addJoin(BinaryExpression node, boolean canUseSMJ) {
 		int index1 = table_mapping.get(((Column) node.getLeftExpression()).getTable().getName());
 		int index2 = table_mapping.get(((Column) node.getRightExpression()).getTable().getName());
 		
@@ -102,6 +116,11 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 		}else { //otherwise and with existing
 			join.set(index, new AndExpression(join.get(index), node));
 		}
+		
+		if (!canUseSMJ)
+			joinType.set(index, 1);
+		else if (canUseSMJ && joinType.get(index) == null)
+			joinType.set(index, 2);
 	}
 	
 //	private Expression buildExpression(String attr) {
@@ -124,7 +143,7 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 	 */
 	@Override
 	public void visit(EqualsTo node) {
-		addJoin(node);
+		addJoin(node, true);
 	}
 	
 	/**
@@ -133,7 +152,7 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 	 */
 	@Override
 	public void visit(GreaterThan node) {
-		addJoin(node);
+		addJoin(node, false);
 	}
 
 	/**
@@ -142,7 +161,7 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 	 */
 	@Override
 	public void visit(GreaterThanEquals node) {
-		addJoin(node);
+		addJoin(node, false);
 	}
 
 	/**
@@ -151,7 +170,7 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 	 */
 	@Override
 	public void visit(MinorThan node) {
-		addJoin(node);
+		addJoin(node, false);
 	}
 
 	/**
@@ -160,7 +179,7 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 	 */
 	@Override
 	public void visit(MinorThanEquals node) {
-		addJoin(node);
+		addJoin(node, false);
 	}
 
 	/**
@@ -169,7 +188,7 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 	 */
 	@Override
 	public void visit(NotEqualsTo node) {
-		addJoin(node);
+		addJoin(node, false);
 	}
 	
 	// ------------------------------------------------------------------- //

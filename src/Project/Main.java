@@ -257,6 +257,7 @@ public class Main {
 					
 					long start = System.currentTimeMillis();
 					System.out.println("Query " + queryNum);
+					System.out.println(o.getSchema());
 					o.dump(writ);
 					long end = System.currentTimeMillis();
 

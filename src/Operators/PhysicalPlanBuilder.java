@@ -81,11 +81,10 @@ public class PhysicalPlanBuilder {
 	 * @param exp - join expression
 	 * @return JoinOperator
 	 */
-	private JoinOperator detJoin(Operator left, Operator right, Expression exp) {
-		int joinType;
+	private JoinOperator detJoin(Operator left, Operator right, Expression exp, int joinType) {
 		JoinOperator j = null;
 		
-		switch (1) {
+		switch (joinType) {
 		case 0:
 			j = new TNLJoinOperator(left, right, exp);
 			break;
@@ -263,6 +262,7 @@ public class PhysicalPlanBuilder {
 		
 		BuildJoinVisitor bjv = new BuildJoinVisitor(table_mapping, lo.getExp());
 		ArrayList<Expression> join_exp = bjv.getJoin();
+		ArrayList<Integer> joinType = bjv.getJoinType();
 		
 		ArrayList<Operator> new_children = new ArrayList<Operator>();
 		orderChildren(children, new_children, table_mapping);
@@ -272,7 +272,7 @@ public class PhysicalPlanBuilder {
 			Operator op1 = new_children.get(i);
 			Operator op2 = new_children.get(i + 1);
 			
-			j = detJoin(op1, op2, join_exp.get(i));
+			j = detJoin(op1, op2, join_exp.get(i), joinType.get(i));
 			new_children.set(i + 1, j);
 		}
 		
