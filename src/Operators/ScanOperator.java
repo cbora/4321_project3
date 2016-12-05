@@ -18,7 +18,7 @@ import net.sf.jsqlparser.schema.Table;
  * @author Han Wen Chen (hc844)
  *
  */
-public class ScanOperator extends Operator {
+public class ScanOperator extends OneTableOperator {
 
 	/* =====================================
 	 * Fields
@@ -27,8 +27,8 @@ public class ScanOperator extends Operator {
 	private String tableID;		   // alias of the table. if there is no alias, tableName is used	
 	private HashMap<String, Integer> schema; // Schema to return from getSchema()
 	private TupleReader reader; // tuplereader for pages
-	private int cost;
-	private final static int PAGE_SIZE = 4096;
+	//private int cost;
+	//private final static int PAGE_SIZE = 4096;
 	/* =====================================
 	 * Constructors
 	 * ===================================== */
@@ -53,7 +53,7 @@ public class ScanOperator extends Operator {
 		for (Map.Entry<String, ColumnInfo> entry : columns.entrySet()) {
 			this.schema.put(this.tableID + "." + entry.getKey(), entry.getValue().pos);
 		}
-		this.calculateScanCost();
+		//calculateScanSize();
 	}	
 
 	/**
@@ -112,15 +112,13 @@ public class ScanOperator extends Operator {
 		return this.tableID;
 	}
 	
-	private void calculateScanCost() {
-		int nTuples = tableInfo.getNumTuples();
-		int size = tableInfo.getColumns().size();
-		this.cost = (nTuples*size)/PAGE_SIZE;
-		
-	}
-	
-	public int getRelationSize() {
-		return this.cost;
-	}
+//	private void calculateScanSize() {
+//		this.cost = tableInfo.getNumTuples();
+//		
+//	}
+//	
+//	public int getRelationSize() {
+//		return this.cost;
+//	}
 	
 }

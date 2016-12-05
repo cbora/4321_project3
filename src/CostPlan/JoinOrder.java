@@ -1,50 +1,83 @@
 package CostPlan;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
+
+import Operators.OneTableOperator;
+import Project.UnionFind;
 
 public class JoinOrder {
 
-	private ArrayList<String> relations;	
-	private ArrayList<TableSet> sets = new ArrayList<TableSet>();
+	private ArrayList<OneTableOperator> children;
+	private UnionFind union;
+	private ArrayList<TableSingle> baseTables;
+	private HashMap<vWrapper, Integer> vVals;
+	private HashMap<String, Integer> table_mapping;
 	
-	
-	public JoinOrder() {
+	public JoinOrder(ArrayList<OneTableOperator> children, UnionFind union) {
+		this.union = union;
+		this.children = children;
+		this.vVals = new HashMap<vWrapper, Integer>();
+		this.table_mapping = new HashMap<String, Integer>();
+		this.baseTables = new ArrayList<TableSingle>();
+		loop();
 	}
 	
+	public HashMap<String, Integer> getTableMapping() {
+		return this.table_mapping;
+	}
 	
-	
-	public void loop() {
-		int n = relations.size();
+	private void loop() {
+		int n = children.size();
 		
-		ArrayList<TableSet> prevSet = new ArrayList<TableSet>();
+		ArrayList<TableSet2> prevSet = new ArrayList<TableSet2>();
 		for(int i=0; i<n; i++){
-			prevSet.add(new TableSet(relations.get(i)));
+			TableSingle base = new TableSingle(children.get(i).getTableID(), children.get(i), this.vVals, this.union);
+			prevSet.add(base);
+			baseTables.add(base);
 		}
-		ArrayList<TableSet> nextset = new ArrayList<TableSet>();
 		
-		while(true){
-			for(TableSet ts : prevSet){
-				for(String s : relations) {
-					if(!(ts.getSubset().contains(s))){
-						TableSet newts = new TableSet(ts, s);
+		ArrayList<TableSet2> nextset = new ArrayList<TableSet2>();
+
+		while(prevSet.size() > 1){
+		
+			for(TableSet2 ts : prevSet){
+				//System.out.println(ts.getTables());
+				for (int i = 0; i < children.size(); i++) {
+					String s = children.get(i).getTableID();
+					//System.out.println(s);
+					if(!(ts.getTables().contains(s))){
+						//System.out.println("inside if: " + s);
+						TableSet2 newts = new TableMulti(ts, baseTables.get(i), this.vVals, this.union);
 						eliminate(nextset, newts);
-						nextset.add(newts);
 					}
-				}				
+				}	
+				//System.out.println("--");
 			}
+			
 			prevSet = nextset;
-			nextset = new ArrayList<TableSet>();
-			if(prevSet.size() == 1)
-				break;
+			nextset = new ArrayList<TableSet2>();
+			
+			//System.out.println("after: " + prevSet.size());
+			//for (TableSet2 ts : prevSet)
+				//System.out.println(ts.getTables());
+			//System.out.println("--");
+
+		}
+		
+		for (TableSet2 result : prevSet) {
+			int i = 0;
+			for (String table : result.getTables()) {
+				table_mapping.put(table, i);
+				i++;
+			}
 		}
 	}
 	
-	public void eliminate(ArrayList<TableSet> newts, TableSet ts) {
+	private void eliminate(ArrayList<TableSet2> newts, TableSet2 ts) {
 		
 		for(int i=0; i<newts.size(); i++){
-			if(ts.equals(newts.get(i))){
+			if(ts.getTables().containsAll(newts.get(i).getTables())){
 				if(ts.getCost() < newts.get(i).getCost()){
 					newts.set(i, ts);					
 				}

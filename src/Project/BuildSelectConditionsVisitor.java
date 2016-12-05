@@ -2,6 +2,7 @@ package Project;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
@@ -62,7 +63,8 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 	 * Fields
 	 * ================================== */
 	private UnionFind union;
-	private ArrayList <Expression> select; // list of selection expressions
+	private ArrayList<Expression> select; // list of selection expressions
+	private ArrayList<HashMap<String,Pair>> select_ranges;
 	//private ArrayList <Expression> join; // list of join expressions
 	private Expression join;
 	private Expression extra_exp; // any expressions that don't involve tables
@@ -83,9 +85,11 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 		union = new UnionFind();
 		
 		select = new ArrayList<Expression>();
-		for (int i=0; i<table_mapping.size(); i++)
+		select_ranges = new ArrayList<HashMap<String,Pair>>();
+		for (int i=0; i<table_mapping.size(); i++) {
 			select.add(null);
-		
+			select_ranges.add(new HashMap<String,Pair>());
+		}
 		//join = new ArrayList<Expression>();
 		join = null;
 //		for (int i=0; i<table_mapping.size()-1; i++)
@@ -107,36 +111,39 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 				// construct EqualsTo & call addSelect
 				Table tbl = new Table();
 				tbl.setName(attribute.substring(0, attribute.indexOf('.')));
-				Column col = new Column(tbl, attribute.substring(attribute.indexOf('.')));
+				Column col = new Column(tbl, attribute.substring(attribute.indexOf('.') + 1));
 				
 				LongValue val = new LongValue(elem.equals);
 						
 				EqualsTo eq = new EqualsTo(col, val);
-				addSelect(tbl, eq);				
+				addSelect(tbl, eq);	
+				addSelectRange(tbl, attribute, elem.equals, elem.equals);
 			}
 			else {
 				if (elem.ceiling != null) {
 					// construct MinorThanEquals & call addSelect
 					Table tbl = new Table();
 					tbl.setName(attribute.substring(0, attribute.indexOf('.')));
-					Column col = new Column(tbl, attribute.substring(attribute.indexOf('.')));
+					Column col = new Column(tbl, attribute.substring(attribute.indexOf('.') + 1));
 					
-					LongValue val = new LongValue(elem.equals);
+					LongValue val = new LongValue(elem.ceiling);
 							
 					MinorThanEquals lte = new MinorThanEquals(col, val);
 					addSelect(tbl, lte);	
+					addSelectRange(tbl, attribute, Integer.MIN_VALUE, elem.ceiling);
 				}
 				
 				if (elem.floor != null) {
 					// construct GreaterThanEquals and call addSelect
 					Table tbl = new Table();
 					tbl.setName(attribute.substring(0, attribute.indexOf('.')));
-					Column col = new Column(tbl, attribute.substring(attribute.indexOf('.')));
+					Column col = new Column(tbl, attribute.substring(attribute.indexOf('.') + 1));
 					
-					LongValue val = new LongValue(elem.equals);
+					LongValue val = new LongValue(elem.floor);
 							
 					GreaterThanEquals gte = new GreaterThanEquals(col, val);
 					addSelect(tbl, gte);	
+					addSelectRange(tbl, attribute, elem.floor, Integer.MAX_VALUE);
 				}
 			}
 		}
@@ -168,6 +175,10 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 	
 	public UnionFind getUnion() {
 		return union;
+	}
+	
+	public ArrayList<HashMap<String, Pair>> getSelectRange() {
+		return this.select_ranges;
 	}
 	
 	/**
@@ -213,6 +224,10 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 				if (union.find(attr2) == null)
 					union.add(attr2);
 				union.union(attr1, attr2);
+				
+				if (!c.getTable().toString().equals(c2.getTable().toString()) ){ // expression involved 2 cols from same table				
+					addJoin(c.getTable(), c2.getTable(), node);
+				}
 			}
 			else {
 				if (c.getTable().toString().equals(c2.getTable().toString()) ){ // expression involved 2 cols from same table				
@@ -300,7 +315,7 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 	 * @param node - selection expression
 	 */
 	private void addSelect(Table t, Expression node) {		
-		int index = table_mapping.get(t.getName());		
+		int index = table_mapping.get(t.getName());
 		if (select.get(index) == null) { // if no expression for the table is present
 			select.set(index, node);
 		}
@@ -308,6 +323,19 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 			select.set(index, new AndExpression(select.get(index), node));
 		}		
 		
+	}
+	
+	private void addSelectRange(Table t, String attr, int low, int high) {
+		int index = table_mapping.get(t.getName());
+		if (select_ranges.get(index).containsKey(attr)) {
+			int old_low = select_ranges.get(index).get(attr).low;
+			int old_high = select_ranges.get(index).get(attr).high;
+			select_ranges.get(index).get(attr).low = Math.max(low, old_low);
+			select_ranges.get(index).get(attr).high = Math.min(high, old_high);
+		}
+		else {
+			select_ranges.get(index).put(attr, new Pair(low, high));
+		}
 	}
 
 	/**

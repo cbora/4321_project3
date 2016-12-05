@@ -3,6 +3,7 @@ package LogicalOperator;
 import java.util.ArrayList;
 
 import Operators.PhysicalPlanBuilder;
+import Project.UnionFind;
 import net.sf.jsqlparser.expression.Expression;
 
 /**
@@ -24,6 +25,7 @@ public class JoinLogicalOperator extends LogicalOperator {
 	//private LogicalOperator right; // right child
 	
 	private ArrayList<LogicalOperator> children;
+	private UnionFind union;
 	private Expression exp; // join expression
 	
 	/*
@@ -37,11 +39,10 @@ public class JoinLogicalOperator extends LogicalOperator {
 	 * @param child2 - right child
 	 * @param exp - join expression
 	 */
-	public JoinLogicalOperator(ArrayList<LogicalOperator> children, Expression exp) {
-		//this.left = left;
-		//this.right = right;
+	public JoinLogicalOperator(ArrayList<LogicalOperator> children, Expression exp, UnionFind union) {
 		this.children = children;
 		this.exp = exp;
+		this.union = union;
 	}
 
 	/*
@@ -59,6 +60,10 @@ public class JoinLogicalOperator extends LogicalOperator {
 	 */
 	public Expression getExp() {
 		return exp;
+	}
+	
+	public UnionFind getUnionFind() {
+		return union;
 	}
 	
 	@Override

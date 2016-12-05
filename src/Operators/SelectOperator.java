@@ -3,8 +3,9 @@ package Operators;
 import java.util.HashMap;
 
 import Project.EvalExpressionVisitor;
+import Project.Pair;
+import Project.TableInfo;
 import Project.Tuple;
-import Project.UnionFind;
 import net.sf.jsqlparser.expression.Expression;
 
 /**
@@ -14,16 +15,16 @@ import net.sf.jsqlparser.expression.Expression;
  * @author Han Wen Chen (hc844)
  *
  */
-public class SelectOperator extends Operator {
+public class SelectOperator extends OneTableOperator {
 
 	/* ================================== 
 	 * Fields
 	 * ================================== */
-	private Operator child; // child operator
+	private OneTableOperator child; // child operator
 	private Expression exp; // selection expression
 	private HashMap<String, Integer> schema; // schema of tuples returned by this operator
-	private UnionFind union;
-	private int cost;
+	private HashMap<String, Pair> selectRange;
+	
 	/* ================================== 
 	 * Constructors
 	 * ================================== */
@@ -32,11 +33,13 @@ public class SelectOperator extends Operator {
 	 * @param child - child in operator tree
 	 * @param exp - selection condition
 	 */
-	public SelectOperator(Operator child, Expression exp, UnionFind union) {
+	public SelectOperator(OneTableOperator child, Expression exp, HashMap<String, Pair> selectRange) {
 		this.child = child;
 		this.exp = exp;
 		this.schema = child.getSchema();
-		this.union = union;
+		this.selectRange = selectRange;
+		//this.union = union;
+		//calculateSelectCost();
 	}
 	
 	/* ================================== 
@@ -71,6 +74,24 @@ public class SelectOperator extends Operator {
 		child.close();
 	}
 	
+	@Override
+	public TableInfo getTableInfo() {
+		if (child == null)
+			return null;
+		return child.getTableInfo();
+	}
+	
+	@Override
+	public String getTableID() {
+		if (child == null)
+			return null;
+		return child.getTableID();
+	}
+	
+	public HashMap<String, Pair> getSelectRange() {
+		return this.selectRange;
+	}
+	
 	/**
 	 * Checks if a tuple t passes the condition in selection condition
 	 * @param t - tuple we are checking
@@ -80,8 +101,16 @@ public class SelectOperator extends Operator {
 		EvalExpressionVisitor e = new EvalExpressionVisitor(this.exp, this.schema, t);
 		return e.getResult();
 	}
+	
+	
 
-	public int getRelationSize() {
-		return this.cost;
-	}
+//	public int getRelationSize() {
+//		return this.cost;
+//	}
+//	
+//	private void calculateSelectCost() {
+//		// visitor to get reduction factor
+//		double reduction = visitor.getResult();
+//		this.cost = Math.max((int) (this.child.getRelationSize() * reduction), 1);
+//	}
 }

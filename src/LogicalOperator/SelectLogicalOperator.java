@@ -1,7 +1,9 @@
 package LogicalOperator;
 
+import java.util.HashMap;
+
 import Operators.PhysicalPlanBuilder;
-import Project.UnionFind;
+import Project.Pair;
 import net.sf.jsqlparser.expression.Expression;
 
 /**
@@ -21,7 +23,7 @@ public class SelectLogicalOperator extends LogicalOperator {
 	 */
 	private LogicalOperator child; // child operator
 	private Expression exp; // selection condition
-	private UnionFind union;
+	private HashMap<String, Pair> selectRange;
 	
 	/*
 	 * ================================== 
@@ -33,21 +35,17 @@ public class SelectLogicalOperator extends LogicalOperator {
 	 * @param child - child operator
 	 * @param ex - selection condition
 	 */
-	public SelectLogicalOperator(LogicalOperator child, Expression ex, UnionFind union) {
+	public SelectLogicalOperator(LogicalOperator child, Expression ex, HashMap<String, Pair> selectRange) {
 		this.child = child;
 		this.exp = ex;
-		this.union = union;
+		this.selectRange = selectRange;
 	}
 
 	/*
-	 * ================================== 
+	 * ================================== o
 	 * Methods
 	 * ==================================
 	 */
-	
-	public UnionFind getUnionFind() {
-		return union;
-	}
 	
 	/**
 	 * 
@@ -71,6 +69,10 @@ public class SelectLogicalOperator extends LogicalOperator {
 	 */
 	public Expression getExp() {
 		return exp;
+	}
+	
+	public HashMap<String, Pair> getSelectRange() {
+		return this.selectRange;
 	}
 	
 	@Override

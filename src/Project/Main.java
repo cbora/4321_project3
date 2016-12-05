@@ -70,16 +70,19 @@ public class Main {
 		buildStats(config.getInputDir());
 		
 		// determine which build action to take
-		if (config.runOption() == 1) {
-			buildIndexes();
-		}
-		else if(config.runOption() == 2) {
-			buildIndexes();
-			runQueries(config.getInputDir(), config.getOutputDir(), config.getTmpDir());
-		}
-		else if(config.runOption() == 3) {
-			runQueries(config.getInputDir(), config.getOutputDir(), config.getTmpDir());
-		}
+//		if (config.runOption() == 1) {
+//			buildIndexes();
+//		}
+//		else if(config.runOption() == 2) {
+//			buildIndexes();
+//			runQueries(config.getInputDir(), config.getOutputDir(), config.getTmpDir());
+//		}
+//		else if(config.runOption() == 3) {
+//			runQueries(config.getInputDir(), config.getOutputDir(), config.getTmpDir());
+//		}
+		
+		buildIndexes();
+		runQueries(config.getInputDir(), config.getOutputDir(), config.getTmpDir());
 				
 	}
 	
@@ -246,13 +249,14 @@ public class Main {
 					LogicalOperator po = d.getRoot();
 					
 						
-					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, planConfig, tmpDir);
+					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, tmpDir);
 					Operator o = ppb.getResult();
 					
 					//BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
 					HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum);
 					
 					long start = System.currentTimeMillis();
+					System.out.println("Query " + queryNum);
 					o.dump(writ);
 					long end = System.currentTimeMillis();
 

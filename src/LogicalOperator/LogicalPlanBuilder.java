@@ -7,8 +7,8 @@ import java.util.ListIterator;
 
 import Project.BuildSelectConditionsVisitor;
 import Project.DbCatalog;
+import Project.Pair;
 import Project.TableInfo;
-import Project.UnionFind;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
@@ -36,7 +36,6 @@ public class LogicalPlanBuilder {
 	private BuildSelectConditionsVisitor bsv; // retrieves selection/join information regarding our expression
 		// builds selection expression list in order that corresponds with ordering in table_mapping
 		// builds join expression list in left_deep order that corresponds with ordering in table_mapping
-	private UnionFind union;
 	
 	/* ================================== 
 	 * Constructors
@@ -55,17 +54,16 @@ public class LogicalPlanBuilder {
 		
 		// build selection/join operators 
 		this.bsv = new BuildSelectConditionsVisitor(this.table_mapping, this.plain_select.getWhere());
-		this.union = this.bsv.getUnion();
 		selectBuilder();
 		joinBuilder();
 		
 		// only one element in linked_operators now - pop and make it the root
-		this.root = this.linked_operator.removeLast();
+		// this.root = this.linked_operator.removeLast();
 		
 		// add any selection conditions that don't involve tables
 		Expression extra_exp = this.bsv.getExp(); 		 	
 		if ( extra_exp != null ) {
-			this.root = new SelectLogicalOperator(this.root, extra_exp, this.union);
+			this.root = new SelectLogicalOperator(this.root, extra_exp, null);
 		}
 		
 		// add projection operator if needed
@@ -121,11 +119,12 @@ public class LogicalPlanBuilder {
 	 */
 	private void selectBuilder() {
 		ArrayList<Expression> select_exp = this.bsv.getSelect();
+		ArrayList<HashMap<String,Pair>> select_range = this.bsv.getSelectRange();
 		ListIterator<LogicalOperator> iter = linked_operator.listIterator();
 		int index = 0;
 		while(iter.hasNext()){	// 			
 			if (select_exp.get(index) != null) {
-				SelectLogicalOperator so = new SelectLogicalOperator(iter.next(), select_exp.get(index), this.union);			
+				SelectLogicalOperator so = new SelectLogicalOperator(iter.next(), select_exp.get(index), select_range.get(index));			
 				iter.set(so);
 			}
 			else {
@@ -143,7 +142,8 @@ public class LogicalPlanBuilder {
 	private void joinBuilder() {
 		Expression join_exp = this.bsv.getJoin();
 		ArrayList<LogicalOperator> children = new ArrayList<LogicalOperator>(linked_operator);
-		JoinLogicalOperator jol = new JoinLogicalOperator(children, join_exp);
+		JoinLogicalOperator jol = new JoinLogicalOperator(children, join_exp, this.bsv.getUnion());
+		root = jol;
 	}
 	
 	/**

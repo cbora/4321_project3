@@ -1,8 +1,10 @@
 package Operators;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Stack;
 
+import CostPlan.JoinOrder;
 import Indexing.IndexExpressionVisitor;
 import LogicalOperator.DuplicateLogicalOperator;
 import LogicalOperator.JoinLogicalOperator;
@@ -11,10 +13,11 @@ import LogicalOperator.ProjectLogicalOperator;
 import LogicalOperator.SelectLogicalOperator;
 import LogicalOperator.SortLogicalOperator;
 import LogicalOperator.TableLogicalOperator;
+import Project.BuildJoinVisitor;
 import Project.ColumnInfo;
 import Project.JoinExp2OrderByVisitor;
+import Project.Pair;
 import Project.TableInfo;
-import Project.UnionFind;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
@@ -82,7 +85,7 @@ public class PhysicalPlanBuilder {
 		int joinType;
 		JoinOperator j = null;
 		
-		switch (joinType) {
+		switch (1) {
 		case 0:
 			j = new TNLJoinOperator(left, right, exp);
 			break;
@@ -142,15 +145,11 @@ public class PhysicalPlanBuilder {
 		return s;
 	}
 	
-	private Operator detSelect(Operator o, Expression exp, UnionFind union) {
-		if (! (o instanceof ScanOperator))
-			return new SelectOperator(o, exp, union);
-		
-		ScanOperator scan = (ScanOperator) o;
+	private Operator detSelect(ScanOperator scan, Expression exp, HashMap<String, Pair> selectRange) {
 		TableInfo tableInfo = scan.getTableInfo();
 			
 		// calculate cost of scan
-		int min = scan.getRelationSize(); 
+		int min = calculateScanCost(tableInfo); 
 		ColumnInfo bestCol = null;
 		int lowkey = 0;
 		int highkey = 0;
@@ -161,14 +160,7 @@ public class PhysicalPlanBuilder {
 			 if (column.getIndexInfo() != null) {
 				 IndexExpressionVisitor indexVisitor = new IndexExpressionVisitor(exp, column);
 				 if (indexVisitor.canUseIndex()) {							 
-					IndexScanOperator iso;
-					 if (bestCol.isClustered()) {
-						 iso = new ClusteredIndexScanOperator(tableInfo, scan.getTableID(), bestCol, lowkey, highkey);
-					 }
-					 else {
-						 iso = new UnclusteredIndexScanOperator(tableInfo, scan.getTableID(), bestCol, lowkey, highkey);
-					 }
-					 int cost = iso.getRelationSize();					 
+					 int cost = calculateIndexCost(tableInfo, column, indexVisitor.getLowkey(), indexVisitor.getHighkey());			 
 					 if (cost < min) {
 						 min = cost;
 						 bestCol = column;
@@ -181,7 +173,7 @@ public class PhysicalPlanBuilder {
 		}
 		
 		if (bestCol == null) {
-			return new SelectOperator(o, exp, union);
+			return new SelectOperator(scan, exp, selectRange);
 		}
 		else {
 			IndexScanOperator iso;
@@ -194,12 +186,31 @@ public class PhysicalPlanBuilder {
 			scan.close();
 
 			if (slct != null) // add select operator if select conditions index can't handle
-				return new SelectOperator(iso, slct, union);
+				return new SelectOperator(iso, slct, selectRange);
 			else
 				return iso;
 		}
 	}
 	
+	private int calculateScanCost(TableInfo t) {
+		int nTuples = t.getNumTuples();
+		int size = t.getColumns().size();
+		return (nTuples*size)/PAGE_SIZE;
+	}
+	
+	private int calculateIndexCost(TableInfo t, ColumnInfo c, int low, int high) {
+		double r = ((double) (Math.min(high, c.max) - Math.max(low, c.min) +1)) / (c.max - c.min + 1);
+		int nTuples = t.getNumTuples();
+		if (c.isClustered()){			
+			int size = t.getColumns().size();			
+			int p =(nTuples*size)/PAGE_SIZE;
+			return 3 + (int) (p * r);
+		}
+		else {
+			int l = c.getIndexInfo().getLeaves();
+			return  3 + (int) (l * r) + (int) (nTuples * r);
+		}
+	}
 	/**
 	 * @param lo
 	 *            - node to visit
@@ -216,7 +227,7 @@ public class PhysicalPlanBuilder {
 	public void visit(SelectLogicalOperator lo) {
 		lo.getChild().accept(this);
 		Operator o = pStack.pop();
-		Operator slct = detSelect(o, lo.getExp(), lo.getUnionFind());
+		Operator slct = detSelect((ScanOperator) o, lo.getExp(), lo.getSelectRange());
 		pStack.push(slct);
 	}
 	
@@ -236,16 +247,48 @@ public class PhysicalPlanBuilder {
 	 *            - node to visit
 	 */
 	public void visit(JoinLogicalOperator lo) {
-		lo.getLeft().accept(this);
-		lo.getRight().accept(this);
-		Operator o = pStack.pop();
-		Operator o2 = pStack.pop();
+		for (LogicalOperator child : lo.getChildren())
+			child.accept(this);
+		ArrayList<OneTableOperator> children = new ArrayList<>();
+		while (!pStack.isEmpty()) 
+			children.add((OneTableOperator) pStack.pop());
+		
+		if (children.size() == 1) {
+			pStack.push(children.get(0));
+			return;
+		}
 
-		JoinOperator j = detJoin(o2, o, lo.getExp());
-
+		JoinOrder joinOrder = new JoinOrder(children, lo.getUnionFind());
+		HashMap<String, Integer> table_mapping = joinOrder.getTableMapping();
+		
+		BuildJoinVisitor bjv = new BuildJoinVisitor(table_mapping, lo.getExp());
+		ArrayList<Expression> join_exp = bjv.getJoin();
+		
+		ArrayList<Operator> new_children = new ArrayList<Operator>();
+		orderChildren(children, new_children, table_mapping);
+	
+		JoinOperator j = null;
+		for (int i = 0; i < new_children.size() - 1; i++) {
+			Operator op1 = new_children.get(i);
+			Operator op2 = new_children.get(i + 1);
+			
+			j = detJoin(op1, op2, join_exp.get(i));
+			new_children.set(i + 1, j);
+		}
+		
 		pStack.push(j);
 	}
 	
+	private void orderChildren(ArrayList<OneTableOperator> children, ArrayList<Operator> new_children, HashMap<String, Integer> table_mapping) {
+		for (int i = 0; i < children.size(); i++)
+			new_children.add(null);
+		
+		for (int i = 0; i < children.size(); i++) {
+			String tbl = children.get(i).getTableID();
+			int pos = table_mapping.get(tbl);
+			new_children.set(pos, children.get(i));
+		}
+	}
 	/**
 	 * @param lo
 	 *            - node to visit

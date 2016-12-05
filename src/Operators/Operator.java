@@ -32,10 +32,10 @@ public abstract class Operator {
 	 */
 	public abstract void reset();
 	
-	/**
-	 * @return size of the relation
-	 */
-	public abstract int getRelationSize();
+//	/**
+//	 * @return size of the relation
+//	 */
+//	public abstract int getRelationSize();
 	
 	/**
 	 * resets operator to a given index

@@ -68,9 +68,9 @@ public class ProjectOperator extends Operator {
 		child.close();
 	}
 	
-	public int getRelationSize() {
-		return this.child.getRelationSize();
-	}
+//	public int getRelationSize() {
+//		return this.child.getRelationSize();
+//	}
 	
 	/**
 	 * Projects selected fields from tuple that has child's schema

@@ -20,7 +20,7 @@ import net.sf.jsqlparser.schema.Table;
  * @author Han Wen Chen (hc844)
  *
  */
-public abstract class IndexScanOperator extends Operator {
+public abstract class IndexScanOperator extends OneTableOperator {
 
 	/* =====================================
 	 * Fields
@@ -37,7 +37,7 @@ public abstract class IndexScanOperator extends Operator {
 	protected BinaryTupleReader reader; // reads from table file
 
 	protected final static int PAGE_SIZE = 4096;
-	protected int cost;
+	//protected int cost;
 	/* =====================================
 	 * Constructors
 	 * ===================================== */
@@ -71,7 +71,6 @@ public abstract class IndexScanOperator extends Operator {
 		this.lowkey = lowkey;
 		this.highkey = highkey;	
 		this.currLeaf = this.bTree.search(lowkey);
-		this.calculateIndexCost(tableInfo, colInfo, lowkey, highkey);
 	}
 	
 	/**
@@ -118,22 +117,33 @@ public abstract class IndexScanOperator extends Operator {
 		reader.close();
 		bTree.close();
 	}
-
-	private void calculateIndexCost(TableInfo t, ColumnInfo c, int low, int high) {
-		int r = (Math.min(high, c.max) - Math.max(low, c.min) +1) / (c.max - c.min + 1);
-		int nTuples = t.getNumTuples();
-		if (c.isClustered()){			
-			int size = t.getColumns().size();			
-			int p =(nTuples*size)/PAGE_SIZE;
-			this.cost = 3 + p * r; 
-		}
-		else {
-			int l = c.getIndexInfo().getLeaves();
-			this.cost =  3 + l * r + nTuples * r;
-		}
+	
+	public TableInfo getTableInfo() {
+		return this.tableInfo;
 	}
 	
-	public int getRelationSize() {
-		return this.cost;
+	public String getTableID() {
+		return this.tableID;
 	}
+	
+	public int getLowkey() {
+		return lowkey;
+	}
+	
+	public int getHighkey() {
+		return highkey;
+	}
+	
+	public String indexAttribute() {
+		return this.tableID + "." + this.colInfo.column;
+	}
+	
+//	public int getRelationSize() {
+//		return this.cost;
+//	}
+	
+//	protected void calculateIndexSize() {
+//		double r = ((double) (Math.min(highkey, colInfo.max) - Math.max(lowkey, colInfo.min) +1)) / (colInfo.max - colInfo.min + 1);
+//		this.cost = (int) (tableInfo.getNumTuples() * r);
+//	}
 }

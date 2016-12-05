@@ -43,7 +43,7 @@ public class UnclusteredIndexScanOperator extends IndexScanOperator {
 		this.leafIndex = -1;
 		this.firstLeafIndex = -1;
 		this.listIndex = 0;
-		calculateIndexCost();
+		//calculateIndexSize();
 	}
 	
 	/**
@@ -129,13 +129,6 @@ public class UnclusteredIndexScanOperator extends IndexScanOperator {
 			if (getNextTuple() == null)
 				break;
 		}
-	}
-	
-	private void calculateIndexCost() {
-		int r = (Math.min(highkey, colInfo.max) - Math.max(lowkey, colInfo.min) +1) / (colInfo.max - colInfo.min + 1);
-		int nTuples = tableInfo.getNumTuples();
-		int l = colInfo.getIndexInfo().getLeaves();
-		this.cost =  3 + l * r + nTuples * r;
 	}
 
 }

@@ -61,9 +61,9 @@ public class SortedDupElimOperator extends Operator {
 		this.child.close();
 	}
 	
-	public int getRelationSize() {
-		return this.child.getRelationSize();
-	}
+//	public int getRelationSize() {
+//		return this.child.getRelationSize();
+//	}
 	
 	@Override
 	public void reset(int index){}

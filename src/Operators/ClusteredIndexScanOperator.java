@@ -35,7 +35,7 @@ public class ClusteredIndexScanOperator extends IndexScanOperator {
 		super(tableInfo, tableID, colInfo, lowkey, highkey);
 		this.pageid = -1;
 		this.tupleid = -1;
-		calculateIndexCost();
+		//calculateIndexSize();
 	}
 	
 	/**
@@ -97,13 +97,5 @@ public class ClusteredIndexScanOperator extends IndexScanOperator {
 			if (getNextTuple() == null)
 				break;
 		}
-	}
-	
-	private void calculateIndexCost() {
-		int r = (Math.min(highkey, colInfo.max) - Math.max(lowkey, colInfo.min) +1) / (colInfo.max - colInfo.min + 1);
-		int nTuples = tableInfo.getNumTuples();
-		int size = tableInfo.getColumns().size();			
-		int p =(nTuples*size)/PAGE_SIZE;
-		this.cost = 3 + p * r; 
 	}
 }
