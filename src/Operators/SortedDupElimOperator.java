@@ -41,7 +41,7 @@ public class SortedDupElimOperator extends Operator {
 		for(int i=0; i<depth; i++)
 			sb.append("-");
 		sb.append("DupElim\n");
-		this.child.prettyPrint(depth+1);
+		sb.append(this.child.prettyPrint(depth+1));
 		return sb.toString();	
 	}
 	

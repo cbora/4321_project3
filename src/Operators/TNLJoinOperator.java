@@ -51,8 +51,8 @@ public class TNLJoinOperator extends JoinOperator {
 		sb.append("[");
 		sb.append(this.exp);
 		sb.append("]\n");
-		this.leftChild.prettyPrint(depth+1);
-		this.rightChild.prettyPrint(depth+1);
+		sb.append(this.leftChild.prettyPrint(depth+1));
+		sb.append(this.rightChild.prettyPrint(depth+1));
 		return sb.toString();	
 	}
 	

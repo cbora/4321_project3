@@ -53,7 +53,7 @@ public class SelectOperator extends OneTableOperator {
 		sb.append("[");
 		sb.append(this.exp);
 		sb.append("]\n");
-		this.child.prettyPrint(depth+1);
+		sb.append(this.child.prettyPrint(depth+1));
 		return sb.toString();
 	}
 	

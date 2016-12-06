@@ -50,10 +50,9 @@ public class ProjectOperator extends Operator {
 		for(int i=0; i<depth; i++)
 			sb.append("-");
 		sb.append("Project");
-		sb.append("[");
 		sb.append(this.items);
-		sb.append("]\n");
-		this.child.prettyPrint(depth+1);
+		sb.append("\n");
+		sb.append(this.child.prettyPrint(depth+1));
 		return sb.toString();
 	}
 	

@@ -51,6 +51,9 @@ public abstract class SortOperator extends Operator {
 		this.sort_order = sort_order;
 	}
 	
+	public Operator getChild() {
+		return this.child;
+	}
 	/* ================================== 
 	 * Methods
 	 * ================================== */
