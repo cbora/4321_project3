@@ -53,7 +53,9 @@ public class SMJoinOperator extends JoinOperator {
 		sb.append("SMJ");
 		sb.append("[");
 		sb.append(this.exp);
-		sb.append("]");
+		sb.append("]\n");
+		this.leftChild.prettyPrint(depth+1);
+		this.rightChild.prettyPrint(depth+1);
 		return sb.toString();	
 	}
 	

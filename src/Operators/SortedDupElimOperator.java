@@ -40,7 +40,8 @@ public class SortedDupElimOperator extends Operator {
 		StringBuffer sb = new StringBuffer();
 		for(int i=0; i<depth; i++)
 			sb.append("-");
-		sb.append("DupElim");
+		sb.append("DupElim\n");
+		this.child.prettyPrint(depth+1);
 		return sb.toString();	
 	}
 	

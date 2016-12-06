@@ -83,7 +83,7 @@ public class ScanOperator extends OneTableOperator {
 		sb.append("TableScan");
 		sb.append("[");
 		sb.append(this.tableInfo.getTableName());
-		sb.append("]");	
+		sb.append("]\n");
 		return sb.toString();
 	}
 	

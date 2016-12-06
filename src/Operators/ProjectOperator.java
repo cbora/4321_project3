@@ -52,7 +52,8 @@ public class ProjectOperator extends Operator {
 		sb.append("Project");
 		sb.append("[");
 		sb.append(this.items);
-		sb.append("]");	
+		sb.append("]\n");
+		this.child.prettyPrint(depth+1);
 		return sb.toString();
 	}
 	
