@@ -51,11 +51,11 @@ public class TableMulti extends TableSet2 {
 		for (String equiAttr : equiAttrs) {
 			String tbl = equiAttr.substring(0, equiAttr.indexOf('.'));
 			if (left.getTables().contains(tbl)) {
-				int tmp = left.vValCompute(attr);
+				int tmp = left.vValCompute(equiAttr);
 				min = Math.min(tmp, min);
 			}
 			else if (right.getTables().contains(tbl)) {
-				int tmp = right.vValCompute(attr);
+				int tmp = right.vValCompute(equiAttr);
 				min = Math.min(tmp, min);
 			}
 		}
