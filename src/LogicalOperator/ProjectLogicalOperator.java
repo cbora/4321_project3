@@ -3,6 +3,7 @@ package LogicalOperator;
 import java.util.ArrayList;
 
 import Operators.PhysicalPlanBuilder;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
 /**
@@ -22,6 +23,7 @@ public class ProjectLogicalOperator extends LogicalOperator {
 	 */
 	private LogicalOperator child; // child operator
 	private ArrayList<SelectItem> items; // projection attributes
+	private ArrayList<Table> tables;
 	
 	/*
 	 * ================================== 
@@ -33,9 +35,10 @@ public class ProjectLogicalOperator extends LogicalOperator {
 	 * @param child - child operator
 	 * @param items - projection attributes
 	 */
-	public ProjectLogicalOperator(LogicalOperator child, ArrayList<SelectItem> items) {
+	public ProjectLogicalOperator(LogicalOperator child, ArrayList<SelectItem> items, ArrayList<Table> tables) {
 		this.child = child;
 		this.items = items;
+		this.tables = tables;
 	}
 
 	/*
@@ -65,6 +68,10 @@ public class ProjectLogicalOperator extends LogicalOperator {
 	 */
 	public ArrayList<SelectItem> getItems() {
 		return items;
+	}
+	
+	public ArrayList<Table> getTables() {
+		return tables;
 	}
 	
 	@Override

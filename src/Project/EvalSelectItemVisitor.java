@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.AllTableColumns;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
@@ -26,6 +27,7 @@ public class EvalSelectItemVisitor implements SelectItemVisitor {
 	private HashMap<String, Integer> oldSchema; // original schema
 	private HashMap<String, Integer> projection; // schema after projection
 	private int index;
+	private ArrayList<Table> tables;
 	
 	/* ================================== 
 	 * Constructors
@@ -35,9 +37,11 @@ public class EvalSelectItemVisitor implements SelectItemVisitor {
 	 * @param items - projection items
 	 * @param oldSchema - original schema
 	 */
-	public EvalSelectItemVisitor(ArrayList<SelectItem> items, HashMap<String, Integer> oldSchema) {
+	public EvalSelectItemVisitor(ArrayList<SelectItem> items, ArrayList<Table> tables, HashMap<String, Integer> oldSchema) {
 		this.oldSchema = oldSchema;
 		this.projection = new LinkedHashMap<String, Integer>();
+		this.tables = tables;
+		
 		for (this.index=0; this.index < items.size(); this.index++) {
 			items.get(this.index).accept(this);	
 		}
@@ -59,7 +63,18 @@ public class EvalSelectItemVisitor implements SelectItemVisitor {
 	 */
 	@Override
 	public void visit(AllColumns allColumns){
-		projection.putAll(oldSchema);
+		//projection.putAll(oldSchema);
+		
+		DbCatalog dbC = DbCatalog.getInstance();
+		int i = 0;
+		for (Table tbl : this.tables) {
+			TableInfo tableInfo = dbC.get(tbl.getName());
+			for (ColumnInfo colInfo : tableInfo.getColumns().values()) {
+				String alias = tbl.getAlias() == null ? tbl.getName() : tbl.getAlias();
+				projection.put(alias + "." + colInfo.column, i);
+				i++;
+			}
+		}
 	}
 	
 	/**

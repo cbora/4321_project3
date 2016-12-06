@@ -12,6 +12,8 @@ import Operators.PhysicalPlanBuilder;
  */
 public abstract class LogicalOperator {
 
+	public abstract String prettyPrint();
+	
 	/**
 	 * method for accepting visitor
 	 */

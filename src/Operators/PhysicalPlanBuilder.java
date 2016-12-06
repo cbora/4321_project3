@@ -237,7 +237,7 @@ public class PhysicalPlanBuilder {
 	public void visit(ProjectLogicalOperator lo) {
 		lo.getChild().accept(this);
 		Operator o = pStack.pop();
-		ProjectOperator p = new ProjectOperator(o, lo.getItems());
+		ProjectOperator p = new ProjectOperator(o, lo.getItems(), lo.getTables());
 		pStack.push(p);
 	}
 

@@ -12,6 +12,7 @@ import Project.TableInfo;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
+import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -150,10 +151,20 @@ public class LogicalPlanBuilder {
 	 * Adds projection operator to root if necessary
 	 */
 	private void projectBuilder() {		
-		if (plain_select.getSelectItems() != null && !(plain_select.getSelectItems().get(0) instanceof AllColumns)){ 		
+		//if (plain_select.getSelectItems() != null && !(plain_select.getSelectItems().get(0) instanceof AllColumns)){ 		
 			ArrayList<SelectItem> items = (ArrayList<SelectItem>) plain_select.getSelectItems();
-			root =  new ProjectLogicalOperator(root, items);
-		}
+			
+			ArrayList<Table> tables = new ArrayList<Table>();
+			tables.add((Table) plain_select.getFromItem());
+			if (plain_select.getJoins() != null) {
+				for (int i=0; i < plain_select.getJoins().size(); i++){
+					Table t = (Table) ((Join) plain_select.getJoins().get(i)).getRightItem();
+					tables.add(t);
+				}
+			}
+			
+			root =  new ProjectLogicalOperator(root, items, tables);
+		//}
 	}
 	
 	/** 

@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import Project.EvalSelectItemVisitor;
 import Project.Tuple;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
 /**
@@ -23,6 +24,7 @@ public class ProjectOperator extends Operator {
 	private Operator child; // child operator in operator tree
 	private ArrayList<SelectItem> items; // columns we want to retain
 	private HashMap<String, Integer> schema; // schema
+	private ArrayList<Table> tables;
 
 	/* ================================== 
 	 * Constructors
@@ -32,10 +34,11 @@ public class ProjectOperator extends Operator {
 	 * @param child
 	 * @param items - ArrayList of columns we want to project
 	 */
-	public ProjectOperator(Operator child, ArrayList<SelectItem> items) {
+	public ProjectOperator(Operator child, ArrayList<SelectItem> items, ArrayList<Table> tables) {
 		this.child = child;
 		this.items = items;
-		EvalSelectItemVisitor visitor = new EvalSelectItemVisitor(this.items, child.getSchema());
+		this.tables = tables;
+		EvalSelectItemVisitor visitor = new EvalSelectItemVisitor(this.items, this.tables, child.getSchema());
 		this.schema = visitor.getResult(); 
 	}
 	

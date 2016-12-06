@@ -24,10 +24,15 @@ public class TableMulti extends TableSet2 {
 		this.tables.addAll(left.getTables());
 		this.tables.addAll(right.getTables());
 		
-		if (left instanceof TableSingle)
-			this.cost = 0;
-		else
+		if (left instanceof TableSingle) {
+			if (left.getnTuples() <= right.getnTuples())
+				this.cost = 0;
+			else 
+				this.cost = Integer.MAX_VALUE;
+		}
+		else {
 			this.cost = this.left.getCost() + this.left.getnTuples();
+		}
 		
 		this.nTuples = computeNumTuples();
 		
