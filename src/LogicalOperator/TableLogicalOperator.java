@@ -86,6 +86,17 @@ public class TableLogicalOperator extends LogicalOperator {
 	public void setTableID(String tableID) {
 		this.tableID = tableID;
 	}
+	
+	public String prettyPrint(int depth) {
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < depth; i++) 
+			sb.append("-");
+		sb.append("Leaf[");
+		sb.append(this.info.getTableName());
+		sb.append("]\n");
+		
+		return sb.toString();
+	}
 
 	@Override
 	public void accept(PhysicalPlanBuilder ppb){

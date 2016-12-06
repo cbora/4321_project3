@@ -12,7 +12,7 @@ import Operators.PhysicalPlanBuilder;
  */
 public abstract class LogicalOperator {
 
-	public abstract String prettyPrint();
+	public abstract String prettyPrint(int depth);
 	
 	/**
 	 * method for accepting visitor

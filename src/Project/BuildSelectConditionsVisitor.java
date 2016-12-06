@@ -67,6 +67,7 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 	private ArrayList<HashMap<String,Pair>> select_ranges;
 	//private ArrayList <Expression> join; // list of join expressions
 	private Expression join;
+	private Expression weird_join;
 	private Expression extra_exp; // any expressions that don't involve tables
 	private Stack<Column> stack; // stack to keep track of cols seen in expressions
 	private HashMap<String, Integer> table_mapping; // mapping between tables and integers
@@ -92,6 +93,7 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 		}
 		//join = new ArrayList<Expression>();
 		join = null;
+		weird_join = null;
 //		for (int i=0; i<table_mapping.size()-1; i++)
 //			join.add(null);
 		
@@ -165,6 +167,10 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 	public Expression getJoin() {
 		return join;
 	}
+	
+	public Expression getWeirdJoin() {
+		return weird_join;
+	}
 
 	/**
 	 * @return any selection expressions that do not involve any tables
@@ -235,6 +241,7 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 				}				
 				else {	// expression involved 2 different tables			
 					addJoin(c.getTable(), c2.getTable(), node);
+					addWeirdJoin(c.getTable(), c2.getTable(), node);
 				}
 			}
 		}
@@ -306,6 +313,15 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 		}
 		else {
 			join = new AndExpression(join, node);
+		}
+	}
+	
+	private void addWeirdJoin(Table t1, Table t2, BinaryExpression node) {
+		if (weird_join == null) {
+			weird_join = node;
+		}
+		else {
+			weird_join = new AndExpression(join, node);
 		}
 	}
 	

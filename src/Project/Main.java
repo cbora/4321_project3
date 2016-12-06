@@ -241,13 +241,14 @@ public class Main {
 			
 			while ((statement = parser.Statement()) != null) {
 				try {
+					System.out.println("Query " + queryNum);
 					Select select = (Select) statement;
 					
 					PlainSelect body = (PlainSelect) select.getSelectBody();	
 					
 					LogicalPlanBuilder d = new LogicalPlanBuilder(body);
 					LogicalOperator po = d.getRoot();
-					
+					System.out.println(po.prettyPrint(0));
 						
 					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, tmpDir);
 					Operator o = ppb.getResult();
@@ -256,8 +257,6 @@ public class Main {
 					HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum);
 					
 					long start = System.currentTimeMillis();
-					System.out.println("Query " + queryNum);
-					System.out.println(o.getSchema());
 					o.dump(writ);
 					long end = System.currentTimeMillis();
 

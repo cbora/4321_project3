@@ -18,5 +18,9 @@ public class UnionFindElement {
 	public Set<String> getAttributes() {
 		return this.attributes;
 	}
+	
+	public String toString() {
+		return "[" + attributes.toString() + ", equals " + equals + ", min " + floor + ", max " + ceiling + "]";
+	}
 
 }

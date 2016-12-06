@@ -142,8 +142,9 @@ public class LogicalPlanBuilder {
 	 */
 	private void joinBuilder() {
 		Expression join_exp = this.bsv.getJoin();
+		Expression weird_join_exp = this.bsv.getWeirdJoin();
 		ArrayList<LogicalOperator> children = new ArrayList<LogicalOperator>(linked_operator);
-		JoinLogicalOperator jol = new JoinLogicalOperator(children, join_exp, this.bsv.getUnion());
+		JoinLogicalOperator jol = new JoinLogicalOperator(children, join_exp, weird_join_exp, this.bsv.getUnion());
 		root = jol;
 	}
 	

@@ -55,6 +55,16 @@ public class DuplicateLogicalOperator extends LogicalOperator {
 	public void setChild(LogicalOperator child) {
 		this.child = child;
 	}
+	
+	public String prettyPrint(int depth) {
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < depth; i++) 
+			sb.append("-");
+		sb.append("DupElim\n");
+		
+		sb.append(this.child.prettyPrint(depth + 1));		
+		return sb.toString();
+	}
 
 	@Override
 	public void accept(PhysicalPlanBuilder ppb){

@@ -75,6 +75,18 @@ public class SelectLogicalOperator extends LogicalOperator {
 		return this.selectRange;
 	}
 	
+	public String prettyPrint(int depth) {
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < depth; i++) 
+			sb.append("-");
+		sb.append("Select[");
+		sb.append(this.exp);
+		sb.append("]\n");
+		
+		sb.append(this.child.prettyPrint(depth + 1));
+		return sb.toString();
+	}
+	
 	@Override
 	public void accept(PhysicalPlanBuilder ppb){
 		ppb.visit(this);	
