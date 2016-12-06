@@ -241,18 +241,22 @@ public class Main {
 			
 			while ((statement = parser.Statement()) != null) {
 				try {
-					System.out.println("Query " + queryNum);
+					System.out.println("------- Query " + queryNum + " -------");
 					Select select = (Select) statement;
 					
 					PlainSelect body = (PlainSelect) select.getSelectBody();	
 					
 					LogicalPlanBuilder d = new LogicalPlanBuilder(body);
 					LogicalOperator po = d.getRoot();
-					//System.out.println(po.prettyPrint(0));
+					System.out.println("Logical plan");
+					System.out.println(po.prettyPrint(0));
+					System.out.println();
 						
 					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, tmpDir);
 					Operator o = ppb.getResult();
+					System.out.println("Physical plan");
 					System.out.println(o.prettyPrint(0));
+					System.out.println();
 					
 					//BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
 					HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum);

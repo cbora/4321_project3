@@ -56,7 +56,11 @@ public class LogicalPlanBuilder {
 		// build selection/join operators 
 		this.bsv = new BuildSelectConditionsVisitor(this.table_mapping, this.plain_select.getWhere());
 		selectBuilder();
-		joinBuilder();
+		
+		if (linked_operator.size() > 1)
+			joinBuilder();
+		else
+			root = linked_operator.removeFirst();
 		
 		// only one element in linked_operators now - pop and make it the root
 		// this.root = this.linked_operator.removeLast();
