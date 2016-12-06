@@ -248,10 +248,11 @@ public class Main {
 					
 					LogicalPlanBuilder d = new LogicalPlanBuilder(body);
 					LogicalOperator po = d.getRoot();
-					System.out.println(po.prettyPrint(0));
+					//System.out.println(po.prettyPrint(0));
 						
 					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, tmpDir);
 					Operator o = ppb.getResult();
+					System.out.println(o.prettyPrint(0));
 					
 					//BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
 					HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum);

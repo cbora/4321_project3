@@ -100,7 +100,8 @@ public class ExtSortOperator extends SortOperator {
 		sb.append("ExternalSort");
 		sb.append("[");
 		sb.append(this.order_by);
-		sb.append("]");
+		sb.append("]\n");
+		sb.append(this.child.prettyPrint(depth + 1));
 		return sb.toString();
 	}
 	

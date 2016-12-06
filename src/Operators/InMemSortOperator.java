@@ -61,7 +61,8 @@ public class InMemSortOperator extends SortOperator {
 		sb.append("Sort");
 		sb.append("[");
 		sb.append(this.order_by);
-		sb.append("]");
+		sb.append("]\n");
+		sb.append(this.child.prettyPrint(depth + 1));
 		return sb.toString();
 	}
 	
