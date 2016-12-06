@@ -102,7 +102,7 @@ public abstract class IndexScanOperator extends OneTableOperator {
 		sb.append("IndexScan");
 		sb.append("[");
 		sb.append(this.tableInfo.getTableName());
-		sb.append("]");
+		sb.append("]\n");
 		return sb.toString();
 	}
 	

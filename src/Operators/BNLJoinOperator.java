@@ -61,10 +61,11 @@ public class BNLJoinOperator extends JoinOperator {
 		StringBuffer sb = new StringBuffer();
 		for (int i=0; i<depth; i++)
 			sb.append("-");
-		sb.append("[");
-		sb.append("BNLJ");
+		sb.append("BNLJ[");
 		sb.append(this.exp);
-		sb.append("]");
+		sb.append("]\n");
+		sb.append(this.leftChild.prettyPrint(depth + 1));
+		sb.append(this.rightChild.prettyPrint(depth + 1));
 		return sb.toString();
 	}
 	
