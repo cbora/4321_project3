@@ -91,6 +91,21 @@ public class ExtSortOperator extends SortOperator {
 	}
 	
 	/* ================================== 
+	 * pretty print of method
+	 * ================================== */
+	public String prettyPrint(int depth){
+		StringBuffer sb = new StringBuffer();
+		for(int i=0; i<depth; i++)
+			sb.append("-");
+		sb.append("ExternalSort");
+		sb.append("[");
+		sb.append(this.order_by);
+		sb.append("]");
+		return sb.toString();
+	}
+	
+	
+	/* ================================== 
 	 * Methods
 	 * ================================== */
 	@Override

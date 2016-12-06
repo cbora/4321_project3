@@ -36,6 +36,11 @@ public abstract class Operator {
 //	 * @return size of the relation
 //	 */
 //	public abstract int getRelationSize();
+	/**
+	 * prints method
+	 * @return
+	 */
+	public abstract String prettyPrint(int depth);
 	
 	/**
 	 * resets operator to a given index

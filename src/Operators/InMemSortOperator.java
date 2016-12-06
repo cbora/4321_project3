@@ -50,6 +50,22 @@ public class InMemSortOperator extends SortOperator {
 		preFetch(); // fetch all the tuples and sort them
 	}
 	
+	
+	/* ================================== 
+	 * pretty print of method
+	 * ================================== */
+	public String prettyPrint(int depth){
+		StringBuffer sb = new StringBuffer();
+		for(int i=0; i<depth; i++)
+			sb.append("-");
+		sb.append("Sort");
+		sb.append("[");
+		sb.append(this.order_by);
+		sb.append("]");
+		return sb.toString();
+	}
+	
+	
 	/* ================================== 
 	 * Methods
 	 * ================================== */

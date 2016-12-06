@@ -43,6 +43,21 @@ public class SelectOperator extends OneTableOperator {
 	}
 	
 	/* ================================== 
+	 * pretty print of method
+	 * ================================== */
+	public String prettyPrint(int depth){
+		StringBuffer sb = new StringBuffer();
+		for(int i=0; i<depth; i++)
+			sb.append("-");
+		sb.append("Select");
+		sb.append("[");
+		sb.append(this.exp);
+		sb.append("]");
+		return sb.toString();
+	}
+	
+	
+	/* ================================== 
 	 * Methods
 	 * ================================== */
 	@Override

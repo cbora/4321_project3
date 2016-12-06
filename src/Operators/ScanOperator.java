@@ -73,6 +73,21 @@ public class ScanOperator extends OneTableOperator {
 		this(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias());
 	}
 	
+	/* ================================== 
+	 * pretty print of method
+	 * ================================== */
+	public String prettyPrint(int depth){
+		StringBuffer sb = new StringBuffer();
+		for(int i=0; i<depth; i++)
+			sb.append("-");
+		sb.append("TableScan");
+		sb.append("[");
+		sb.append(this.tableInfo.getTableName());
+		sb.append("]");	
+		return sb.toString();
+	}
+	
+	
 	/* ===============================================
 	 * Methods
 	 * =============================================== */

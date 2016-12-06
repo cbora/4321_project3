@@ -95,6 +95,18 @@ public abstract class IndexScanOperator extends OneTableOperator {
 		this(tableInfo, tbl.getAlias() == null ? tbl.getName() : tbl.getAlias(), colInfo, lowkey, highkey);
 	}
 	
+	public String prettyPrint(int depth){
+		StringBuffer sb = new StringBuffer();
+		for(int i=0; i<depth; i++)
+			sb.append("-");
+		sb.append("IndexScan");
+		sb.append("[");
+		sb.append(this.tableInfo.getTableName());
+		sb.append("]");
+		return sb.toString();
+	}
+	
+	
 	/* ===============================================
 	 * Methods
 	 * =============================================== */

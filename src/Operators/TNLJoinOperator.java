@@ -41,6 +41,20 @@ public class TNLJoinOperator extends JoinOperator {
 	}
 	
 	/* ================================== 
+	 * pretty print of method
+	 * ================================== */
+	public String prettyPrint(int depth){
+		StringBuffer sb = new StringBuffer();
+		for(int i=0; i<depth; i++)
+			sb.append("-");
+		sb.append("TNLJ");
+		sb.append("[");
+		sb.append(this.exp);
+		sb.append("]");
+		return sb.toString();	
+	}
+	
+	/* ================================== 
 	 * Methods
 	 * ================================== */
 
