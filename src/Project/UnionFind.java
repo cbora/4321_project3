@@ -61,5 +61,13 @@ public class UnionFind {
 		return map.keySet();
 	}
 	
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		for (UnionFindElement elem : this.map.values()) {
+			sb.append(elem.toString());
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
 	
 }

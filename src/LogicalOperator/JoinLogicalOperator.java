@@ -27,6 +27,7 @@ public class JoinLogicalOperator extends LogicalOperator {
 	private ArrayList<LogicalOperator> children;
 	private UnionFind union;
 	private Expression exp; // join expression
+	private Expression weird_exp;
 	
 	/*
 	 * ================================== 
@@ -39,9 +40,10 @@ public class JoinLogicalOperator extends LogicalOperator {
 	 * @param child2 - right child
 	 * @param exp - join expression
 	 */
-	public JoinLogicalOperator(ArrayList<LogicalOperator> children, Expression exp, UnionFind union) {
+	public JoinLogicalOperator(ArrayList<LogicalOperator> children, Expression exp, Expression weird_exp, UnionFind union) {
 		this.children = children;
 		this.exp = exp;
+		this.weird_exp = weird_exp;
 		this.union = union;
 	}
 
@@ -64,6 +66,21 @@ public class JoinLogicalOperator extends LogicalOperator {
 	
 	public UnionFind getUnionFind() {
 		return union;
+	}
+	
+	public String prettyPrint(int depth) {
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < depth; i++) 
+			sb.append("-");
+		sb.append("Join[");
+		sb.append(weird_exp);
+		sb.append("]\n");
+		sb.append(this.union.toString());
+		for (LogicalOperator child : children) {
+			sb.append(child.prettyPrint(depth + 1));
+		}
+		
+		return sb.toString();
 	}
 	
 	@Override

@@ -67,6 +67,18 @@ public class SortLogicalOperator extends LogicalOperator {
 		return order_by;
 	}
 	
+	public String prettyPrint(int depth) {
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < depth; i++) 
+			sb.append("-");
+		sb.append("Sort");
+		sb.append(order_by);
+		sb.append("\n");
+		
+		sb.append(this.child.prettyPrint(depth + 1));
+		return sb.toString();
+	}
+	
 	@Override
 	public void accept(PhysicalPlanBuilder ppb){
 		ppb.visit(this);	
