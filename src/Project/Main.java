@@ -11,6 +11,7 @@ import java.util.HashMap;
 import IO.BinaryTupleWriter;
 import IO.Configuration;
 import IO.HumanTupleWriter;
+import IO.RandomTupleGenerator;
 import Indexing.BPlusTree;
 import Indexing.IndexInfo;
 import LogicalOperator.LogicalOperator;
@@ -35,6 +36,9 @@ public class Main {
 
 	public static void main(String[] args) {
 		
+		//RandomTupleGenerator.genTuples("/home/rhenwood39/Documents/CS4320-4321/p5/samples/input2/db/data/Boats", 7500, 3);
+		//RandomTupleGenerator.genTuples("/home/rhenwood39/Documents/CS4320-4321/p5/samples/input2/db/data/Sailors", 20000, 3);
+
 		// parse config file
 		Configuration config = new Configuration(args[0]);
 		
@@ -94,11 +98,9 @@ public class Main {
 		ArrayList<String> tables = dbC.getTableNames();
 		
 		for (String table : tables){
-			
 			if (dbC.get(table).getClusteredIndex() != null) {
 				ScanOperator scan;
 				IndexInfo info = dbC.get(table).getColumns().get(dbC.get(table).getClusteredIndex()).getIndexInfo();
-				
 				scan = new ScanOperator(dbC.get(table), table);
 				int pos = scan.getSchema().get(table + "." + info.getAttribute());
 				
@@ -126,8 +128,7 @@ public class Main {
 					continue;
 				
 				if (info.isClustered()) // if it is clustered, continue because done
-					continue;
-					
+					continue;					
 				ScanOperator scan = new ScanOperator(dbC.get(table), table);
 				int pos = scan.getSchema().get(table + "." + info.getAttribute());
 				
@@ -162,6 +163,8 @@ public class Main {
 					String indexPath = input + "/db/indexes/" + parts[0] + "." + parts[1];
 					IndexInfo i = new IndexInfo(indexPath, parts[1], parts[2], parts[3]);
 					dbC.get(parts[0]).getColumns().get(parts[1]).setIndexInfo(i);
+					if (i.isClustered())
+						dbC.get(parts[0]).setClusteredIndex(i.getAttribute());
 				}
 				
 			}catch (IOException ex) {

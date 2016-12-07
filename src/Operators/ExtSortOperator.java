@@ -128,6 +128,7 @@ public class ExtSortOperator extends SortOperator {
 	public void close() {
 		cleanup();
 		this.output_reader.close();
+		this.child.close();
 	}
 	
 	/**
@@ -151,7 +152,6 @@ public class ExtSortOperator extends SortOperator {
 	 * Cleans up temporary directory used in the external sort
 	 */
 	private void cleanup() {
-
 		if(this.tmp_dir.compareTo(this.given_tmp_dir) != 0){
 			//delete tmp_dir
 			File f = new File(this.tmp_dir);

@@ -37,6 +37,7 @@ public class LogicalPlanBuilder {
 	private BuildSelectConditionsVisitor bsv; // retrieves selection/join information regarding our expression
 		// builds selection expression list in order that corresponds with ordering in table_mapping
 		// builds join expression list in left_deep order that corresponds with ordering in table_mapping
+	private boolean addedJoin; // have we added a logical join operator?
 	
 	/* ================================== 
 	 * Constructors
@@ -57,10 +58,14 @@ public class LogicalPlanBuilder {
 		this.bsv = new BuildSelectConditionsVisitor(this.table_mapping, this.plain_select.getWhere());
 		selectBuilder();
 		
-		if (linked_operator.size() > 1)
+		if (linked_operator.size() > 1) {
 			joinBuilder();
-		else
+			this.addedJoin = true;
+		}
+		else {
 			root = linked_operator.removeFirst();
+			this.addedJoin = false;
+		}
 		
 		// only one element in linked_operators now - pop and make it the root
 		// this.root = this.linked_operator.removeLast();
@@ -156,8 +161,10 @@ public class LogicalPlanBuilder {
 	 * Adds projection operator to root if necessary
 	 */
 	private void projectBuilder() {		
-		//if (plain_select.getSelectItems() != null && !(plain_select.getSelectItems().get(0) instanceof AllColumns)){ 		
-			ArrayList<SelectItem> items = (ArrayList<SelectItem>) plain_select.getSelectItems();
+		if (plain_select.getSelectItems() == null || (plain_select.getSelectItems().get(0) instanceof AllColumns && !addedJoin))
+			return;
+			
+		ArrayList<SelectItem> items = (ArrayList<SelectItem>) plain_select.getSelectItems();
 			
 			ArrayList<Table> tables = new ArrayList<Table>();
 			tables.add((Table) plain_select.getFromItem());

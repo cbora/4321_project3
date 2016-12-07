@@ -7,28 +7,28 @@ import Project.UnionFind;
 
 public abstract class TableSet2 {
 
-	protected int cost;
-	protected int nTuples;
+	protected long cost;
+	protected long nTuples;
 	protected LinkedHashSet<String> tables;
-	protected HashMap<vWrapper, Integer> vVals;
+	protected HashMap<vWrapper, Long> vVals;
 	protected UnionFind union;
 	
-	public TableSet2(HashMap<vWrapper, Integer> vVals, UnionFind union) {
+	public TableSet2(HashMap<vWrapper, Long> vVals, UnionFind union) {
 		this.vVals = vVals;
 		this.union = union;
 	}
 	
-	public abstract int vValCompute(String attr);
+	public abstract long vValCompute(String attr);
 	
-	public int getCost() {
+	public long getCost() {
 		return this.cost;
 	}
 	
-	public int getnTuples() {
+	public long getnTuples() {
 		return this.nTuples;
 	}
 	
-	public int getSetSize() {
+	public long getSetSize() {
 		return this.tables.size();
 	}
 	

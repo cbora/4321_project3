@@ -11,13 +11,13 @@ public class JoinOrder {
 	private ArrayList<OneTableOperator> children;
 	private UnionFind union;
 	private ArrayList<TableSingle> baseTables;
-	private HashMap<vWrapper, Integer> vVals;
+	private HashMap<vWrapper, Long> vVals;
 	private HashMap<String, Integer> table_mapping;
 	
 	public JoinOrder(ArrayList<OneTableOperator> children, UnionFind union) {
 		this.union = union;
 		this.children = children;
-		this.vVals = new HashMap<vWrapper, Integer>();
+		this.vVals = new HashMap<vWrapper, Long>();
 		this.table_mapping = new HashMap<String, Integer>();
 		this.baseTables = new ArrayList<TableSingle>();
 		loop();
@@ -49,6 +49,7 @@ public class JoinOrder {
 					if(!(ts.getTables().contains(s))){
 						//System.out.println("inside if: " + s);
 						TableSet2 newts = new TableMulti(ts, baseTables.get(i), this.vVals, this.union);
+						System.out.println(newts.getTables() + " cost: " + newts.getCost() + ", size: " + newts.getnTuples());
 						eliminate(nextset, newts);
 					}
 				}	
@@ -62,8 +63,10 @@ public class JoinOrder {
 			//for (TableSet2 ts : prevSet)
 				//System.out.println(ts.getTables());
 			//System.out.println("--");
-
+			
 		}
+		
+		System.out.println("Cost of plan: " + prevSet.get(0).getCost());
 		
 		for (TableSet2 result : prevSet) {
 			int i = 0;

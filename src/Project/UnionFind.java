@@ -63,7 +63,8 @@ public class UnionFind {
 	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		for (UnionFindElement elem : this.map.values()) {
+		HashSet<UnionFindElement> set = new HashSet<UnionFindElement>(this.map.values());
+		for (UnionFindElement elem : set) {
 			sb.append(elem.toString());
 			sb.append("\n");
 		}

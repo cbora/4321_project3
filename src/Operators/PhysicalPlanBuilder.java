@@ -149,6 +149,7 @@ public class PhysicalPlanBuilder {
 			
 		// calculate cost of scan
 		int min = calculateScanCost(tableInfo); 
+		System.out.println("full scan cost: " + min);
 		ColumnInfo bestCol = null;
 		int lowkey = 0;
 		int highkey = 0;
@@ -158,8 +159,9 @@ public class PhysicalPlanBuilder {
 		for (ColumnInfo column : tableInfo.getColumns().values()) {
 			 if (column.getIndexInfo() != null) {
 				 IndexExpressionVisitor indexVisitor = new IndexExpressionVisitor(exp, column);
-				 if (indexVisitor.canUseIndex()) {							 
+				 if (indexVisitor.canUseIndex()) {
 					 int cost = calculateIndexCost(tableInfo, column, indexVisitor.getLowkey(), indexVisitor.getHighkey());			 
+					 System.out.println("index on " + column.getIndexAttribute() + " " + cost);
 					 if (cost < min) {
 						 min = cost;
 						 bestCol = column;
@@ -170,12 +172,14 @@ public class PhysicalPlanBuilder {
 				 }
 			 }
 		}
-		
+		System.out.println();
 		if (bestCol == null) {
 			return new SelectOperator(scan, exp, selectRange);
 		}
 		else {
 			IndexScanOperator iso;
+			lowkey = Math.max(lowkey, bestCol.min);
+			highkey = Math.min(highkey, bestCol.max);
 			if (bestCol.isClustered()) {
 				iso = new ClusteredIndexScanOperator(tableInfo, scan.getTableID(), bestCol, lowkey, highkey);
 			}
@@ -194,6 +198,7 @@ public class PhysicalPlanBuilder {
 	private int calculateScanCost(TableInfo t) {
 		int nTuples = t.getNumTuples();
 		int size = t.getColumns().size();
+		System.out.println("in calc scan cost: " + nTuples + " * " + size + " / " + PAGE_SIZE + " = " + (nTuples*size)/PAGE_SIZE);
 		return (nTuples*size)/PAGE_SIZE;
 	}
 	
