@@ -23,6 +23,36 @@ public class RandomTupleGenerator {
 	 * Methods
 	 * ==================================
 	 */
+	
+	/**
+	 * generates file of tuples
+	 * @param output - name of output file
+	 * @param numTuples - number tuples to generate
+	 * @param numCols - number of columns to give each tuple
+	 */
+	public static void genTuples(String output, int numTuples, int[] cols) {
+		BinaryTupleWriter writer = new BinaryTupleWriter(output);
+		Random rand = new Random();
+		ArrayList<Tuple> holder = new ArrayList<Tuple>();
+		
+		for (int i = 0; i < numTuples; i++) {
+			Tuple t = new Tuple(cols.length + 1);
+			t.add(i, 0);
+			for (int j = 0; j < cols.length; j++) {
+				t.add(rand.nextInt(cols[j]), j + 1);
+			}
+			//System.out.println(t);
+			holder.add(t);
+		}
+		
+		Collections.shuffle(holder);
+		
+		for (int i = 0; i < holder.size(); i++)
+			writer.write(holder.get(i));
+		writer.finalize();
+		writer.close();
+	}
+	
 	/**
 	 * generates file of tuples
 	 * @param output - name of output file

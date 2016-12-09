@@ -188,10 +188,13 @@ public class PhysicalPlanBuilder {
 			}
 			scan.close();
 
-			if (slct != null) // add select operator if select conditions index can't handle
+			if (slct != null) { // add select operator if select conditions index can't handle
+				selectRange.remove(iso.indexAttribute());
 				return new SelectOperator(iso, slct, selectRange);
-			else
+			}
+			else {
 				return iso;
+			}
 		}
 	}
 	
@@ -315,7 +318,7 @@ public class PhysicalPlanBuilder {
 		lo.getChild().accept(this);
 		Operator o = pStack.pop();
 		if (!(o instanceof SortOperator)) {
-			SortOperator s = detSort(o, (ArrayList<OrderByElement>) null);
+			SortOperator s = detSort(o, new ArrayList<OrderByElement>());
 			o = s;
 		}
 		SortedDupElimOperator s = new SortedDupElimOperator(o);

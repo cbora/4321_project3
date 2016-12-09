@@ -115,7 +115,8 @@ public class TableMulti extends TableSet2 {
 		long denom = 1;
 		for (Long n : vVals)
 			denom *= n;
-		
+		System.out.println("left size: " + leftSize + " & right size: " + rightSize);
+		System.out.println(this.getTables() + " cost: " + this.getCost() + ", size: " + numer + " / " + denom + " = " + Math.max(numer / denom, 1));
 		return Math.max(numer / denom, 1);
 	}
 }

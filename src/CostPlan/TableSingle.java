@@ -55,11 +55,18 @@ public class TableSingle extends TableSet2 {
 	}
 	
 	private long sizeBase(ScanOperator scan) {
+		System.out.println(this.getTables() + " cost: " + this.getCost() + ", size: " + scan.getTableInfo().getNumTuples());
 		return Math.max(scan.getTableInfo().getNumTuples(), 1);
 	}
 	
 	private long sizeSelect(SelectOperator slct) {
 		TableInfo tableInfo = slct.getTableInfo();
+		
+		long tableSize;
+		if (slct.getChild() instanceof IndexScanOperator)
+			tableSize = sizeSelect((IndexScanOperator) slct.getChild());
+		else
+			tableSize = tableInfo.getNumTuples();
 		
 		HashMap<String, Pair> selectRange = slct.getSelectRange();
 		
@@ -75,7 +82,8 @@ public class TableSingle extends TableSet2 {
 			reduction *= ((double) range) / (max - min + 1);
 		}
 		
-		return Math.max(1, (long) (tableInfo.getNumTuples() * reduction));
+		System.out.println(this.getTables() + " cost: " + this.getCost() + ", size: " + tableInfo.getNumTuples() + " * " + reduction + " = " + Math.max(1, (long) (tableInfo.getNumTuples() * reduction)));
+		return Math.max(1, (long) (tableSize * reduction));
 	}
 	
 	private long sizeSelect(IndexScanOperator idx) {
@@ -89,6 +97,7 @@ public class TableSingle extends TableSet2 {
 		long range = Math.min(max, idx.getHighkey()) - Math.max(min, idx.getLowkey()) + 1;
 		double reduction = ((double) range) / (max - min + 1);
 		
+		System.out.println(this.getTables() + " cost: " + this.getCost() + ", size: " + tableInfo.getNumTuples() + " * " + reduction + " = " + Math.max(1, (long) (tableInfo.getNumTuples() * reduction)));
 		return Math.max(1, (long) (tableInfo.getNumTuples() * reduction));
 	}
 	

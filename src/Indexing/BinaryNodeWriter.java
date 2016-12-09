@@ -116,8 +116,9 @@ public class BinaryNodeWriter {
 			
 			buffer.putInt(buffer_index, values.get(i).size());
 			buffer_index += BYTES_IN_INT;
-			
+
 			for (RecordID rid : values.get(i)) {
+				
 				buffer.putInt(buffer_index, rid.pageid);
 				buffer_index += BYTES_IN_INT;
 				

@@ -79,6 +79,7 @@ public class ExtSortOperator extends SortOperator {
 		this.bSize = (bSize > 0) ? bSize : 1;
 		this.buffer = new Tuple[(bSize * PAGE_SIZE) / (INT_SIZE * schema.size())];
 		
+	
 		this.given_tmp_dir = tmp_dir;
 		
 		this.prev_runs = 0;

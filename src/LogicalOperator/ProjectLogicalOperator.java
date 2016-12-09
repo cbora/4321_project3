@@ -79,8 +79,7 @@ public class ProjectLogicalOperator extends LogicalOperator {
 		for (int i = 0; i < depth; i++) 
 			sb.append("-");
 		sb.append("Project[");
-		for (SelectItem slct : items)
-			sb.append(slct);
+		sb.append(items);
 		sb.append("]\n");
 		
 		sb.append(this.child.prettyPrint(depth + 1));

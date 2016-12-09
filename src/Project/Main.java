@@ -36,9 +36,14 @@ public class Main {
 
 	public static void main(String[] args) {
 		
+		//RandomTupleGenerator.genTuples("/home/rhenwood39/Documents/CS4320-4321/p5/samples/input2/db/data/Boats", 7500, new int[] {900, 3500});
+		//RandomTupleGenerator.genTuples("/home/rhenwood39/Documents/CS4320-4321/p5/samples/input2/db/data/Sailors", 20000, new int[] {50000, 10000});
+		//RandomTupleGenerator.genTuples("/home/rhenwood39/Documents/CS4320-4321/p5/samples/input2/db/data/Reserves", 15000, new int[] {10000, 1000});
+		
 		//RandomTupleGenerator.genTuples("/home/rhenwood39/Documents/CS4320-4321/p5/samples/input2/db/data/Boats", 7500, 3);
 		//RandomTupleGenerator.genTuples("/home/rhenwood39/Documents/CS4320-4321/p5/samples/input2/db/data/Sailors", 20000, 3);
-
+		//RandomTupleGenerator.genTuples("/home/rhenwood39/Documents/CS4320-4321/p5/samples/input2/db/data/Reserves", 15000, 3);
+		
 		// parse config file
 		Configuration config = new Configuration(args[0]);
 		
