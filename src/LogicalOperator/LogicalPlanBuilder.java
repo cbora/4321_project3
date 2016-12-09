@@ -73,7 +73,7 @@ public class LogicalPlanBuilder {
 		// add any selection conditions that don't involve tables
 		Expression extra_exp = this.bsv.getExp(); 		 	
 		if ( extra_exp != null ) {
-			this.root = new SelectLogicalOperator(this.root, extra_exp, null);
+			this.root = new SelectLogicalOperator(this.root, extra_exp, new HashMap<String, Pair>());
 		}
 		
 		// add projection operator if needed
