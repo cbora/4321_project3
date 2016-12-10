@@ -82,7 +82,7 @@ public class ClusteredIndexScanOperator extends IndexScanOperator {
 		
 		// read next value from reader. if we pass highkey or finish reading file, return null
 		Tuple t = reader.read();
-		return (t == null || t.getVal(0) > highkey) ? null : t;
+		return (t == null || t.getVal(schema.get(this.indexAttribute())) > highkey) ? null : t;
 	}
 
 	@Override

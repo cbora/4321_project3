@@ -55,7 +55,7 @@ public class TableSingle extends TableSet2 {
 	}
 	
 	private long sizeBase(ScanOperator scan) {
-		System.out.println(this.getTables() + " cost: " + this.getCost() + ", size: " + scan.getTableInfo().getNumTuples());
+		//System.out.println(this.getTables() + " cost: " + this.getCost() + ", size: " + scan.getTableInfo().getNumTuples());
 		return Math.max(scan.getTableInfo().getNumTuples(), 1);
 	}
 	
@@ -82,7 +82,7 @@ public class TableSingle extends TableSet2 {
 			reduction *= ((double) range) / (max - min + 1);
 		}
 		
-		System.out.println(this.getTables() + " cost: " + this.getCost() + ", size: " + tableInfo.getNumTuples() + " * " + reduction + " = " + Math.max(1, (long) (tableInfo.getNumTuples() * reduction)));
+		//System.out.println(this.getTables() + " cost: " + this.getCost() + ", size: " + tableInfo.getNumTuples() + " * " + reduction + " = " + Math.max(1, (long) (tableInfo.getNumTuples() * reduction)));
 		return Math.max(1, (long) (tableSize * reduction));
 	}
 	
@@ -97,7 +97,7 @@ public class TableSingle extends TableSet2 {
 		long range = Math.min(max, idx.getHighkey()) - Math.max(min, idx.getLowkey()) + 1;
 		double reduction = ((double) range) / (max - min + 1);
 		
-		System.out.println(this.getTables() + " cost: " + this.getCost() + ", size: " + tableInfo.getNumTuples() + " * " + reduction + " = " + Math.max(1, (long) (tableInfo.getNumTuples() * reduction)));
+		//System.out.println(this.getTables() + " cost: " + this.getCost() + ", size: " + tableInfo.getNumTuples() + " * " + reduction + " = " + Math.max(1, (long) (tableInfo.getNumTuples() * reduction)));
 		return Math.max(1, (long) (tableInfo.getNumTuples() * reduction));
 	}
 	

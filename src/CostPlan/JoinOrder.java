@@ -68,7 +68,7 @@ public class JoinOrder {
 			
 		}
 		
-		System.out.println("Cost of plan: " + prevSet.get(0).getCost());
+		//System.out.println("Cost of plan: " + prevSet.get(0).getCost());
 		
 		for (TableSet2 result : prevSet) {
 			int i = 0;

@@ -77,19 +77,7 @@ public class Main {
 		
 		// build stats.txt
 		buildStats(config.getInputDir());
-		
-		// determine which build action to take
-//		if (config.runOption() == 1) {
-//			buildIndexes();
-//		}
-//		else if(config.runOption() == 2) {
-//			buildIndexes();
-//			runQueries(config.getInputDir(), config.getOutputDir(), config.getTmpDir());
-//		}
-//		else if(config.runOption() == 3) {
-//			runQueries(config.getInputDir(), config.getOutputDir(), config.getTmpDir());
-//		}
-		
+			
 		buildIndexes();
 		runQueries(config.getInputDir(), config.getOutputDir(), config.getTmpDir());
 				
@@ -194,14 +182,12 @@ public class Main {
 			TableInfo tableInfo = dbC.get(table);
 			ScanOperator scan = new ScanOperator(tableInfo, table);
 			HashMap<String, Integer> schema = scan.getSchema();
-			//System.out.println(schema);
 			
 			Tuple t;
 			while ((t = scan.getNextTuple()) != null) {
 				tableInfo.setNumTuples(tableInfo.getNumTuples() + 1);
 				
 				for (ColumnInfo col : tableInfo.getColumns().values()) {
-					//System.out.println(t.getVal(0));
 					if (t.getVal(schema.get(table + "." + col.column)) > col.max) {
 						col.max = t.getVal(schema.get(table + "." + col.column));
 					}
@@ -249,25 +235,35 @@ public class Main {
 			
 			while ((statement = parser.Statement()) != null) {
 				try {
-					System.out.println("------- Query " + queryNum + " -------");
+					//System.out.println("------- Query " + queryNum + " -------");
 					Select select = (Select) statement;
 					
 					PlainSelect body = (PlainSelect) select.getSelectBody();	
 					
 					LogicalPlanBuilder d = new LogicalPlanBuilder(body);
 					LogicalOperator po = d.getRoot();
-					System.out.println("Logical plan");
-					System.out.println(po.prettyPrint(0));
-					System.out.println();
+					
+					String logicalPlan = po.prettyPrint(0);
+					PrintWriter writer = new PrintWriter(outputDir + "/query" + queryNum + "_logicalplan");
+					writer.write(logicalPlan);
+					writer.close();
+					//System.out.println("Logical plan");
+					//System.out.println(po.prettyPrint(0));
+					//System.out.println();
 						
 					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, tmpDir);
 					Operator o = ppb.getResult();
-					System.out.println("Physical plan");
-					System.out.println(o.prettyPrint(0));
-					System.out.println();
 					
-					//BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
-					HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum);
+					String physicalPlan = o.prettyPrint(0);
+					writer = new PrintWriter(outputDir + "/query" + queryNum + "_physicalPlan");
+					writer.write(physicalPlan);
+					writer.close();
+					//System.out.println("Physical plan");
+					//System.out.println(o.prettyPrint(0));
+					//System.out.println();
+					
+					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
+					//HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum);
 					
 					long start = System.currentTimeMillis();
 					o.dump(writ);

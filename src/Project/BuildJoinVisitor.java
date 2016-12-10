@@ -59,21 +59,21 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 	public BuildJoinVisitor(HashMap<String, Integer> table_mapping, Expression exp) {
 		this.table_mapping = table_mapping;
 		this.exp = exp;
-		//this.union = union;
+		
 		this.join = new ArrayList<Expression>();
 		this.joinType = new ArrayList<Integer>();
 		
-		for (int i = 0 ; i < table_mapping.size(); i++) {
+		for (int i = 0 ; i < table_mapping.size() - 1; i++) {
 			this.join.add(null);
 			this.joinType.add(null);
 		}
 		
-		//handleUnion();
 		handleExp();
 		
 		for (int i = 0; i < joinType.size(); i++) {
-			if (joinType.get(i) == null)
+			if (joinType.get(i) == null) {
 				joinType.set(i, 1);
+			}
 		}
 	}
 	
@@ -84,21 +84,6 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 	public ArrayList<Integer> getJoinType() {
 		return this.joinType;
 	}
-	
-
-//	private void handleUnion() {
-//		for (String attr : this.union.getAttributes()) {
-//			String tbl = attr.substring(0, attr.indexOf('.'));
-//			int idx = this.table_mapping.get(tbl);
-//			
-//			if (this.join.get(idx) == null) {
-//				this.join.set(idx, buildExpression(attr))
-//			}
-//			else {
-//				this.join.set(idx, new AndExpression(this.join.get(idx), buildExpression(attr)));
-//			}
-//		}
-//	}
 	
 	private void handleExp() {
 		if (this.exp == null)
@@ -117,15 +102,14 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 			join.set(index, new AndExpression(join.get(index), node));
 		}
 		
-		if (!canUseSMJ)
+		if (!canUseSMJ) {
 			joinType.set(index, 1);
-		else if (canUseSMJ && joinType.get(index) == null)
+		}
+		else if (canUseSMJ && joinType.get(index) == null) {
 			joinType.set(index, 2);
+		}
 	}
 	
-//	private Expression buildExpression(String attr) {
-//		UnionFindElement elem = this.union.find(attr);
-//	}
 	
 	/**
 	 * Visits both children

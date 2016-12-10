@@ -41,7 +41,6 @@ public class RandomTupleGenerator {
 			for (int j = 0; j < cols.length; j++) {
 				t.add(rand.nextInt(cols[j]), j + 1);
 			}
-			//System.out.println(t);
 			holder.add(t);
 		}
 		
