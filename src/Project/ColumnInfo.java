@@ -3,7 +3,7 @@ package Project;
 import Indexing.IndexInfo;
 
 /**
- * Holds info of a column including min and max values
+ * Holds info of a column including its position, min and max values
  * @author Richard Henwood (rbh228)
  * @author Chris Bora (cdb239)
  * @author Han Wen Chen (hc844)

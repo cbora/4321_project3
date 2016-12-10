@@ -15,10 +15,10 @@ public class UnionFindElement {
 	 * ================================== */
 	private Set<String> attributes; // set of table attributes
 	public Integer equals; // equals
-	public Integer ceiling; // upper
-	public Integer floor; // lower
+	public Integer ceiling; // upper bound
+	public Integer floor; // lower  bound
 	
-		/* ================================== 
+	/* ================================== 
 	 * Constructor
 	 * ================================== */
 	/**

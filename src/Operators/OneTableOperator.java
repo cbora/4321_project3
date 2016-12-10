@@ -3,7 +3,7 @@ package Operators;
 import Project.TableInfo;
 
 /**
- * Abstract class to map TableInfo to a table ID
+ * Abstract class to map TableInfo to a table ID/ Operator used to access data
  * 
  * @author Richard Henwood (rbh228)
  * @author Chris Bora (cdb239)
