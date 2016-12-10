@@ -1,0 +1,72 @@
+Richard Henwood (rbh228)
+Chris Bora (cdb239)
+Han Wen Chen (hc844)
+
+Top Level Class:
+
+Project.Main
+
+-----------------------------------------------------------------
+
+Selection Pushing:
+
+This is handled inside of LogicalPlanBuilder and BuildSelectConditionsVisitor. 
+
+Inside BuildSelectConditionsVisitor, we first build a UnionFind data structure by using the visitor pattern to walk the WHERE clause of our SQL query. As per the instruction, whenever we encounter an expression of the form "Attr1 = Attr2," we do a union of sets in our UnionFind structure. Whenever we encounter an expression of the form "Attr1 OP Val" or "Val OP Attr1" where OP is not "<>," then we update the UnionFinds bounds. Also, whenever we encounter expressions that do not fall under either of the aforementioned categories, we do one of two things:
+
+1. If the expression involves multiple table, then we add it onto a JoinExpression field.
+
+2. If the expression involves a single table, then we add it to an ArrayList of selection expressions. Each spot in the ArrayList corresponds to a table (more specifically, the spots in the ArrayList are ordered according to the FROM clause).
+
+After this, we iterate throught the sets in the UnionFind to generate remaining select conditions. For example, if one of our UnionFind elements was {S.A, R.A, equals null, ceiling 25, floor 10}, then we would generate the expressions "S.A <= 25," "R.A <= 25," "S.A >= 10," and "R.A >= 10." We would then add these expressions to the ArrayList of selection expressions that we mentioned above.
+
+Back inside LogicalPlanBuilder, we use the ArrayList of selection expressions to build our Logical Selection Operators. We maintain an ArrayList of Logical Selection Operators and Logical Base Table Operators that we input as the Logical Join Operator's list of children.
+
+-----------------------------------------------------------------
+
+Choice of implementation for each Logical Selection Operator:
+
+This is handled inside PhysicalPlanBuilder and IndexExpressionVisitor. Inside of the detSelect method of PhysicalPlanBuilder, we take in a Logical Selection Operator and its associated selection expression. 
+
+Assume the inputed Logical Selection Operator corresponds to relation R. We then use the our DbCatalog to iterate through all the indexes we have on R. We then use IndexExpressionVisitor tell us:
+
+1. If the index can be used (i.e. does the selection epxression involve the index?)
+2. What the lowkey/highkey associated with the index are.
+3. Separate out parts of the selection condition that the index does not help with.
+
+If an index can be used, we estimate the index cost using the formula suggested in the slides. We keep track of the lowest cost index we have seen so far. Note we use the DbCatalog to keep track of whether an index is clustered or not.
+
+If any index can be used and it cheaper than a full table scan, we choose the one with the lowest cost and create an appropriate IndexScanOperator. If there are any left over selection conditions that the index cannot handle, IndexExpressionVisitor will have obtained these. So we create a SelectOperator using these left over expressions and make it a parent of the IndexScanOperator.
+
+If no index can be used or if no index is cheaper than a full table scan, put all of the selection conditions inside of SelectOperator with a ScanOperator child.
+
+----------------------------------------------------------------
+
+Join Order
+
+This is handled by the classes inside of package named CostPlan. 
+
+Inside of JoinOrder, we iterate through all valid join plans using Dynamic Programming. We start by considering all valid plans of one table, then two, then three, and so on. Whenever we have multiple plans involving the same tables, we eliminat the more costly one. For example, if we had {A, B} as one plan and {B, A} as another, we would eliminate the costlier of the two from further consideration. 
+
+Plans were represented as TableSet objects. At the heart of our TableSet object was a LinkedHashSet. This allowed us to quickly look-up which tables were in the TableSet. It also allowed use to maintain an ordering (so we could distinguish between {A, B} and {B, A}). The TableSet object also maintained the cost and size of the plan in represented.
+
+The TableSet object had two subtypes: TableSingle and TableMulti. TableSingle was for representing the leaves in a join plan tree. TableMulti was for representing non-leaves. For TableSingles, the cost was 0. The size depended on whether the leaf corresponded to a base table, an index scan, or a selection operator. The size was then computed according to the algorithms in the instructions.
+
+For TableMulti, we maintained a TableSet object as a left child and a TableSingle object as a right child (since we were only considering left deep plans). If both children were TableSingle objects, the cost would either be set to 0 or infinity. If the left child was smaller, the cost would be 0. Otherwise, it would be infinity. We did this to prevent the choosing of joins where both children are leaves and the left leaf produces more tuples than the right leaf. 
+
+If the left child was a TableMulti object, the cost was computed as leftChild.size + leftChild.cost. 
+
+In both cases, the size of a TableMulti was computed according to the algorithm in our instructions. We maintained a Singleton HashMap called VStore that kept track of all the v-values we had seen already so as to prevent wasteful recomputation. We used our UnionFind structure to figure out which attributes were equated under the Join Condition. We needed to know this in order to figure out the denominator in our size computation. We also used our UnionFind structure for implementing the algorithm to compute the v-values of joins (as described in our instructions).
+
+----------------------------------------------------------------
+
+Choice of Join Operator implementation
+
+When we did our benchmarking in one of the previous projects, our SMJ implementation always outperformed our BNLJ implementation by multiple orders of magnitude. As such, we decided to use SMJ whenever possible (i.e. when the join condition involved only equality).
+
+What join implementation to choose was handled in PhysicalPlanBuilder and in BuildJoinVisitor. First, we constructed a BuildJoinVisitor inside of the visit method for Logical Join Operators inside of PhysicalPlanBuilder.
+
+Then, in BuildJoinVisitor, we maintain an Integer ArrayList where each spot represents a join "node" in our physical plan tree. The Integers we place in the array correspond to what join plan we should use (1 is for BNLJ, 2 is for SMJ). We then walk the join expression. If we find a particular join node involves non-equality conditions or represents a cross product, then we set the spot in the array for this node to 1 (i.e. BNLJ). Otherwise, we set it to 2 (i.e. SMJ). BuildJoinVisitor also built an array that told us which join expressions should go to which node.
+
+Back in PhysicalPlanBuilder, we used these two arrays to figure out what tables should be involved in each of our JoinOperators as well as what type of JoinOperator we should build.
+
