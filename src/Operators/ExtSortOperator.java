@@ -101,7 +101,19 @@ public class ExtSortOperator extends SortOperator {
 		for(int i=0; i<depth; i++)
 			sb.append("-");
 		sb.append("ExternalSort");
-		sb.append(this.order_by);
+		
+		if (this.order_by == null){
+			ArrayList<String> a = new ArrayList<String>();	
+			for (int i=0; i < this.sort_order.length; i++){
+				for (String c: this.schema.keySet()){
+					if(schema.get(c) == i){						
+						a.add(c);
+					}
+				}
+			}
+			sb.append(a.toString());
+		}else
+			sb.append(this.order_by);
 		sb.append("\n");
 		sb.append(this.child.prettyPrint(depth + 1));
 		return sb.toString();
