@@ -1,11 +1,28 @@
 package CostPlan;
 
 import java.util.ArrayList;
-
+/**
+ * Holds encoding of the table
+ * 
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class vWrapper {
+	/* ================================== 
+	 * Fields
+	 * ================================== */
+	public String encoding; //
 	
-	public String encoding;
-	
+	/* ================================== 
+	 * Constructors
+	 * ================================== */
+	/**
+	 * Constructor
+	 * @param tableSet
+	 * @param attribute
+	 */
 	public vWrapper(TableSet2 tableSet, String attribute) {
 		ArrayList<String> tables = new ArrayList<String>(tableSet.getTables());
 		
@@ -19,6 +36,9 @@ public class vWrapper {
 		this.encoding = sb.toString();
 	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */	
 	@Override
 	public int hashCode() {
 		return this.encoding.hashCode();

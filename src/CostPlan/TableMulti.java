@@ -9,10 +9,21 @@ import java.util.Set;
 import Project.UnionFind;
 import Project.UnionFindElement;
 
+/**
+ * Object that holds more than one children in the left deep tree
+ * 
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class TableMulti extends TableSet2 {
 
-	private TableSet2 left;
-	private TableSingle right;
+	/* ================================== 
+	 * Fields
+	 * ================================== */
+	private TableSet2 left; //
+	private TableSingle right; // 
 	
 	public TableMulti(TableSet2 left, TableSingle right, HashMap<vWrapper, Integer> vVals, UnionFind union) {
 		super(vVals, union);
@@ -38,6 +49,14 @@ public class TableMulti extends TableSet2 {
 		
 	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
+	
+	/*
+	 * (non-Javadoc)
+	 * @see CostPlan.TableSet2#vValCompute(java.lang.String)
+	 */
 	public int vValCompute(String attr) {
 		vWrapper key = new vWrapper(this,attr);
 		if (vVals.containsKey(key))
@@ -65,6 +84,9 @@ public class TableMulti extends TableSet2 {
 		return result;
 	}
 	
+	/*
+	 * Computes the number of tuples
+	 */
 	private int computeNumTuples() {
 		int leftSize = this.left.getnTuples();
 		int rightSize = this.right.getnTuples();

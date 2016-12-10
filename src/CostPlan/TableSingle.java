@@ -12,10 +12,31 @@ import Project.Pair;
 import Project.TableInfo;
 import Project.UnionFind;
 
+/**
+ * Object that holds only one children in the left deep tree
+ * 
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class TableSingle extends TableSet2 {
 
+	/* ================================== 
+	 * Fields
+	 * ================================== */
 	private OneTableOperator op;
 	
+	/* ================================== 
+	 * Constructors
+	 * ================================== */
+	/**
+	 * Constructor
+	 * @param leftChild
+	 * @param rightChild
+	 * @param exp - expression for the condition we are joining on
+	 * @param bSize - buffer size in pages (must be >0 otherwise defaults to 1)
+	 */
 	public TableSingle(String table, OneTableOperator op, HashMap<vWrapper, Integer> vVals, UnionFind union) {
 		super(vVals, union);
 		
