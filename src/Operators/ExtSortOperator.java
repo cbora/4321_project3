@@ -53,6 +53,7 @@ public class ExtSortOperator extends SortOperator {
 	 */
 	public ExtSortOperator(Operator child, ArrayList<OrderByElement> order_by, String tmp_dir, int bSize) {
 		super(child, order_by);
+		
 		this.bSize = (bSize > 0) ? bSize : 1;
 		this.buffer = new Tuple[(bSize * PAGE_SIZE) / (INT_SIZE * schema.size())];
 		
@@ -78,7 +79,6 @@ public class ExtSortOperator extends SortOperator {
 		super(child, sort_order);
 		this.bSize = (bSize > 0) ? bSize : 1;
 		this.buffer = new Tuple[(bSize * PAGE_SIZE) / (INT_SIZE * schema.size())];
-		
 	
 		this.given_tmp_dir = tmp_dir;
 		
@@ -87,7 +87,7 @@ public class ExtSortOperator extends SortOperator {
 		this.pass = 0;
 		this.curr_run = 0;
 		
-		makeTemp(); // make subdirectory		
+		makeTemp(); // make subdirectory	
 		extsort();		
 	}
 
@@ -193,7 +193,7 @@ public class ExtSortOperator extends SortOperator {
 	 */
 	private void pass0() {
 		fillBuffer();
-		
+
 		// handle all runs involving full buffer
 		while(buffer[buffer.length-1] != null) {
 			Arrays.sort(buffer, new TupleComparator(this.sort_order));
@@ -203,9 +203,8 @@ public class ExtSortOperator extends SortOperator {
 			write.close();
 			fillBuffer();
 			this.prev_runs++;
-						
 		}
-		
+
 		// handle final run
 		if (buffer[0] != null) {
 			int i = 0;

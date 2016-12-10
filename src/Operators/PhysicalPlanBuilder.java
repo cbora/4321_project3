@@ -289,14 +289,13 @@ public class PhysicalPlanBuilder {
 
 		JoinOrder joinOrder = new JoinOrder(children, lo.getUnionFind());
 		HashMap<String, Integer> table_mapping = joinOrder.getTableMapping();
-		
 		BuildJoinVisitor bjv = new BuildJoinVisitor(table_mapping, lo.getExp());
 		ArrayList<Expression> join_exp = bjv.getJoin();
 		ArrayList<Integer> joinType = bjv.getJoinType();
 		
 		ArrayList<Operator> new_children = new ArrayList<Operator>();
 		orderChildren(children, new_children, table_mapping);
-	
+
 		JoinOperator j = null;
 		for (int i = 0; i < new_children.size() - 1; i++) {
 			Operator op1 = new_children.get(i);

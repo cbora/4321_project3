@@ -87,7 +87,7 @@ public class TableMulti extends TableSet2 {
 	/**
 	 * Computes the number of tuples
 	 */
-	private int computeNumTuples() {
+	private long computeNumTuples() {
 		long leftSize = this.left.getnTuples();
 		long rightSize = this.right.getnTuples();
 		
@@ -135,6 +135,7 @@ public class TableMulti extends TableSet2 {
 		
 		long numer = leftSize * rightSize;
 		long denom = 1;
+		
 		for (Long n : vVals)
 			denom *= n;
 		//System.out.println("left size: " + leftSize + " & right size: " + rightSize);

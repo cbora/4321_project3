@@ -85,8 +85,16 @@ public class UnionFind {
 			else
 				newElem.floor = elem1.floor != null ? elem1.floor : elem2.floor;
 		}
-		map.put(attr1, newElem);
-		map.put(attr2, newElem);
+
+		//map.put(attr1, newElem);
+		//map.put(attr2, newElem);
+		//System.out.println(elem1.getAttributes().size());
+		for (String attr : elem1.getAttributes())
+			map.put(attr, newElem);
+		//System.out.println(elem2.getAttributes().size());
+		for (String attr : elem2.getAttributes())
+			map.put(attr, newElem);
+		
 	}
 	
 	/**
@@ -103,6 +111,7 @@ public class UnionFind {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		HashSet<UnionFindElement> set = new HashSet<UnionFindElement>(this.map.values());
+
 		for (UnionFindElement elem : set) {
 			sb.append(elem.toString());
 			sb.append("\n");

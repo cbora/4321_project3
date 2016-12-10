@@ -246,9 +246,9 @@ public class Main {
 					PrintWriter writer = new PrintWriter(outputDir + "/query" + queryNum + "_logicalplan");
 					writer.write(logicalPlan);
 					writer.close();
-					//System.out.println("Logical plan");
-					//System.out.println(logicalPlan);
-					//System.out.println();
+//					System.out.println("Logical plan");
+//					System.out.println(logicalPlan);
+//					System.out.println();
 						
 					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, tmpDir);
 					Operator o = ppb.getResult();
@@ -257,9 +257,9 @@ public class Main {
 					writer = new PrintWriter(outputDir + "/query" + queryNum + "_physicalPlan");
 					writer.write(physicalPlan);
 					writer.close();
-					//System.out.println("Physical plan");
-					//System.out.println(physicalPlan);
-					//System.out.println();
+//					System.out.println("Physical plan");
+//					System.out.println(physicalPlan);
+//					System.out.println();
 					
 					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
 					//HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum);

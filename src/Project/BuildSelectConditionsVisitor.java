@@ -141,6 +141,27 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 				}
 			}
 		}
+		
+		HashSet<String> seen = new HashSet<String>();
+		for (String attr1 : union.getAttributes()) {
+			seen.add(attr1);
+			UnionFindElement elem = union.find(attr1);
+			for (String attr2 : elem.getAttributes()) {
+				if (!seen.contains(attr2)) {
+					Table tbl1 = new Table();
+					tbl1.setName(attr1.substring(0, attr1.indexOf('.')));
+					Column col1 = new Column(tbl1, attr1.substring(attr1.indexOf('.') + 1));
+					
+					Table tbl2 = new Table();
+					tbl2.setName(attr2.substring(0, attr2.indexOf('.')));
+					Column col2 = new Column(tbl2, attr2.substring(attr2.indexOf('.') + 1));	
+					
+					EqualsTo eq = new EqualsTo(col1, col2);
+					addJoin(tbl1, tbl2, eq);	
+				}
+			}
+			
+		}
 	}
 	
 	/* ================================== 
@@ -222,16 +243,15 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 				if (union.find(attr2) == null)
 					union.add(attr2);
 				union.union(attr1, attr2);
-				
 				if (!c.getTable().toString().equals(c2.getTable().toString()) ){ // expression involved 2 cols from same table				
-					addJoin(c.getTable(), c2.getTable(), node);
+					//addJoin(c.getTable(), c2.getTable(), node);
 				}
 			}
 			else {
 				if (c.getTable().toString().equals(c2.getTable().toString()) ){ // expression involved 2 cols from same table				
 					addSelect(c.getTable(), node);
 				}				
-				else {	// expression involved 2 different tables			
+				else {	// expression involved 2 different tables	
 					addJoin(c.getTable(), c2.getTable(), node);
 					addWeirdJoin(c.getTable(), c2.getTable(), node);
 				}
@@ -290,16 +310,6 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 	 * @param node - join expression
 	 */
 	private void addJoin(Table t1, Table t2 , BinaryExpression node){
-//		int index1 = table_mapping.get(t1.getName());
-//		int index2 = table_mapping.get(t2.getName());
-//		
-//		int index = Math.max(index1, index2) - 1; // left deep according to table_mapping
-//		if (join.get(index) == null){ //if no join is present yet
-//			join.set(index, node);
-//		}else { //otherwise and with existing
-//			join.set(index, new AndExpression(join.get(index), node));
-//		}
-		
 		if (join == null) {
 			join = node;
 		}

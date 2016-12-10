@@ -74,7 +74,6 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 	public BuildJoinVisitor(HashMap<String, Integer> table_mapping, Expression exp) {
 		this.table_mapping = table_mapping;
 		this.exp = exp;
-		
 		this.join = new ArrayList<Expression>();
 		this.joinType = new ArrayList<Integer>();
 		
