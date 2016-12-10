@@ -159,7 +159,7 @@ public class Main {
 					if (i.isClustered())
 						dbC.get(parts[0]).setClusteredIndex(i.getAttribute());
 				}
-				
+				bufferedReader.close();
 			}catch (IOException ex) {
 				System.out.println("error reading config file " + configfile);
 			}
@@ -248,7 +248,7 @@ public class Main {
 					writer.write(logicalPlan);
 					writer.close();
 					//System.out.println("Logical plan");
-					//System.out.println(po.prettyPrint(0));
+					//System.out.println(logicalPlan);
 					//System.out.println();
 						
 					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, tmpDir);
@@ -259,7 +259,7 @@ public class Main {
 					writer.write(physicalPlan);
 					writer.close();
 					//System.out.println("Physical plan");
-					//System.out.println(o.prettyPrint(0));
+					//System.out.println(physicalPlan);
 					//System.out.println();
 					
 					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );

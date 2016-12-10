@@ -52,7 +52,6 @@ public class UnionFind {
 			else
 				newElem.floor = elem1.floor != null ? elem1.floor : elem2.floor;
 		}
-		
 		map.put(attr1, newElem);
 		map.put(attr2, newElem);
 	}

@@ -33,7 +33,7 @@ public class TableSingle extends TableSet2 {
 		vWrapper key = new vWrapper(this,attr);
 		if (vVals.containsKey(key))
 			return vVals.get(key);
-		
+
 		long v;
 		if (op instanceof ScanOperator)
 			v = vValBase(attr, (ScanOperator) op);

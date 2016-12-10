@@ -78,9 +78,9 @@ public class ProjectLogicalOperator extends LogicalOperator {
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < depth; i++) 
 			sb.append("-");
-		sb.append("Project[");
+		sb.append("Project");
 		sb.append(items);
-		sb.append("]\n");
+		sb.append("\n");
 		
 		sb.append(this.child.prettyPrint(depth + 1));
 		return sb.toString();

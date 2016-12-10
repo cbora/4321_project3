@@ -98,7 +98,7 @@ public class PhysicalPlanBuilder {
 			j = new SMJoinOperator(left, right, exp, ((SortOperator) left).sort_order, ((SortOperator) right).sort_order);
 			break;
 		}
-		
+
 		return j;
 	}
 	
@@ -119,7 +119,7 @@ public class PhysicalPlanBuilder {
 			s = new ExtSortOperator(o, ob, this.tmp_dir,BLOCK_SIZE);
 			break;
 		}
-		
+
 		return s;
 	}
 	
@@ -140,7 +140,7 @@ public class PhysicalPlanBuilder {
 			s = new ExtSortOperator(o, so, this.tmp_dir, BLOCK_SIZE);
 			break;
 		}
-		
+
 		return s;
 	}
 	

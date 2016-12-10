@@ -42,7 +42,6 @@ public class JoinOrder {
 		ArrayList<TableSet2> nextset = new ArrayList<TableSet2>();
 
 		while(prevSet.size() > 1){
-		
 			for(TableSet2 ts : prevSet){
 				//System.out.println(ts.getTables());
 				for (int i = 0; i < children.size(); i++) {
