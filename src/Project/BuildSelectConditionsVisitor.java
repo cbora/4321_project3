@@ -65,7 +65,6 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 	private UnionFind union;
 	private ArrayList<Expression> select; // list of selection expressions
 	private ArrayList<HashMap<String,Pair>> select_ranges;
-	//private ArrayList <Expression> join; // list of join expressions
 	private Expression join;
 	private Expression weird_join;
 	private Expression extra_exp; // any expressions that don't involve tables
@@ -83,24 +82,17 @@ public class BuildSelectConditionsVisitor implements ExpressionVisitor {
 	 * @param e - WHERE expression
 	 */
 	public BuildSelectConditionsVisitor(HashMap<String, Integer> table_mapping, Expression e) {
-		union = new UnionFind();
-		
+		union = new UnionFind();		
 		select = new ArrayList<Expression>();
 		select_ranges = new ArrayList<HashMap<String,Pair>>();
 		for (int i=0; i<table_mapping.size(); i++) {
 			select.add(null);
 			select_ranges.add(new HashMap<String,Pair>());
 		}
-		//join = new ArrayList<Expression>();
 		join = null;
-		weird_join = null;
-//		for (int i=0; i<table_mapping.size()-1; i++)
-//			join.add(null);
-		
-		extra_exp = null;
-		
-		stack = new Stack<Column>();
-		
+		weird_join = null;		
+		extra_exp = null;		
+		stack = new Stack<Column>();		
 		this.table_mapping = table_mapping;
 		
 		if (e != null)

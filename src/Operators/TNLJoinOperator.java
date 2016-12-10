@@ -40,9 +40,11 @@ public class TNLJoinOperator extends JoinOperator {
 		this(leftChild, rightChild, null);
 	}
 	
-	/* ================================== 
-	 * pretty print of method
-	 * ================================== */
+	/**
+	 * pretty print method
+	 * @param depth
+	 * @return this method's name
+	 */
 	public String prettyPrint(int depth){
 		StringBuffer sb = new StringBuffer();
 		for(int i=0; i<depth; i++)

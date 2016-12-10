@@ -45,17 +45,32 @@ import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
-
+/**
+ * Visitor to determine whether to SMJ or revert to BNLJ
+ * 
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class BuildJoinVisitor implements ExpressionVisitor {
 	
-	private HashMap<String, Integer> table_mapping;
-	private Expression exp;
-	//private UnionFind union;
-	private ArrayList<Expression> join;
-	private ArrayList<Integer> joinType;
+	/* ================================== 
+	 * Fields
+	 * ================================== */
+	private HashMap<String, Integer> table_mapping; // table name and index mapper
+	private Expression exp; // expression to evaluate
+	private ArrayList<Expression> join; //  expression for the join
+	private ArrayList<Integer> joinType; // join type to use
 	
-
-	//public BuildJoinVisitor(HashMap<String, Integer> table_mapping, Expression exp, UnionFind union) {
+	/* ================================== 
+	 * Constructor
+	 * ================================== */
+	/**
+	 * Constructor
+	 * @param table_mapping
+	 * @param exp
+	 */
 	public BuildJoinVisitor(HashMap<String, Integer> table_mapping, Expression exp) {
 		this.table_mapping = table_mapping;
 		this.exp = exp;
@@ -77,6 +92,10 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 		}
 	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
+	
 	public ArrayList<Expression> getJoin() {
 		return this.join;
 	}
@@ -84,21 +103,6 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 	public ArrayList<Integer> getJoinType() {
 		return this.joinType;
 	}
-	
-
-//	private void handleUnion() {
-//		for (String attr : this.union.getAttributes()) {
-//			String tbl = attr.substring(0, attr.indexOf('.'));
-//			int idx = this.table_mapping.get(tbl);
-//			
-//			if (this.join.get(idx) == null) {
-//				this.join.set(idx, buildExpression(attr))
-//			}
-//			else {
-//				this.join.set(idx, new AndExpression(this.join.get(idx), buildExpression(attr)));
-//			}
-//		}
-//	}
 	
 	private void handleExp() {
 		if (this.exp == null)
@@ -123,10 +127,7 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 			joinType.set(index, 2);
 	}
 	
-//	private Expression buildExpression(String attr) {
-//		UnionFindElement elem = this.union.find(attr);
-//	}
-	
+
 	/**
 	 * Visits both children
 	 * @param node - node to be visited

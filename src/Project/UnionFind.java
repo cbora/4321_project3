@@ -4,14 +4,37 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Union find class
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class UnionFind {
 
-	private HashMap<String, UnionFindElement> map;
+	/* ================================== 
+	 * Fields
+	 * ================================== */
+	private HashMap<String, UnionFindElement> map; // attribute name and UnionFindElement mapper
 
+	/* ================================== 
+	 * Constructor
+	 * ================================== */
+	/**
+	 * Constructor
+	 */
 	public UnionFind() {
 		this.map = new HashMap<String, UnionFindElement>();
 	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
+	
+	/**
+	 * Add attribute to the hashset
+	 */
 	public void add(String attribute) {
 		HashSet<String> set = new HashSet<String>();
 		set.add(attribute);
@@ -19,10 +42,20 @@ public class UnionFind {
 		map.put(attribute, new UnionFindElement(set));
 	}
 	
+	/**
+	 *  find the element
+	 * @param attribute
+	 * @return UnionFindElement
+	 */
 	public UnionFindElement find(String attribute) {
 		return map.get(attribute);
 	}
 	
+	/**
+	 * Union two attributes
+	 * @param attr1
+	 * @param attr2
+	 */
 	public void union(String attr1, String attr2) {
 		UnionFindElement elem1 = map.get(attr1);
 		UnionFindElement elem2 = map.get(attr2);
@@ -57,10 +90,17 @@ public class UnionFind {
 		map.put(attr2, newElem);
 	}
 	
+	/**
+	 * Get the set of attributes
+	 * @return set of attributes
+	 */
 	public Set<String> getAttributes() {
 		return map.keySet();
 	}
 	
+	/**
+	 * Union find elements to string
+	 */
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		for (UnionFindElement elem : this.map.values()) {

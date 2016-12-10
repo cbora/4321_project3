@@ -33,9 +33,11 @@ public class SortedDupElimOperator extends Operator {
 		this.nextUnique = this.child.getNextTuple();
 	}
 	
-	/* ================================== 
-	 * pretty print of method
-	 * ================================== */
+	/**
+	 * pretty print method
+	 * @param depth
+	 * @return this method's name
+	 */
 	public String prettyPrint(int depth){
 		StringBuffer sb = new StringBuffer();
 		for(int i=0; i<depth; i++)

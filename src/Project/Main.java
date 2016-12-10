@@ -69,18 +69,6 @@ public class Main {
 		// build stats.txt
 		buildStats(config.getInputDir());
 		
-		// determine which build action to take
-//		if (config.runOption() == 1) {
-//			buildIndexes();
-//		}
-//		else if(config.runOption() == 2) {
-//			buildIndexes();
-//			runQueries(config.getInputDir(), config.getOutputDir(), config.getTmpDir());
-//		}
-//		else if(config.runOption() == 3) {
-//			runQueries(config.getInputDir(), config.getOutputDir(), config.getTmpDir());
-//		}
-		
 		buildIndexes();
 		runQueries(config.getInputDir(), config.getOutputDir(), config.getTmpDir());
 				
@@ -186,14 +174,12 @@ public class Main {
 			TableInfo tableInfo = dbC.get(table);
 			ScanOperator scan = new ScanOperator(tableInfo, table);
 			HashMap<String, Integer> schema = scan.getSchema();
-			//System.out.println(schema);
 			
 			Tuple t;
 			while ((t = scan.getNextTuple()) != null) {
 				tableInfo.setNumTuples(tableInfo.getNumTuples() + 1);
 				
 				for (ColumnInfo col : tableInfo.getColumns().values()) {
-					//System.out.println(t.getVal(0));
 					if (t.getVal(schema.get(table + "." + col.column)) > col.max) {
 						col.max = t.getVal(schema.get(table + "." + col.column));
 					}
@@ -241,7 +227,7 @@ public class Main {
 			
 			while ((statement = parser.Statement()) != null) {
 				try {
-					System.out.println("------- Query " + queryNum + " -------");
+					//System.out.println("------- Query " + queryNum + " -------");
 					Select select = (Select) statement;
 					
 					PlainSelect body = (PlainSelect) select.getSelectBody();	
