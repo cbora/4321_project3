@@ -7,7 +7,7 @@ import Operators.OneTableOperator;
 import Project.UnionFind;
 
 /**
- * 
+ * Determines the best join order for our join plan 
  * 
  * @author Richard Henwood (rbh228)
  * @author Chris Bora (cdb239)
@@ -22,7 +22,7 @@ public class JoinOrder {
 	private ArrayList<OneTableOperator> children; //children
 	private UnionFind union; // Unionfind object
 	private ArrayList<TableSingle> baseTables; // leaf tables 
-	private HashMap<vWrapper, Integer> vVals; // V-values
+	private HashMap<vWrapper, Long> vVals; // V-values
 	private HashMap<String, Integer> table_mapping; // hashmap for mapping table names to indexes
 	
 	/* ================================== 
@@ -36,16 +36,25 @@ public class JoinOrder {
 	public JoinOrder(ArrayList<OneTableOperator> children, UnionFind union) {
 		this.union = union;
 		this.children = children;
-		this.vVals = new HashMap<vWrapper, Integer>();
+		//this.vVals = new HashMap<vWrapper, Long>();
+		vVals = VStore.getInstance();
 		this.table_mapping = new HashMap<String, Integer>();
 		this.baseTables = new ArrayList<TableSingle>();
 		loop();
+		VStore.destroy();
 	}
 	
+	/**
+	 * 
+	 * @return table mapping
+	 */
 	public HashMap<String, Integer> getTableMapping() {
 		return this.table_mapping;
 	}
 	
+	/**
+	 * loops through array list to make all different sets of joins plans and keeping cheapest plan
+	 */
 	private void loop() {
 		int n = children.size();
 		
@@ -65,13 +74,17 @@ public class JoinOrder {
 					String s = children.get(i).getTableID();
 					if(!(ts.getTables().contains(s))){
 						TableSet2 newts = new TableMulti(ts, baseTables.get(i), this.vVals, this.union);
+						//System.out.println(newts.getTables() + " cost: " + newts.getCost() + ", size: " + newts.getnTuples());
 						eliminate(nextset, newts);
 					}
 				}	
 			}
 			prevSet = nextset;
 			nextset = new ArrayList<TableSet2>();			
+
 		}
+		
+		//System.out.println("Cost of plan: " + prevSet.get(0).getCost());
 		
 		for (TableSet2 result : prevSet) {
 			int i = 0;
@@ -82,6 +95,11 @@ public class JoinOrder {
 		}
 	}
 	
+	/**
+	 * helper function to eliminate expensive plans
+	 * @param newts
+	 * @param ts
+	 */
 	private void eliminate(ArrayList<TableSet2> newts, TableSet2 ts) {
 		
 		for(int i=0; i<newts.size(); i++){

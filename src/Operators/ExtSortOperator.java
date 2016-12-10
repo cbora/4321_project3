@@ -79,6 +79,7 @@ public class ExtSortOperator extends SortOperator {
 		this.bSize = (bSize > 0) ? bSize : 1;
 		this.buffer = new Tuple[(bSize * PAGE_SIZE) / (INT_SIZE * schema.size())];
 		
+	
 		this.given_tmp_dir = tmp_dir;
 		
 		this.prev_runs = 0;
@@ -130,6 +131,7 @@ public class ExtSortOperator extends SortOperator {
 	public void close() {
 		cleanup();
 		this.output_reader.close();
+		this.child.close();
 	}
 	
 	/**
@@ -153,7 +155,6 @@ public class ExtSortOperator extends SortOperator {
 	 * Cleans up temporary directory used in the external sort
 	 */
 	private void cleanup() {
-
 		if(this.tmp_dir.compareTo(this.given_tmp_dir) != 0){
 			//delete tmp_dir
 			File f = new File(this.tmp_dir);

@@ -73,9 +73,6 @@ public abstract class SortOperator extends Operator {
 		child.close();
 	}
 	
-//	public int getRelationSize() {
-//		return this.child.getRelationSize();
-//	}
 	
 	/**
 	 * Construct sort_order array using order by expression

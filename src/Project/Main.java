@@ -11,6 +11,7 @@ import java.util.HashMap;
 import IO.BinaryTupleWriter;
 import IO.Configuration;
 import IO.HumanTupleWriter;
+import IO.RandomTupleGenerator;
 import Indexing.BPlusTree;
 import Indexing.IndexInfo;
 import LogicalOperator.LogicalOperator;
@@ -34,6 +35,14 @@ import net.sf.jsqlparser.statement.select.Select;
 public class Main {
 
 	public static void main(String[] args) {
+		
+		//RandomTupleGenerator.genTuples("/home/rhenwood39/Documents/CS4320-4321/p5/samples/input2/db/data/Boats", 7500, new int[] {900, 3500});
+		//RandomTupleGenerator.genTuples("/home/rhenwood39/Documents/CS4320-4321/p5/samples/input2/db/data/Sailors", 20000, new int[] {50000, 10000});
+		//RandomTupleGenerator.genTuples("/home/rhenwood39/Documents/CS4320-4321/p5/samples/input2/db/data/Reserves", 15000, new int[] {10000, 1000});
+		
+		//RandomTupleGenerator.genTuples("/home/rhenwood39/Documents/CS4320-4321/p5/samples/input2/db/data/Boats", 7500, 3);
+		//RandomTupleGenerator.genTuples("/home/rhenwood39/Documents/CS4320-4321/p5/samples/input2/db/data/Sailors", 20000, 3);
+		//RandomTupleGenerator.genTuples("/home/rhenwood39/Documents/CS4320-4321/p5/samples/input2/db/data/Reserves", 15000, 3);
 		
 		// parse config file
 		Configuration config = new Configuration(args[0]);
@@ -68,7 +77,6 @@ public class Main {
 		
 		// build stats.txt
 		buildStats(config.getInputDir());
-		
 		buildIndexes();
 		runQueries(config.getInputDir(), config.getOutputDir(), config.getTmpDir());
 				
@@ -82,11 +90,9 @@ public class Main {
 		ArrayList<String> tables = dbC.getTableNames();
 		
 		for (String table : tables){
-			
 			if (dbC.get(table).getClusteredIndex() != null) {
 				ScanOperator scan;
 				IndexInfo info = dbC.get(table).getColumns().get(dbC.get(table).getClusteredIndex()).getIndexInfo();
-				
 				scan = new ScanOperator(dbC.get(table), table);
 				int pos = scan.getSchema().get(table + "." + info.getAttribute());
 				
@@ -114,8 +120,7 @@ public class Main {
 					continue;
 				
 				if (info.isClustered()) // if it is clustered, continue because done
-					continue;
-					
+					continue;					
 				ScanOperator scan = new ScanOperator(dbC.get(table), table);
 				int pos = scan.getSchema().get(table + "." + info.getAttribute());
 				
@@ -150,6 +155,8 @@ public class Main {
 					String indexPath = input + "/db/indexes/" + parts[0] + "." + parts[1];
 					IndexInfo i = new IndexInfo(indexPath, parts[1], parts[2], parts[3]);
 					dbC.get(parts[0]).getColumns().get(parts[1]).setIndexInfo(i);
+					if (i.isClustered())
+						dbC.get(parts[0]).setClusteredIndex(i.getAttribute());
 				}
 				
 			}catch (IOException ex) {
@@ -234,18 +241,28 @@ public class Main {
 					
 					LogicalPlanBuilder d = new LogicalPlanBuilder(body);
 					LogicalOperator po = d.getRoot();
-					System.out.println("Logical plan");
-					System.out.println(po.prettyPrint(0));
-					System.out.println();
+					
+					String logicalPlan = po.prettyPrint(0);
+					PrintWriter writer = new PrintWriter(outputDir + "/query" + queryNum + "_logicalplan");
+					writer.write(logicalPlan);
+					writer.close();
+					//System.out.println("Logical plan");
+					//System.out.println(po.prettyPrint(0));
+					//System.out.println();
 						
 					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, tmpDir);
 					Operator o = ppb.getResult();
-					System.out.println("Physical plan");
-					System.out.println(o.prettyPrint(0));
-					System.out.println();
 					
-					//BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
-					HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum);
+					String physicalPlan = o.prettyPrint(0);
+					writer = new PrintWriter(outputDir + "/query" + queryNum + "_physicalPlan");
+					writer.write(physicalPlan);
+					writer.close();
+					//System.out.println("Physical plan");
+					//System.out.println(o.prettyPrint(0));
+					//System.out.println();
+					
+					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
+					//HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum);
 					
 					long start = System.currentTimeMillis();
 					o.dump(writ);

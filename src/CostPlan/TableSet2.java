@@ -10,12 +10,13 @@ public abstract class TableSet2 {
 	/* ================================== 
 	 * Fields
 	 * ================================== */
-	protected int cost;
-	protected int nTuples;
+	protected long cost;
+	protected long nTuples;
 	protected LinkedHashSet<String> tables;
-	protected HashMap<vWrapper, Integer> vVals;
+	protected HashMap<vWrapper, Long> vVals;
 	protected UnionFind union;
 	
+
 	/* ================================== 
 	 * Constructors
 	 * ================================== */
@@ -24,7 +25,7 @@ public abstract class TableSet2 {
 	 * @param vVals
 	 * @param union
 	 */
-	public TableSet2(HashMap<vWrapper, Integer> vVals, UnionFind union) {
+	public TableSet2(HashMap<vWrapper, Long> vVals, UnionFind union) {
 		this.vVals = vVals;
 		this.union = union;
 	}
@@ -33,13 +34,13 @@ public abstract class TableSet2 {
 	 * Methods
 	 * ================================== */
 	
-	public abstract int vValCompute(String attr);
+	public abstract long vValCompute(String attr);
 	
 	/**
 	 * 
 	 * @return cost
 	 */
-	public int getCost() {
+	public long getCost() {
 		return this.cost;
 	}
 	
@@ -47,7 +48,7 @@ public abstract class TableSet2 {
 	 * 
 	 * @return number of tuples
 	 */
-	public int getnTuples() {
+	public long getnTuples() {
 		return this.nTuples;
 	}
 	
@@ -55,7 +56,7 @@ public abstract class TableSet2 {
 	 * 
 	 * @return table size
 	 */
-	public int getSetSize() {
+	public long getSetSize() {
 		return this.tables.size();
 	}
 	

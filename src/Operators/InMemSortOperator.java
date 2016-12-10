@@ -101,7 +101,7 @@ public class InMemSortOperator extends SortOperator {
 			sorted_tuples.add(t);
 		}
 		// sort the tuples
-		Collections.sort(sorted_tuples, new TupleComparator(sort_order));		
+		Collections.sort(sorted_tuples, new TupleComparator(sort_order));
 	}
 
 }

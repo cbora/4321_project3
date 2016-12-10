@@ -74,21 +74,21 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 	public BuildJoinVisitor(HashMap<String, Integer> table_mapping, Expression exp) {
 		this.table_mapping = table_mapping;
 		this.exp = exp;
-		//this.union = union;
+		
 		this.join = new ArrayList<Expression>();
 		this.joinType = new ArrayList<Integer>();
 		
-		for (int i = 0 ; i < table_mapping.size(); i++) {
+		for (int i = 0 ; i < table_mapping.size() - 1; i++) {
 			this.join.add(null);
 			this.joinType.add(null);
 		}
 		
-		//handleUnion();
 		handleExp();
 		
 		for (int i = 0; i < joinType.size(); i++) {
-			if (joinType.get(i) == null)
+			if (joinType.get(i) == null) {
 				joinType.set(i, 1);
+			}
 		}
 	}
 	
@@ -96,14 +96,25 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 	 * Methods
 	 * ================================== */
 	
+	/**
+	 * 
+	 * @return Expression for join
+	 */
 	public ArrayList<Expression> getJoin() {
 		return this.join;
 	}
 	
+	/**
+	 * 
+	 * @return Type of join to use
+	 */
 	public ArrayList<Integer> getJoinType() {
 		return this.joinType;
 	}
 	
+	/***
+	 * Handles null expression for cross product joins
+	 */
 	private void handleExp() {
 		if (this.exp == null)
 			return;
@@ -121,12 +132,13 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 			join.set(index, new AndExpression(join.get(index), node));
 		}
 		
-		if (!canUseSMJ)
+		if (!canUseSMJ) {
 			joinType.set(index, 1);
-		else if (canUseSMJ && joinType.get(index) == null)
+		}
+		else if (canUseSMJ && joinType.get(index) == null) {
 			joinType.set(index, 2);
+		}
 	}
-	
 
 	/**
 	 * Visits both children

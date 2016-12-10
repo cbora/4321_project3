@@ -25,7 +25,7 @@ public class TableSingle extends TableSet2 {
 	/* ================================== 
 	 * Fields
 	 * ================================== */
-	private OneTableOperator op;
+	private OneTableOperator op; // for operator used to access data
 	
 	/* ================================== 
 	 * Constructors
@@ -37,7 +37,7 @@ public class TableSingle extends TableSet2 {
 	 * @param exp - expression for the condition we are joining on
 	 * @param bSize - buffer size in pages (must be >0 otherwise defaults to 1)
 	 */
-	public TableSingle(String table, OneTableOperator op, HashMap<vWrapper, Integer> vVals, UnionFind union) {
+	public TableSingle(String table, OneTableOperator op, HashMap<vWrapper, Long> vVals, UnionFind union) {
 		super(vVals, union);
 		
 		this.cost = 0;
@@ -49,13 +49,17 @@ public class TableSingle extends TableSet2 {
 		this.nTuples = computeSize();
 	}
 	
+	/**
+	 * determines which vvalue function to call
+	 * @return vvalue
+	 */
 	@Override
-	public int vValCompute(String attr) {
+	public long vValCompute(String attr) {
 		vWrapper key = new vWrapper(this,attr);
 		if (vVals.containsKey(key))
 			return vVals.get(key);
 		
-		int v;
+		long v;
 		if (op instanceof ScanOperator)
 			v = vValBase(attr, (ScanOperator) op);
 		else if (op instanceof IndexScanOperator)
@@ -66,7 +70,11 @@ public class TableSingle extends TableSet2 {
 		return v;
 	}
 	
-	private int computeSize() {
+	/**
+	 * determines function to call for computing size
+	 * @return size
+	 */
+	private long computeSize() {
 		if (op instanceof ScanOperator)
 			return sizeBase((ScanOperator) op);
 		else if (op instanceof IndexScanOperator)
@@ -75,12 +83,29 @@ public class TableSingle extends TableSet2 {
 			return sizeSelect((SelectOperator) op);
 	}
 	
-	private int sizeBase(ScanOperator scan) {
+	/** 
+	 * computes size for simple scan operator
+	 * @param scan
+	 * @return size
+	 */
+	private long sizeBase(ScanOperator scan) {
+		//System.out.println(this.getTables() + " cost: " + this.getCost() + ", size: " + scan.getTableInfo().getNumTuples());
 		return Math.max(scan.getTableInfo().getNumTuples(), 1);
 	}
 	
-	private int sizeSelect(SelectOperator slct) {
+	/**
+	 * computes size for select operator
+	 * @param slct
+	 * @return size
+	 */
+	private long sizeSelect(SelectOperator slct) {
 		TableInfo tableInfo = slct.getTableInfo();
+		
+		long tableSize;
+		if (slct.getChild() instanceof IndexScanOperator)
+			tableSize = sizeSelect((IndexScanOperator) slct.getChild());
+		else
+			tableSize = tableInfo.getNumTuples();
 		
 		HashMap<String, Pair> selectRange = slct.getSelectRange();
 		
@@ -88,50 +113,69 @@ public class TableSingle extends TableSet2 {
 		for (Entry<String, Pair> entry : selectRange.entrySet()) {
 			String attr = entry.getKey();
 			String col = attr.substring(attr.indexOf('.') + 1);
-			int max = tableInfo.getColumns().get(col).max;
-			int min = tableInfo.getColumns().get(col).min;
+			long max = tableInfo.getColumns().get(col).max;
+			long min = tableInfo.getColumns().get(col).min;
 			
-			int range = Math.min(max, entry.getValue().high) - Math.max(min, entry.getValue().low) + 1;
+			long range = Math.min(max, entry.getValue().high) - Math.max(min, entry.getValue().low) + 1;
 			
 			reduction *= ((double) range) / (max - min + 1);
 		}
 		
-		return Math.max(1, (int) (tableInfo.getNumTuples() * reduction));
+		//System.out.println(this.getTables() + " cost: " + this.getCost() + ", size: " + tableInfo.getNumTuples() + " * " + reduction + " = " + Math.max(1, (long) (tableInfo.getNumTuples() * reduction)));
+		return Math.max(1, (long) (tableSize * reduction));
 	}
 	
-	private int sizeSelect(IndexScanOperator idx) {
+	/**
+	 * computes size for index scan operator
+	 * @param idx
+	 * @return size
+	 */
+	private long sizeSelect(IndexScanOperator idx) {
 		String attr = idx.indexAttribute();
 		String col = attr.substring(attr.indexOf('.') + 1);
 		
 		TableInfo tableInfo = idx.getTableInfo();
-		int max = tableInfo.getColumns().get(col).max;
-		int min = tableInfo.getColumns().get(col).min;
+		long max = tableInfo.getColumns().get(col).max;
+		long min = tableInfo.getColumns().get(col).min;
 		
-		int range = Math.min(max, idx.getHighkey()) - Math.max(min, idx.getLowkey()) + 1;
+		long range = Math.min(max, idx.getHighkey()) - Math.max(min, idx.getLowkey()) + 1;
 		double reduction = ((double) range) / (max - min + 1);
 		
-		return Math.max(1, (int) (tableInfo.getNumTuples() * reduction));
+		//System.out.println(this.getTables() + " cost: " + this.getCost() + ", size: " + tableInfo.getNumTuples() + " * " + reduction + " = " + Math.max(1, (long) (tableInfo.getNumTuples() * reduction)));
+		return Math.max(1, (long) (tableInfo.getNumTuples() * reduction));
 	}
 	
-	private int vValBase(String attr, ScanOperator scan) {
+	/**
+	 * computes vvalue for simple scan operator
+	 * @param attr
+	 * @param scan
+	 * @return vvalue
+	 */
+	private long vValBase(String attr, ScanOperator scan) {
 		TableInfo tableInfo = scan.getTableInfo();
 		String col = attr.substring(attr.indexOf('.') + 1);
 		
-		int max = tableInfo.getColumns().get(col).max;
-		int min = tableInfo.getColumns().get(col).min;
+		long max = tableInfo.getColumns().get(col).max;
+		long min = tableInfo.getColumns().get(col).min;
 		
-		int result = max - min + 1;
+		long result = max - min + 1;
 		
 		return Math.max(Math.min(result, tableInfo.getNumTuples()), 1);
 	}
 	
-	private int vValSelect(String attr, SelectOperator slct) {
+	/**
+	 * computes vvalue for select operator
+	 * @param attr
+	 * @param slct
+	 * @return vvalue
+	 */
+	private long vValSelect(String attr, SelectOperator slct) {
 		TableInfo tableInfo = slct.getTableInfo();
 		String col = attr.substring(attr.indexOf('.') + 1);
-		int max = tableInfo.getColumns().get(col).max;
-		int min = tableInfo.getColumns().get(col).min;
+		long max = tableInfo.getColumns().get(col).max;
+		long min = tableInfo.getColumns().get(col).min;
 		
-		int result;
+		long result;
 		if (slct.getSelectRange().get(attr) != null)
 			result = Math.min(max, slct.getSelectRange().get(attr).high) - Math.max(min, slct.getSelectRange().get(attr).low) + 1;
 		else
@@ -140,13 +184,19 @@ public class TableSingle extends TableSet2 {
 		return Math.max(Math.min(result, tableInfo.getNumTuples()), 1);
 	}
 	
-	private int vValSelect(String attr, IndexScanOperator idx) {
+	/**
+	 * compute vvlaue of index scan operator
+	 * @param attr
+	 * @param idx
+	 * @return vvalue
+	 */
+	private long vValSelect(String attr, IndexScanOperator idx) {
 		TableInfo tableInfo = idx.getTableInfo();
 		String col = attr.substring(attr.indexOf('.') + 1);
-		int max = tableInfo.getColumns().get(col).max;
-		int min = tableInfo.getColumns().get(col).min;
+		long max = tableInfo.getColumns().get(col).max;
+		long min = tableInfo.getColumns().get(col).min;
 		
-		int result;
+		long result;
 		if (idx.indexAttribute().equals(attr))
 			result = Math.min(max, idx.getHighkey()) - Math.max(min, idx.getLowkey()) + 1;
 		else

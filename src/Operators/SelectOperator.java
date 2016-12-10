@@ -110,6 +110,10 @@ public class SelectOperator extends OneTableOperator {
 		return this.selectRange;
 	}
 	
+	public Operator getChild() {
+		return child;
+	}
+	
 	/**
 	 * Checks if a tuple t passes the condition in selection condition
 	 * @param t - tuple we are checking
