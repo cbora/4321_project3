@@ -6,14 +6,33 @@ import java.util.HashMap;
 import Operators.OneTableOperator;
 import Project.UnionFind;
 
+/**
+ * 
+ * 
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class JoinOrder {
 
-	private ArrayList<OneTableOperator> children;
-	private UnionFind union;
-	private ArrayList<TableSingle> baseTables;
-	private HashMap<vWrapper, Integer> vVals;
-	private HashMap<String, Integer> table_mapping;
+	/* ================================== 
+	 * Fields
+	 * ================================== */
+	private ArrayList<OneTableOperator> children; //children
+	private UnionFind union; // Unionfind object
+	private ArrayList<TableSingle> baseTables; // leaf tables 
+	private HashMap<vWrapper, Integer> vVals; // V-values
+	private HashMap<String, Integer> table_mapping; // hashmap for mapping table names to indexes
 	
+	/* ================================== 
+	 * Constructors
+	 * ================================== */
+	/**
+	 * Constructor
+	 * @param children
+	 * @param union
+	 */
 	public JoinOrder(ArrayList<OneTableOperator> children, UnionFind union) {
 		this.union = union;
 		this.children = children;
@@ -42,27 +61,16 @@ public class JoinOrder {
 		while(prevSet.size() > 1){
 		
 			for(TableSet2 ts : prevSet){
-				//System.out.println(ts.getTables());
 				for (int i = 0; i < children.size(); i++) {
 					String s = children.get(i).getTableID();
-					//System.out.println(s);
 					if(!(ts.getTables().contains(s))){
-						//System.out.println("inside if: " + s);
 						TableSet2 newts = new TableMulti(ts, baseTables.get(i), this.vVals, this.union);
 						eliminate(nextset, newts);
 					}
 				}	
-				//System.out.println("--");
 			}
-			
 			prevSet = nextset;
-			nextset = new ArrayList<TableSet2>();
-			
-			//System.out.println("after: " + prevSet.size());
-			//for (TableSet2 ts : prevSet)
-				//System.out.println(ts.getTables());
-			//System.out.println("--");
-
+			nextset = new ArrayList<TableSet2>();			
 		}
 		
 		for (TableSet2 result : prevSet) {
@@ -86,8 +94,6 @@ public class JoinOrder {
 		}
 		newts.add(ts);
 	}
-
-
 }
 
 
