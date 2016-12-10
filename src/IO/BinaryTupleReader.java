@@ -1,5 +1,6 @@
 package IO;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -36,6 +37,7 @@ public class BinaryTupleReader extends TupleReader {
 	private int buffer_index; // where we are in the buffer
 	private boolean isEmpty; // flags empty file
 	private boolean hasRead; // flag to indicate whether we have read yet
+	private boolean fileExist; // flag to indicate whether file exists
 
 	/*
 	 * ================================== 
@@ -50,16 +52,24 @@ public class BinaryTupleReader extends TupleReader {
 	 */
 	public BinaryTupleReader(String filename) {
 		this.filename = filename;
-		try {
-			this.input = new FileInputStream(this.filename);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		this.channel = this.input.getChannel();
-		this.buffer = ByteBuffer.allocate(PAGE_SIZE);
-		this.col_number = -1;
-		this.isEmpty = false;
-		this.hasRead = false;
+		File f = new File(this.filename);
+			if(f.exists() && !f.isDirectory()) { 
+				try {
+					this.input = new FileInputStream(this.filename);			
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();		
+				}
+				this.channel = this.input.getChannel();
+				this.buffer = ByteBuffer.allocate(PAGE_SIZE);
+				this.col_number = -1;
+				this.isEmpty = false;
+				this.hasRead = false;
+				this.fileExist = true;
+			}
+			else {
+				this.input = null;
+				this.fileExist = false;
+			}		
 	}
 
 	/*
@@ -74,6 +84,9 @@ public class BinaryTupleReader extends TupleReader {
 	 */
 	@Override
 	public Tuple read() {
+		if (!this.fileExist)
+			return null;
+		
 		if (!this.hasRead) {
 			readPage();
 		}
@@ -153,6 +166,8 @@ public class BinaryTupleReader extends TupleReader {
 	 */
 	@Override
 	public void close() {
+		if (!this.fileExist)
+			return;
 		try {
 			this.input.close();
 			this.channel.close();
