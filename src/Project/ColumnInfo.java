@@ -2,14 +2,32 @@ package Project;
 
 import Indexing.IndexInfo;
 
+/**
+ * Holds info of a column including its position, min and max values
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class ColumnInfo {
 	
+	/* ================================== 
+	 * Fields
+	 * ================================== */
 	public String column; // col name
 	public int pos;
 	public int min; // min value
 	public int max; // max value
 	private IndexInfo indexInfo; // index info for this column
 	
+	/* ================================== 
+	 * Constructors
+	 * ================================== */
+	/**
+	 * Constructor
+	 * @param column
+	 * @param pos
+	 */
 	public ColumnInfo(String column, int pos) {
 		this.column = column;
 		this.min = Integer.MAX_VALUE;
@@ -17,6 +35,11 @@ public class ColumnInfo {
 		this.indexInfo = null;
 		this.pos = pos;
 	}
+	
+	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
 	
 	/**
 	 * 

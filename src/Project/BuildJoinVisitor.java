@@ -45,17 +45,32 @@ import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
-
+/**
+ * Visitor to determine whether to SMJ or revert to BNLJ
+ * 
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class BuildJoinVisitor implements ExpressionVisitor {
 	
-	private HashMap<String, Integer> table_mapping;
-	private Expression exp;
-	//private UnionFind union;
-	private ArrayList<Expression> join;
-	private ArrayList<Integer> joinType;
+	/* ================================== 
+	 * Fields
+	 * ================================== */
+	private HashMap<String, Integer> table_mapping; // table name and index mapper
+	private Expression exp; // expression to evaluate
+	private ArrayList<Expression> join; //  expression for the join
+	private ArrayList<Integer> joinType; // join type to use
 	
-
-	//public BuildJoinVisitor(HashMap<String, Integer> table_mapping, Expression exp, UnionFind union) {
+	/* ================================== 
+	 * Constructor
+	 * ================================== */
+	/**
+	 * Constructor
+	 * @param table_mapping
+	 * @param exp
+	 */
 	public BuildJoinVisitor(HashMap<String, Integer> table_mapping, Expression exp) {
 		this.table_mapping = table_mapping;
 		this.exp = exp;
@@ -77,14 +92,29 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 		}
 	}
 	
+	/* ================================== 
+	 * Methods
+	 * ================================== */
+	
+	/**
+	 * 
+	 * @return Expression for join
+	 */
 	public ArrayList<Expression> getJoin() {
 		return this.join;
 	}
 	
+	/**
+	 * 
+	 * @return Type of join to use
+	 */
 	public ArrayList<Integer> getJoinType() {
 		return this.joinType;
 	}
 	
+	/***
+	 * Handles null expression for cross product joins
+	 */
 	private void handleExp() {
 		if (this.exp == null)
 			return;
@@ -109,8 +139,7 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 			joinType.set(index, 2);
 		}
 	}
-	
-	
+
 	/**
 	 * Visits both children
 	 * @param node - node to be visited

@@ -77,7 +77,6 @@ public class Main {
 		
 		// build stats.txt
 		buildStats(config.getInputDir());
-			
 		buildIndexes();
 		runQueries(config.getInputDir(), config.getOutputDir(), config.getTmpDir());
 				

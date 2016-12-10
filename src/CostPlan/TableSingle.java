@@ -12,10 +12,31 @@ import Project.Pair;
 import Project.TableInfo;
 import Project.UnionFind;
 
+/**
+ * Object that holds only one children in the left deep tree
+ * 
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public class TableSingle extends TableSet2 {
 
-	private OneTableOperator op;
+	/* ================================== 
+	 * Fields
+	 * ================================== */
+	private OneTableOperator op; // for operator used to access data
 	
+	/* ================================== 
+	 * Constructors
+	 * ================================== */
+	/**
+	 * Constructor
+	 * @param leftChild
+	 * @param rightChild
+	 * @param exp - expression for the condition we are joining on
+	 * @param bSize - buffer size in pages (must be >0 otherwise defaults to 1)
+	 */
 	public TableSingle(String table, OneTableOperator op, HashMap<vWrapper, Long> vVals, UnionFind union) {
 		super(vVals, union);
 		
@@ -28,6 +49,10 @@ public class TableSingle extends TableSet2 {
 		this.nTuples = computeSize();
 	}
 	
+	/**
+	 * determines which vvalue function to call
+	 * @return vvalue
+	 */
 	@Override
 	public long vValCompute(String attr) {
 		vWrapper key = new vWrapper(this,attr);
@@ -45,6 +70,10 @@ public class TableSingle extends TableSet2 {
 		return v;
 	}
 	
+	/**
+	 * determines function to call for computing size
+	 * @return size
+	 */
 	private long computeSize() {
 		if (op instanceof ScanOperator)
 			return sizeBase((ScanOperator) op);
@@ -54,11 +83,21 @@ public class TableSingle extends TableSet2 {
 			return sizeSelect((SelectOperator) op);
 	}
 	
+	/** 
+	 * computes size for simple scan operator
+	 * @param scan
+	 * @return size
+	 */
 	private long sizeBase(ScanOperator scan) {
 		//System.out.println(this.getTables() + " cost: " + this.getCost() + ", size: " + scan.getTableInfo().getNumTuples());
 		return Math.max(scan.getTableInfo().getNumTuples(), 1);
 	}
 	
+	/**
+	 * computes size for select operator
+	 * @param slct
+	 * @return size
+	 */
 	private long sizeSelect(SelectOperator slct) {
 		TableInfo tableInfo = slct.getTableInfo();
 		
@@ -86,6 +125,11 @@ public class TableSingle extends TableSet2 {
 		return Math.max(1, (long) (tableSize * reduction));
 	}
 	
+	/**
+	 * computes size for index scan operator
+	 * @param idx
+	 * @return size
+	 */
 	private long sizeSelect(IndexScanOperator idx) {
 		String attr = idx.indexAttribute();
 		String col = attr.substring(attr.indexOf('.') + 1);
@@ -101,6 +145,12 @@ public class TableSingle extends TableSet2 {
 		return Math.max(1, (long) (tableInfo.getNumTuples() * reduction));
 	}
 	
+	/**
+	 * computes vvalue for simple scan operator
+	 * @param attr
+	 * @param scan
+	 * @return vvalue
+	 */
 	private long vValBase(String attr, ScanOperator scan) {
 		TableInfo tableInfo = scan.getTableInfo();
 		String col = attr.substring(attr.indexOf('.') + 1);
@@ -113,6 +163,12 @@ public class TableSingle extends TableSet2 {
 		return Math.max(Math.min(result, tableInfo.getNumTuples()), 1);
 	}
 	
+	/**
+	 * computes vvalue for select operator
+	 * @param attr
+	 * @param slct
+	 * @return vvalue
+	 */
 	private long vValSelect(String attr, SelectOperator slct) {
 		TableInfo tableInfo = slct.getTableInfo();
 		String col = attr.substring(attr.indexOf('.') + 1);
@@ -128,6 +184,12 @@ public class TableSingle extends TableSet2 {
 		return Math.max(Math.min(result, tableInfo.getNumTuples()), 1);
 	}
 	
+	/**
+	 * compute vvlaue of index scan operator
+	 * @param attr
+	 * @param idx
+	 * @return vvalue
+	 */
 	private long vValSelect(String attr, IndexScanOperator idx) {
 		TableInfo tableInfo = idx.getTableInfo();
 		String col = attr.substring(attr.indexOf('.') + 1);

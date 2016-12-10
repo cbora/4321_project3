@@ -41,10 +41,12 @@ public class ProjectOperator extends Operator {
 		EvalSelectItemVisitor visitor = new EvalSelectItemVisitor(this.items, this.tables, child.getSchema());
 		this.schema = visitor.getResult(); 
 	}
-	
-	/* ================================== 
-	 * pretty print of method
-	 * ================================== */
+
+	/**
+	 * pretty print method
+	 * @param depth
+	 * @return this method's name
+	 */
 	public String prettyPrint(int depth){
 		StringBuffer sb = new StringBuffer();
 		for(int i=0; i<depth; i++)
@@ -57,9 +59,7 @@ public class ProjectOperator extends Operator {
 	}
 	
 	
-	/* ================================== 
-	 * Methods
-	 * ================================== */
+
 	@Override
 	public HashMap<String, Integer> getSchema() {
 		return this.schema;

@@ -144,6 +144,13 @@ public class PhysicalPlanBuilder {
 		return s;
 	}
 	
+	/**
+	 * Determines which Select Operator to use based on statistics
+	 * @param scan
+	 * @param exp
+	 * @param selectRange
+	 * @return Index (clustered or Unclustered) or Select
+	 */
 	private Operator detSelect(ScanOperator scan, Expression exp, HashMap<String, Pair> selectRange) {
 		TableInfo tableInfo = scan.getTableInfo();
 			
@@ -199,6 +206,12 @@ public class PhysicalPlanBuilder {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param t
+	 * @return 
+	 */
+	
 	private int calculateScanCost(TableInfo t) {
 		int nTuples = t.getNumTuples();
 		int size = t.getColumns().size();
@@ -206,6 +219,14 @@ public class PhysicalPlanBuilder {
 		return (nTuples*size)/PAGE_SIZE;
 	}
 	
+	/**
+	 * 
+	 * @param t
+	 * @param c
+	 * @param low
+	 * @param high
+	 * @return
+	 */
 	private int calculateIndexCost(TableInfo t, ColumnInfo c, int low, int high) {
 		double r = ((double) (Math.min(high, c.max) - Math.max(low, c.min) +1)) / (c.max - c.min + 1);
 		int nTuples = t.getNumTuples();

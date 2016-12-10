@@ -56,6 +56,11 @@ public class DuplicateLogicalOperator extends LogicalOperator {
 		this.child = child;
 	}
 	
+	/**
+	 * pretty print method
+	 * @param depth
+	 * @return this method's name
+	 */
 	public String prettyPrint(int depth) {
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < depth; i++) 
