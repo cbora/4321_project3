@@ -13,7 +13,7 @@ public class vWrapper {
 	/* ================================== 
 	 * Fields
 	 * ================================== */
-	public String encoding; //
+	public String encoding; // encoding of table set
 	
 	/* ================================== 
 	 * Constructors

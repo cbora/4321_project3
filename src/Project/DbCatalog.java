@@ -56,6 +56,10 @@ public class DbCatalog {
 		return hash.get(tableName);
 	}
 	
+	/**
+	 * 
+	 * @return names of tables in catalog
+	 */
 	public ArrayList<String> getTableNames() {
 		return new ArrayList<String>(hash.keySet());
 	}

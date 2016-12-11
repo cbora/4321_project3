@@ -63,6 +63,7 @@ public class UnionFind {
 		HashSet<String> set = new HashSet<String>(elem1.getAttributes());
 		set.addAll(elem2.getAttributes());
 		
+		// adjust equals, floor, and ceil
 		UnionFindElement newElem = new UnionFindElement(set);
 		if (elem1.equals != null) {
 			newElem.equals = elem1.equals;
@@ -86,12 +87,9 @@ public class UnionFind {
 				newElem.floor = elem1.floor != null ? elem1.floor : elem2.floor;
 		}
 
-		//map.put(attr1, newElem);
-		//map.put(attr2, newElem);
-		//System.out.println(elem1.getAttributes().size());
+		// adjust pointers for all old keys
 		for (String attr : elem1.getAttributes())
 			map.put(attr, newElem);
-		//System.out.println(elem2.getAttributes().size());
 		for (String attr : elem2.getAttributes())
 			map.put(attr, newElem);
 		

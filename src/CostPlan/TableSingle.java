@@ -50,7 +50,7 @@ public class TableSingle extends TableSet2 {
 	}
 	
 	/**
-	 * determines which vvalue function to call
+	 * determines which vvalue function to call and returns correct vvalue
 	 * @return vvalue
 	 */
 	@Override
@@ -71,7 +71,7 @@ public class TableSingle extends TableSet2 {
 	}
 	
 	/**
-	 * determines function to call for computing size
+	 * determines function to call for computing size and returns size
 	 * @return size
 	 */
 	private long computeSize() {
@@ -102,13 +102,14 @@ public class TableSingle extends TableSet2 {
 		TableInfo tableInfo = slct.getTableInfo();
 		
 		long tableSize;
-		if (slct.getChild() instanceof IndexScanOperator)
+		if (slct.getChild() instanceof IndexScanOperator) // if child is index, factor this in
 			tableSize = sizeSelect((IndexScanOperator) slct.getChild());
 		else
 			tableSize = tableInfo.getNumTuples();
 		
 		HashMap<String, Pair> selectRange = slct.getSelectRange();
 		
+		// get reduction factor
 		double reduction = 1;
 		for (Entry<String, Pair> entry : selectRange.entrySet()) {
 			String attr = entry.getKey();
@@ -176,10 +177,15 @@ public class TableSingle extends TableSet2 {
 		long min = tableInfo.getColumns().get(col).min;
 		
 		long result;
-		if (slct.getSelectRange().get(attr) != null)
+		if (slct.getSelectRange().get(attr) != null) {
 			result = Math.min(max, slct.getSelectRange().get(attr).high) - Math.max(min, slct.getSelectRange().get(attr).low) + 1;
-		else
+		}
+		else if (slct.getChild() instanceof IndexScanOperator) {
+			result = vValSelect(attr, (IndexScanOperator) slct.getChild());
+		}
+		else {
 			result = max - min + 1;
+		}
 		
 		return Math.max(Math.min(result, tableInfo.getNumTuples()), 1);
 	}

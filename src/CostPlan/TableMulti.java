@@ -22,9 +22,19 @@ public class TableMulti extends TableSet2 {
 	/* ================================== 
 	 * Fields
 	 * ================================== */
-	private TableSet2 left; //
-	private TableSingle right; // left child
+	private TableSet2 left; // left child
+	private TableSingle right; // right child
 	
+	/* ================================== 
+	 * Constructor
+	 * ================================== */
+	/**
+	 * Constructor
+	 * @param left - left child
+	 * @param right - right child
+	 * @param vVals - vVals map
+	 * @param union - union find structure
+	 */
 	public TableMulti(TableSet2 left, TableSingle right, HashMap<vWrapper, Long> vVals, UnionFind union) {
 		super(vVals, union);
 		
@@ -36,7 +46,7 @@ public class TableMulti extends TableSet2 {
 		this.tables.addAll(right.getTables());
 		
 		if (left instanceof TableSingle) {
-			if (left.getnTuples() <= right.getnTuples())
+			if (left.getnTuples() <= right.getnTuples()) //left child is leaf
 				this.cost = 0;
 			else 
 				this.cost = Long.MAX_VALUE;
@@ -88,6 +98,7 @@ public class TableMulti extends TableSet2 {
 	 * Computes the number of tuples
 	 */
 	private long computeNumTuples() {
+		// get size of left & right children
 		long leftSize = this.left.getnTuples();
 		long rightSize = this.right.getnTuples();
 		
@@ -115,6 +126,7 @@ public class TableMulti extends TableSet2 {
 		// hold vVals maxes to be multiplied together
 		ArrayList<Long> vVals = new ArrayList<Long>();
 		
+		// get relevant vVals
 		for (UnionFindElement condList : goodPartitions) {
 			long max = 1;
 			

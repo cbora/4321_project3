@@ -37,8 +37,9 @@ public abstract class Operator {
 //	 */
 //	public abstract int getRelationSize();
 	/**
-	 * prints method
-	 * @return
+	 * obtain string representation of plan
+	 * @param depth - depth of current node
+	 * @return string representation of plan
 	 */
 	public abstract String prettyPrint(int depth);
 	

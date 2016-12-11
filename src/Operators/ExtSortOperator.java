@@ -86,7 +86,7 @@ public class ExtSortOperator extends SortOperator {
 		this.prev_run_index = 0;
 		this.pass = 0;
 		this.curr_run = 0;
-		
+
 		makeTemp(); // make subdirectory	
 		extsort();		
 	}
@@ -106,7 +106,7 @@ public class ExtSortOperator extends SortOperator {
 			ArrayList<String> a = new ArrayList<String>();	
 			for (int i=0; i < this.sort_order.length; i++){
 				for (String c: this.schema.keySet()){
-					if(schema.get(c) == i){						
+					if(schema.get(c) == sort_order[i]){	
 						a.add(c);
 					}
 				}

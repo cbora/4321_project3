@@ -46,7 +46,7 @@ import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
 /**
- * Visitor to determine whether to SMJ or revert to BNLJ
+ * Visitor to determine whether to SMJ or revert to BNLJ and separate out parts of join condition
  * 
  * @author Richard Henwood (rbh228)
  * @author Chris Bora (cdb239)
@@ -97,7 +97,7 @@ public class BuildJoinVisitor implements ExpressionVisitor {
 	
 	/**
 	 * 
-	 * @return Expression for join
+	 * @return List of expressions for join operators
 	 */
 	public ArrayList<Expression> getJoin() {
 		return this.join;

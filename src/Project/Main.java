@@ -167,6 +167,10 @@ public class Main {
 		}
 	}
 	
+	/**
+	 * build stats.txt
+	 * @param input where to print
+	 */
 	public static void buildStats(String input) {
 		DbCatalog dbC = DbCatalog.getInstance();
 		
@@ -246,20 +250,20 @@ public class Main {
 					PrintWriter writer = new PrintWriter(outputDir + "/query" + queryNum + "_logicalplan");
 					writer.write(logicalPlan);
 					writer.close();
-//					System.out.println("Logical plan");
-//					System.out.println(logicalPlan);
-//					System.out.println();
+					//System.out.println("Logical plan");
+					//System.out.println(logicalPlan);
+					//System.out.println();
 						
 					PhysicalPlanBuilder ppb = new PhysicalPlanBuilder(po, tmpDir);
 					Operator o = ppb.getResult();
 					
 					String physicalPlan = o.prettyPrint(0);
-					writer = new PrintWriter(outputDir + "/query" + queryNum + "_physicalPlan");
+					writer = new PrintWriter(outputDir + "/query" + queryNum + "_physicalplan");
 					writer.write(physicalPlan);
 					writer.close();
-//					System.out.println("Physical plan");
-//					System.out.println(physicalPlan);
-//					System.out.println();
+					//System.out.println("Physical plan");
+					//System.out.println(physicalPlan);
+					//System.out.println();
 					
 					BinaryTupleWriter writ = new BinaryTupleWriter(outputDir + "/query" + queryNum );
 					//HumanTupleWriter writ = new HumanTupleWriter(outputDir + "/query" + queryNum);

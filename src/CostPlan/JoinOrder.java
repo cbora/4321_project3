@@ -58,6 +58,7 @@ public class JoinOrder {
 	private void loop() {
 		int n = children.size();
 		
+		// handle single table cases
 		ArrayList<TableSet2> prevSet = new ArrayList<TableSet2>();
 		for(int i=0; i<n; i++){
 			TableSingle base = new TableSingle(children.get(i).getTableID(), children.get(i), this.vVals, this.union);
@@ -67,6 +68,7 @@ public class JoinOrder {
 		
 		ArrayList<TableSet2> nextset = new ArrayList<TableSet2>();
 
+		// loop through larger cases until have full plan
 		while(prevSet.size() > 1){
 			for(TableSet2 ts : prevSet){
 				for (int i = 0; i < children.size(); i++) {
@@ -74,6 +76,8 @@ public class JoinOrder {
 					if(!(ts.getTables().contains(s))){
 						TableSet2 newts = new TableMulti(ts, baseTables.get(i), this.vVals, this.union);
 						//System.out.println(newts.getTables() + " cost: " + newts.getCost() + ", size: " + newts.getnTuples());
+						
+						// eliminate if more expensive that exisiting plan over same tables
 						eliminate(nextset, newts);
 					}
 				}	
@@ -85,6 +89,7 @@ public class JoinOrder {
 		
 		//System.out.println("Cost of plan: " + prevSet.get(0).getCost());
 		
+		// develop table mapping based on plans
 		for (TableSet2 result : prevSet) {
 			int i = 0;
 			for (String table : result.getTables()) {
@@ -100,7 +105,7 @@ public class JoinOrder {
 	 * @param ts
 	 */
 	private void eliminate(ArrayList<TableSet2> newts, TableSet2 ts) {
-		
+		// if there is an existing plan with same tables as ts that is cheaper, do not add ts to newts
 		for(int i=0; i<newts.size(); i++){
 			if(ts.getTables().containsAll(newts.get(i).getTables())){
 				if(ts.getCost() < newts.get(i).getCost()){

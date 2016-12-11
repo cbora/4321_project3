@@ -17,9 +17,9 @@ public class TableInfo {
 	 * ================================== */
 	private String filePath; // path to file containing table
 	private String tableName; // name of table
-	private int nTuples;
+	private int nTuples; // number tuples in table
 	private LinkedHashMap<String, ColumnInfo> columns; // name of the columns in order
-	private String clusteredIndex;
+	private String clusteredIndex; // what is the clustered index (if any)
 	
 	/* ================================== 
 	 * Constructors
@@ -80,18 +80,34 @@ public class TableInfo {
 		return columns;
 	}	
 	
+	/**
+	 * 
+	 * @return nTuples
+	 */
 	public int getNumTuples() {
 		return this.nTuples;
 	}
 	
+	/**
+	 * setter for nTuples
+	 * @param n
+	 */
 	public void setNumTuples(int n) {
 		this.nTuples = n;
 	}
 	
+	/**
+	 * 
+	 * @return name of column with clustered index (or null if none exists)
+	 */
 	public String getClusteredIndex() {
 		return this.clusteredIndex;
 	}
 	
+	/**
+	 * setter for clustered index col name
+	 * @param clusteredIndex
+	 */
 	public void setClusteredIndex(String clusteredIndex) {
 		this.clusteredIndex = clusteredIndex;
 	}

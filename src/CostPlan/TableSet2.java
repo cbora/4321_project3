@@ -5,16 +5,24 @@ import java.util.LinkedHashSet;
 
 import Project.UnionFind;
 
+/**
+ * Represents node in left deep join plan
+ * 
+ * @author Richard Henwood (rbh228)
+ * @author Chris Bora (cdb239)
+ * @author Han Wen Chen (hc844)
+ *
+ */
 public abstract class TableSet2 {
 
 	/* ================================== 
 	 * Fields
 	 * ================================== */
-	protected long cost;
-	protected long nTuples;
-	protected LinkedHashSet<String> tables;
-	protected HashMap<vWrapper, Long> vVals;
-	protected UnionFind union;
+	protected long cost; // cost of plan
+	protected long nTuples; // size of plan
+	protected LinkedHashSet<String> tables; // tables in plan
+	protected HashMap<vWrapper, Long> vVals; // vval map
+	protected UnionFind union; // union find structor
 	
 
 	/* ================================== 
@@ -22,8 +30,8 @@ public abstract class TableSet2 {
 	 * ================================== */
 	/**
 	 * Constructor
-	 * @param vVals
-	 * @param union
+	 * @param vVals - vval map
+	 * @param union - union find structure
 	 */
 	public TableSet2(HashMap<vWrapper, Long> vVals, UnionFind union) {
 		this.vVals = vVals;
@@ -34,6 +42,11 @@ public abstract class TableSet2 {
 	 * Methods
 	 * ================================== */
 	
+	/**
+	 * computes the vval associates with attr
+	 * @param attr - attribute we want the vval of
+	 * @return v value 
+	 */
 	public abstract long vValCompute(String attr);
 	
 	/**

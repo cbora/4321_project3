@@ -15,7 +15,7 @@ public class ColumnInfo {
 	 * Fields
 	 * ================================== */
 	public String column; // col name
-	public int pos;
+	public int pos; // position of column in tuple
 	public int min; // min value
 	public int max; // max value
 	private IndexInfo indexInfo; // index info for this column
